@@ -16,7 +16,7 @@ export default function NuevoEventoPage() {
     location: '',
     capacity: '',
     image: '',
-    status: 'draft' as 'draft' | 'published',
+    status: 'published' as 'draft' | 'published',
   })
 
   const generateSlug = (name: string) => {
@@ -219,11 +219,12 @@ export default function NuevoEventoPage() {
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="draft">Borrador</option>
-                <option value="published">Publicado</option>
+                <option value="published">✅ Publicado (visible para todos)</option>
+                <option value="draft">📝 Borrador (solo admin)</option>
               </select>
               <p className="mt-1 text-sm text-gray-500">
-                Los eventos en borrador no aparecerán en la página pública
+                <strong>Publicado:</strong> El evento aparece en la página pública y usuarios pueden registrarse<br />
+                <strong>Borrador:</strong> Solo visible en el admin panel
               </p>
             </div>
 
