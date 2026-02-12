@@ -125,12 +125,15 @@ export default function AdminAsistentesPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Check-in
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {attendees.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                   No hay asistentes registrados aún
                 </td>
               </tr>
@@ -156,6 +159,14 @@ export default function AdminAsistentesPage() {
                     >
                       {attendee.checkedIn ? 'Sí' : 'No'}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <a
+                      href={`/admin/asistentes/${eventId}/editar/${attendee.registrationId}`}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      Editar
+                    </a>
                   </td>
                 </tr>
               ))

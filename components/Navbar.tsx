@@ -25,10 +25,10 @@ export function Navbar() {
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-1">
             {[
-              { href: '/proyectos', label: 'Proyectos' },
+              { href: '/nosotros', label: 'Nosotros' },
               { href: '/eventos', label: 'Eventos' },
-              { href: '/impacto', label: 'Impacto' },
-              { href: '/sobre-nosotros', label: 'Sobre Nosotros' },
+              { href: '/galeria', label: 'Galería' },
+              { href: '/contacto', label: 'Contacto' },
             ].map((item) => (
               <Link 
                 key={item.href}
@@ -68,17 +68,17 @@ export function Navbar() {
         {isMenuOpen && (
           <div className="lg:hidden py-4 border-t border-gray-100">
             <div className="flex flex-col space-y-4">
-              <Link href="/proyectos" className="text-gray-700 hover:text-gray-900 transition font-medium">
-                Proyectos
+              <Link href="/nosotros" className="text-gray-700 hover:text-gray-900 transition font-medium">
+                Nosotros
               </Link>
               <Link href="/eventos" className="text-gray-700 hover:text-gray-900 transition font-medium">
                 Eventos
               </Link>
-              <Link href="/impacto" className="text-gray-700 hover:text-gray-900 transition font-medium">
-                Impacto
+              <Link href="/galeria" className="text-gray-700 hover:text-gray-900 transition font-medium">
+                Galería
               </Link>
-              <Link href="/sobre-nosotros" className="text-gray-700 hover:text-gray-900 transition font-medium">
-                Sobre Nosotros
+              <Link href="/contacto" className="text-gray-700 hover:text-gray-900 transition font-medium">
+                Contacto
               </Link>
               <Link 
                 href="/donar" 

@@ -56,6 +56,9 @@ export default function AdminLayout({
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Panel de Administración</h1>
             <nav className="space-x-4">
+              <a href="/admin/dashboard" className="text-blue-600 hover:underline">
+                Dashboard
+              </a>
               <a href="/admin/eventos" className="text-blue-600 hover:underline">
                 Eventos
               </a>
