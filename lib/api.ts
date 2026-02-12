@@ -4,7 +4,15 @@ interface RegisterEventData {
   name: string
   email: string
   phone?: string
+  fullName?: string
+  ageRange?: string
+  gender?: string
+  city?: string
+  organization?: string
+  otherOrganization?: string
   termsAccepted?: boolean
+  signature?: string
+  signatureDate?: string
 }
 
 interface CreateEventData {

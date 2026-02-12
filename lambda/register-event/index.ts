@@ -45,7 +45,15 @@ interface RegisterEventBody {
   name: string
   email: string
   phone?: string
+  fullName?: string
+  ageRange?: string
+  gender?: string
+  city?: string
+  organization?: string
+  otherOrganization?: string
   termsAccepted?: boolean
+  signature?: string
+  signatureDate?: string
 }
 
 export const handler = async (
@@ -78,7 +86,11 @@ export const handler = async (
     }
 
     const body: RegisterEventBody = JSON.parse(event.body || '{}')
-    const { name, email, phone, termsAccepted } = body
+    const { 
+      name, email, phone, termsAccepted,
+      fullName, ageRange, gender, city, organization, otherOrganization,
+      signature, signatureDate
+    } = body
 
     if (!name || !email) {
       return {
@@ -93,6 +105,15 @@ export const handler = async (
         statusCode: 400,
         headers,
         body: JSON.stringify({ message: 'You must accept the terms and conditions' }),
+      }
+    }
+
+    // Validar campos del formulario completo
+    if (!fullName || !ageRange || !gender || !city || !organization || !signature) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ message: 'All required fields must be completed' }),
       }
     }
 
@@ -112,6 +133,15 @@ export const handler = async (
           phone: phone || '',
           qrToken,
           termsAccepted: termsAccepted || false,
+          // Campos adicionales del formulario completo
+          fullName: fullName || name,
+          ageRange: ageRange || '',
+          gender: gender || '',
+          city: city || '',
+          organization: organization || '',
+          otherOrganization: otherOrganization || '',
+          signature: signature || '',
+          signatureDate: signatureDate || new Date().toISOString().split('T')[0],
           createdAt: new Date().toISOString(),
           checkedIn: false,
         },
