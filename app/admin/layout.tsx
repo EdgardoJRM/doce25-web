@@ -32,10 +32,15 @@ export default function AdminLayout({
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !window.location.pathname.includes('/login')) {
       router.push('/admin/login')
     }
   }, [user, loading, router])
+
+  // Permitir que login se muestre sin autenticación
+  if (typeof window !== 'undefined' && window.location.pathname.includes('/login')) {
+    return <>{children}</>
+  }
 
   if (loading) {
     return (
