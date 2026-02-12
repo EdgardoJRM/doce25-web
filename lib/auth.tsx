@@ -1,7 +1,20 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
+import { Amplify } from 'aws-amplify'
 import { signIn as amplifySignIn, signOut as amplifySignOut, getCurrentUser } from 'aws-amplify/auth'
+
+// Configurar Amplify en el cliente
+if (typeof window !== 'undefined') {
+  Amplify.configure({
+    Auth: {
+      Cognito: {
+        userPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || '',
+        userPoolClientId: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '',
+      },
+    },
+  }, { ssr: true })
+}
 
 interface User {
   username: string
