@@ -153,6 +153,54 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventsTable
 
+  GetEventByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-event-by-id/
+      Handler: index.handler
+      Events:
+        GetEventById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+
+  CreateEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/create-event/
+      Handler: index.handler
+      Events:
+        CreateEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventsTable
+
+  UpdateEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/update-event/
+      Handler: index.handler
+      Events:
+        UpdateEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}
+            Method: put
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventsTable
+
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
