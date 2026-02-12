@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
 
 export default function ContactoPage() {
   const [formData, setFormData] = useState({
@@ -43,9 +41,7 @@ export default function ContactoPage() {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-4xl font-bold text-gray-900 mb-4 text-center">
@@ -252,9 +248,7 @@ export default function ContactoPage() {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
+    </div>
   )
 }
 

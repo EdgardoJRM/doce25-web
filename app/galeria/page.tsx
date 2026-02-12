@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
 
 export default function GaleriaPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -63,9 +61,7 @@ export default function GaleriaPage() {
   ]
 
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -115,9 +111,7 @@ export default function GaleriaPage() {
             </div>
           )}
         </div>
-      </main>
-      <Footer />
-    </>
+    </div>
   )
 }
 

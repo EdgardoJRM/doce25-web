@@ -1,11 +1,6 @@
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
-
 export default function DonarPage() {
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen">
+    <div className="min-h-screen">
         {/* Hero */}
         <section className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white py-20">
           <div className="container mx-auto px-4 text-center">
@@ -207,9 +202,7 @@ export default function DonarPage() {
             </a>
           </div>
         </section>
-      </main>
-      <Footer />
-    </>
+    </div>
   )
 }
 

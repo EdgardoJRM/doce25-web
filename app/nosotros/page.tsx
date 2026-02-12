@@ -1,11 +1,6 @@
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
-
 export default function NosotrosPage() {
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen">
+    <div className="min-h-screen">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white py-20">
           <div className="container mx-auto px-4">
@@ -217,9 +212,7 @@ export default function NosotrosPage() {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
-    </>
+    </div>
   )
 }
 
