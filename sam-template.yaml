@@ -6,6 +6,7 @@ Globals:
   Function:
     Timeout: 30
     Runtime: nodejs20.x
+    Handler: index.handler
     Environment:
       Variables:
         EVENTS_TABLE: !Ref EventsTable
@@ -13,6 +14,8 @@ Globals:
         S3_BUCKET: !Ref QRCodesBucket
         SES_FROM_EMAIL: noreply@dosce25.org
         FRONTEND_URL: https://dosce25.org
+    Architectures:
+      - x86_64
 
 Resources:
   # DynamoDB Tables
@@ -121,6 +124,14 @@ Resources:
                 - ses:SendEmail
                 - ses:SendRawEmail
               Resource: '*'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   GetEventsFunction:
     Type: AWS::Serverless::Function
@@ -137,6 +148,14 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   GetEventBySlugFunction:
     Type: AWS::Serverless::Function
@@ -153,6 +172,14 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   GetEventByIdFunction:
     Type: AWS::Serverless::Function
@@ -169,6 +196,14 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   CreateEventFunction:
     Type: AWS::Serverless::Function
@@ -185,6 +220,14 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   UpdateEventFunction:
     Type: AWS::Serverless::Function
@@ -201,6 +244,14 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
@@ -217,6 +268,14 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref RegistrationsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   CheckInFunction:
     Type: AWS::Serverless::Function
@@ -235,6 +294,14 @@ Resources:
             TableName: !Ref RegistrationsTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   UpdateRegistrationFunction:
     Type: AWS::Serverless::Function
@@ -251,6 +318,14 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref RegistrationsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   DeleteRegistrationFunction:
     Type: AWS::Serverless::Function
@@ -267,6 +342,14 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref RegistrationsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   DeleteEventFunction:
     Type: AWS::Serverless::Function
@@ -283,6 +366,14 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   ResendQREmailFunction:
     Type: AWS::Serverless::Function
@@ -309,6 +400,14 @@ Resources:
                 - ses:SendEmail
                 - ses:SendRawEmail
               Resource: '*'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
   SendContactEmailFunction:
     Type: AWS::Serverless::Function
@@ -329,6 +428,14 @@ Resources:
                 - ses:SendEmail
                 - ses:SendRawEmail
               Resource: '*'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
 
 Outputs:
   ApiEndpoint:
