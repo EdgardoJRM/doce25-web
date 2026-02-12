@@ -1,0 +1,203 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Dosce25 API - Lambda functions for event registration
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs20.x
+    Environment:
+      Variables:
+        EVENTS_TABLE: !Ref EventsTable
+        REGISTRATIONS_TABLE: !Ref RegistrationsTable
+        S3_BUCKET: !Ref QRCodesBucket
+        SES_FROM_EMAIL: noreply@dosce25.org
+        FRONTEND_URL: https://dosce25.org
+
+Resources:
+  # DynamoDB Tables
+  EventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Dosce25-Events
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: eventId
+          AttributeType: S
+        - AttributeName: slug
+          AttributeType: S
+      KeySchema:
+        - AttributeName: eventId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: SlugIndex
+          KeySchema:
+            - AttributeName: slug
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  RegistrationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Dosce25-Registrations
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: registrationId
+          AttributeType: S
+        - AttributeName: eventId
+          AttributeType: S
+        - AttributeName: qrToken
+          AttributeType: S
+      KeySchema:
+        - AttributeName: registrationId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EventIdIndex
+          KeySchema:
+            - AttributeName: eventId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: QRTokenIndex
+          KeySchema:
+            - AttributeName: qrToken
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # S3 Bucket for QR codes
+  QRCodesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: dosce25-qr-codes
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - '*'
+            AllowedMethods:
+              - GET
+              - HEAD
+            AllowedHeaders:
+              - '*'
+
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: "'*'"
+
+  # Lambda Functions
+  RegisterEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/register-event/
+      Handler: index.handler
+      Events:
+        RegisterEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}/register
+            Method: post
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref RegistrationsTable
+        - S3WritePolicy:
+            BucketName: !Ref QRCodesBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: '*'
+
+  GetEventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-events/
+      Handler: index.handler
+      Events:
+        GetEvents:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+
+  GetEventBySlugFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-event-by-slug/
+      Handler: index.handler
+      Events:
+        GetEventBySlug:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/slug/{slug}
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+
+  GetRegistrationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-registrations/
+      Handler: index.handler
+      Events:
+        GetRegistrations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}/registrations
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref RegistrationsTable
+
+  CheckInFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/checkin/
+      Handler: index.handler
+      Events:
+        CheckIn:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /checkin/{token}
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RegistrationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod'
+  EventsTableName:
+    Description: Events DynamoDB Table Name
+    Value: !Ref EventsTable
+  RegistrationsTableName:
+    Description: Registrations DynamoDB Table Name
+    Value: !Ref RegistrationsTable
+  QRCodesBucketName:
+    Description: S3 Bucket for QR codes
+    Value: !Ref QRCodesBucket
+
