@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { registerForEvent } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface EventRegistrationFormProps {
   eventId: string
@@ -42,6 +43,7 @@ const ORGANIZACIONES = [
 ]
 
 export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationFormProps) {
+  const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
     email: '',
@@ -70,6 +72,21 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  // Auto-completar con datos del usuario si está logueado
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || prev.email,
+        fullName: user.fullName || prev.fullName,
+        ageRange: user.ageRange || prev.ageRange,
+        gender: user.gender || prev.gender,
+        city: user.city || prev.city,
+        organization: user.organization || prev.organization,
+      }))
+    }
+  }, [user])
 
   const validateStep1 = () => {
     if (!formData.email || !formData.fullName || !formData.ageRange || 

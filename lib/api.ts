@@ -261,3 +261,130 @@ export async function sendContactEmail(data: {
 
   return response.json()
 }
+
+// ==================== USER AUTH API ====================
+
+export interface RegisterUserData {
+  email: string
+  password: string
+  fullName: string
+  phone?: string
+  ageRange?: string
+  gender?: string
+  city?: string
+  organization?: string
+}
+
+export interface LoginUserData {
+  email: string
+  password: string
+}
+
+export interface UpdateUserProfileData {
+  fullName?: string
+  phone?: string
+  ageRange?: string
+  gender?: string
+  city?: string
+  organization?: string
+}
+
+export async function registerUser(data: RegisterUserData) {
+  const response = await fetch(`${API_ENDPOINT}/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error al registrar usuario' }))
+    throw new Error(error.message || 'Error al registrar usuario')
+  }
+
+  return response.json()
+}
+
+export async function loginUser(data: LoginUserData) {
+  const response = await fetch(`${API_ENDPOINT}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error al iniciar sesión' }))
+    throw new Error(error.message || 'Error al iniciar sesión')
+  }
+
+  return response.json()
+}
+
+export async function getUserProfile(token: string) {
+  const response = await fetch(`${API_ENDPOINT}/auth/profile`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Error al obtener perfil')
+  }
+
+  return response.json()
+}
+
+export async function updateUserProfile(token: string, data: UpdateUserProfileData) {
+  const response = await fetch(`${API_ENDPOINT}/auth/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    throw new Error('Error al actualizar perfil')
+  }
+
+  return response.json()
+}
+
+export async function getUserRegistrations(token: string, userId: string) {
+  const response = await fetch(`${API_ENDPOINT}/users/${userId}/registrations`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Error al obtener registros')
+  }
+
+  return response.json()
+}
+
+// ==================== ADMIN API ====================
+
+export async function getAllUsers() {
+  const response = await fetch(`${API_ENDPOINT}/admin/users`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Error al obtener usuarios')
+  }
+
+  return response.json()
+}

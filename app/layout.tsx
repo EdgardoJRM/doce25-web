@@ -3,7 +3,8 @@ import { Inter, Playfair_Display, Poppins } from 'next/font/google'
 import './globals.css'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
-import { AuthProvider } from '@/lib/auth'
+import { AuthProvider as CognitoAuthProvider } from '@/lib/auth'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -37,13 +38,15 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${playfair.variable} ${poppins.variable}`}>
       <body className="font-poppins antialiased">
-        <AuthProvider>
-          <Navbar />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
-        </AuthProvider>
+        <CognitoAuthProvider>
+          <AuthProvider>
+            <Navbar />
+            <main className="min-h-screen">
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
+        </CognitoAuthProvider>
       </body>
     </html>
   )

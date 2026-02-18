@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const { user, logout } = useAuth()
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -20,7 +22,7 @@ export function Navbar() {
               Doce25
             </span>
           </Link>
-
+          
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-1">
             {/* Nuestra Historia Dropdown */}
@@ -159,7 +161,7 @@ export function Navbar() {
                   </Link>
                   <Link href="/galeria" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Galería de Fotos
-                  </Link>
+              </Link>
                 </div>
               )}
             </div>
@@ -179,12 +181,49 @@ export function Navbar() {
             >
               Tomar Acción
             </Link>
-            <Link
-              href="/contacto"
-              className="text-gray-700 hover:text-cyan-600 font-medium transition-colors"
-            >
-              Suscribirse
-            </Link>
+            
+            {/* User Menu or Login */}
+            {user ? (
+              <div 
+                className="relative"
+                onMouseEnter={() => setActiveDropdown('user')}
+                onMouseLeave={() => setActiveDropdown(null)}
+              >
+                <button className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-cyan-600 font-medium transition-colors">
+                  <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    {user.fullName.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="hidden xl:inline">{user.fullName.split(' ')[0]}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {activeDropdown === 'user' && (
+                  <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-xl py-2 animate-slide-in">
+                    <Link href="/perfil" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                      Mi Perfil
+                    </Link>
+                    <Link href="/perfil/editar" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                      Editar Perfil
+                    </Link>
+                    <div className="border-t border-gray-100 my-2"></div>
+                    <button 
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="text-gray-700 hover:text-cyan-600 font-medium transition-colors"
+              >
+                Iniciar Sesión
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -193,14 +232,14 @@ export function Navbar() {
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             {isOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            ) : (
+              ) : (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-            )}
+              )}
           </button>
         </div>
 
@@ -221,8 +260,8 @@ export function Navbar() {
                 Contacto
               </Link>
               <div className="pt-4 space-y-2">
-                <Link
-                  href="/donar"
+              <Link 
+                href="/donar" 
                   className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold text-center hover:shadow-lg transition-all"
                 >
                   Donar Ahora
@@ -232,7 +271,7 @@ export function Navbar() {
                   className="block w-full border-2 border-cyan-600 text-cyan-600 px-6 py-3 rounded-lg font-semibold text-center hover:bg-cyan-50 transition-colors"
                 >
                   Tomar Acción
-                </Link>
+              </Link>
               </div>
             </div>
           </div>

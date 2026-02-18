@@ -67,6 +67,9 @@ export default function AdminLayout({
               <a href="/admin/eventos" className="text-blue-600 hover:underline">
                 Eventos
               </a>
+              <a href="/admin/usuarios" className="text-blue-600 hover:underline">
+                👥 Usuarios
+              </a>
               <a href="/admin/scanner" className="text-blue-600 hover:underline">
                 📱 Escáner QR
               </a>

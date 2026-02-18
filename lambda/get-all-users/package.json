@@ -1,0 +1,11 @@
+{
+  "name": "get-all-users",
+  "version": "1.0.0",
+  "description": "Lambda to get all users for admin",
+  "main": "index.ts",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0"
+  }
+}
+
