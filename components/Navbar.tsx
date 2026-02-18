@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 
 export function Navbar() {
@@ -26,17 +27,17 @@ export function Navbar() {
         {/* Main Navigation */}
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className={`transition-all duration-300 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center ${
-              isScrolled ? 'w-10 h-10' : 'w-12 h-12'
-            } group-hover:scale-110 group-hover:shadow-lg`}>
-              <span className={`text-white font-bold ${isScrolled ? 'text-lg' : 'text-xl'}`}>D25</span>
-            </div>
-            <span className={`font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent transition-all ${
-              isScrolled ? 'text-xl' : 'text-2xl'
-            }`}>
-              Doce25
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image 
+              src="/doce25-logo.png" 
+              alt="Doce25" 
+              width={150}
+              height={48}
+              priority
+              className={`transition-all duration-300 ${
+                isScrolled ? 'h-10' : 'h-12'
+              } w-auto group-hover:scale-105`}
+            />
           </Link>
 
           {/* Desktop Menu */}

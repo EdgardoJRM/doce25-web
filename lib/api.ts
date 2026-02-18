@@ -1,6 +1,6 @@
 const API_ENDPOINT = process.env.NEXT_PUBLIC_API_ENDPOINT || ''
 
-interface RegisterEventData {
+export interface RegisterEventData {
   name: string
   email: string
   phone?: string
@@ -45,12 +45,19 @@ interface UpdateRegistrationData {
   phone?: string
 }
 
-export async function registerForEvent(eventId: string, data: RegisterEventData) {
+export async function registerForEvent(eventId: string, data: RegisterEventData, token?: string) {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+  
+  // Agregar token JWT si el usuario está logueado
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
   const response = await fetch(`${API_ENDPOINT}/events/${eventId}/register`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(data),
   })
 

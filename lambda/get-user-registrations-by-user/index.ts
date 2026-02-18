@@ -1,10 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, ScanCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import * as jwt from 'jsonwebtoken'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 const REGISTRATIONS_TABLE = process.env.REGISTRATIONS_TABLE || 'Dosce25-Registrations'
+const USERS_TABLE = process.env.USERS_TABLE || 'Dosce25-Users'
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
 
 const headers = {
@@ -57,16 +58,31 @@ export const handler = async (
       }
     }
 
-    // Obtener registros del usuario
-    // Nota: Necesitamos crear un GSI en Registrations con userId
-    // Por ahora hacemos un scan con filtro (no óptimo para producción)
+    // Obtener el email del usuario desde la tabla de Users
+    const userResult = await dynamoClient.send(
+      new GetCommand({
+        TableName: USERS_TABLE,
+        Key: { userId },
+      })
+    )
+
+    if (!userResult.Item) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ message: 'Usuario no encontrado' }),
+      }
+    }
+
+    const userEmail = userResult.Item.email
+
+    // Buscar registros por email (funciona con registros viejos y nuevos)
     const result = await dynamoClient.send(
-      new QueryCommand({
+      new ScanCommand({
         TableName: REGISTRATIONS_TABLE,
-        IndexName: 'UserIdIndex', // Crearemos este índice
-        KeyConditionExpression: 'userId = :userId',
+        FilterExpression: 'email = :email',
         ExpressionAttributeValues: {
-          ':userId': userId,
+          ':email': userEmail,
         },
       })
     )

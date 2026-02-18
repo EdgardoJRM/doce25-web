@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { registerEvent, type RegisterEventData } from '@/lib/api'
+import { registerForEvent, RegisterEventData } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface EventRegistrationFormProps {
@@ -10,7 +10,7 @@ interface EventRegistrationFormProps {
 }
 
 export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationFormProps) {
-  const { user } = useAuth()
+  const { user, token } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -152,7 +152,8 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
         signatureDate: formData.signatureDate,
       }
 
-      await registerEvent(eventId, data)
+      // Enviar token si el usuario está logueado
+      await registerForEvent(eventId, data, token || undefined)
       
       if (onSuccess) {
         onSuccess()
