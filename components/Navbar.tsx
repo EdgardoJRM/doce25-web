@@ -9,7 +9,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
-  const { user, signOut } = useAuth()
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -150,7 +150,7 @@ export function Navbar() {
                     </Link>
                     <div className="border-t border-gray-100 mt-2 pt-2">
                       <button 
-                        onClick={signOut}
+                        onClick={logout}
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         Cerrar Sesión
@@ -232,7 +232,7 @@ export function Navbar() {
                       Mi Perfil
                     </Link>
                     <button
-                      onClick={signOut}
+                      onClick={logout}
                       className="block w-full border-2 border-red-300 text-red-600 px-6 py-3 rounded-full font-semibold text-center hover:bg-red-50 transition-all text-sm"
                     >
                       Cerrar Sesión
