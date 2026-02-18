@@ -1,0 +1,225 @@
+<!-- Visor Seguro: Persuasión Peligrosa -->
+<style>
+  #pdf-viewer {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    user-select: none;
+    position: relative;
+    padding: 20px 10px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  #pdf-image {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border: 2px solid #ddd;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  #overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    font-weight: bold;
+    opacity: 0;
+    z-index: 9999;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  #watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    color: rgba(255, 0, 0, 0.25);
+    font-size: 2rem;
+    font-weight: bold;
+    z-index: 999;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .btn {
+    background-color: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.3s;
+    flex: 1 1 auto;
+    min-width: 120px;
+  }
+
+  .btn:hover {
+    background-color: #5568d3;
+  }
+
+  .btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .page-input {
+    width: 60px;
+    font-size: 16px;
+    text-align: center;
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+  }
+
+  @media (max-width: 480px) {
+    .btn {
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .page-input {
+      width: 50px;
+      font-size: 14px;
+    }
+
+    #watermark {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<div id="pdf-viewer">
+  <img id="pdf-image" src="" oncontextmenu="return false;">
+  <div id="overlay">⚠️ ACCIÓN BLOQUEADA</div>
+  <div id="watermark"></div>
+  <div class="nav-buttons">
+    <button class="btn" id="prev-btn" onclick="prevPage()">⬅️ Anterior</button>
+    <input type="number" id="page-input" class="page-input" value="1" min="1" max="19" onchange="goToPage(this.value)">
+    <span style="font-size:16px;"> / <span id="total-pages">19</span></span>
+    <button class="btn" id="next-btn" onclick="nextPage()">Siguiente ➡️</button>
+  </div>
+</div>
+
+<script>
+  const libro = "persuasion-peligrosa";
+  const totalPages = 19;
+  const apiBase = "https://dfafuyp2b5.execute-api.us-east-1.amazonaws.com/prod/get-url";
+  let currentPage = 1;
+
+  async function updateImage() {
+    const imgElement = document.getElementById("pdf-image");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    
+    try {
+      const res = await fetch(`${apiBase}?libro=${libro}&pagina=${currentPage}`);
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
+      const data = await res.json();
+      imgElement.src = data.url;
+      document.getElementById("page-input").value = currentPage;
+      
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages;
+    } catch (error) {
+      console.error("Error:", error);
+      alert("❌ Error al cargar la página");
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      updateImage();
+      updateWatermark();
+    }
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages) {
+      currentPage++;
+      updateImage();
+      updateWatermark();
+    }
+  }
+
+  function goToPage(page) {
+    let pageNumber = parseInt(page);
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      currentPage = pageNumber;
+      updateImage();
+      updateWatermark();
+    } else {
+      alert(`⚠️ Ingresa un número entre 1 y ${totalPages}`);
+      document.getElementById("page-input").value = currentPage;
+    }
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      document.getElementById("pdf-image").src = "";
+    } else {
+      updateImage();
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (
+      event.key === "PrintScreen" ||
+      (event.ctrlKey && event.key === "s") ||
+      (event.metaKey && event.shiftKey && (event.key === "3" || event.key === "4"))
+    ) {
+      let overlay = document.getElementById("overlay");
+      overlay.style.opacity = "1";
+      setTimeout(() => {
+        overlay.style.opacity = "0";
+      }, 1000);
+      alert("⚠️ Captura de pantalla bloqueada.");
+      event.preventDefault();
+    }
+    
+    if (event.target.tagName !== "INPUT") {
+      if (event.key === "ArrowLeft") prevPage();
+      if (event.key === "ArrowRight") nextPage();
+    }
+  });
+
+  document.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+    alert("⚠️ Click derecho deshabilitado");
+  });
+
+  function updateWatermark() {
+    let now = new Date();
+    let formattedDate = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+    document.getElementById("watermark").innerText = `Confidencial - ${formattedDate}`;
+  }
+
+  setInterval(updateWatermark, 1000);
+
+  updateWatermark();
+  updateImage();
+</script>

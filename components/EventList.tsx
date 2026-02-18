@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { getEvents } from '@/lib/api'
 
 interface Event {
   eventId: string
@@ -11,32 +12,46 @@ interface Event {
   description: string
   slug: string
   imageUrl?: string
+  image?: string
 }
 
 export function EventList() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    // TODO: Fetch events from API
-    // Por ahora datos mock
-    setTimeout(() => {
-      setEvents([
-        {
-          eventId: '1',
-          name: 'Gran Limpieza de Playas 2024',
-          date: '2024-12-25',
-          location: 'Playa del Carmen, Quintana Roo',
-          description: 'Únete a nuestra jornada de limpieza masiva en las playas de Quintana Roo.',
-          slug: 'gran-limpieza-playas-2024',
-        },
-      ])
-      setLoading(false)
-    }, 500)
+    const fetchEvents = async () => {
+      try {
+        const data = await getEvents()
+        setEvents(data)
+      } catch (err: any) {
+        console.error('Error fetching events:', err)
+        setError(err.message || 'Error al cargar eventos')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
   }, [])
 
   if (loading) {
-    return <div className="text-center py-12">Cargando eventos...</div>
+    return (
+      <div className="text-center py-12">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-cyan-500 border-t-transparent"></div>
+        <p className="mt-4 text-gray-600">Cargando eventos...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600 text-lg">❌ {error}</p>
+        <p className="text-gray-500 mt-2">Por favor intenta de nuevo más tarde.</p>
+      </div>
+    )
   }
 
   if (events.length === 0) {
@@ -56,7 +71,17 @@ export function EventList() {
           href={`/eventos/${event.slug}`}
           className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
         >
-          <div className="h-48 bg-gradient-to-br from-blue-400 to-ocean-500"></div>
+          {event.image || event.imageUrl ? (
+            <img 
+              src={event.image || event.imageUrl} 
+              alt={event.name}
+              className="h-48 w-full object-cover"
+            />
+          ) : (
+            <div className="h-48 bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center">
+              <span className="text-white text-6xl">🌊</span>
+            </div>
+          )}
           <div className="p-6">
             <h3 className="text-xl font-semibold mb-2 text-gray-900">{event.name}</h3>
             <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>

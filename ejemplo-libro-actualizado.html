@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lector de Libros Digitales - Persuasión Peligrosa</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Overlay anti-screenshot */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 0, 0, 0.9);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: bold;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: opacity 0.3s;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 800px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .viewer {
+      padding: 30px;
+      position: relative;
+    }
+
+    #pdf-image {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .controls {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .page-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    #page-input {
+      width: 60px;
+      padding: 8px;
+      text-align: center;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 1.5rem;
+      color: rgba(255, 0, 0, 0.2);
+      font-weight: bold;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 10;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px;
+      color: #667eea;
+      font-size: 1.2rem;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .footer {
+      background: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .footer strong {
+      color: #333;
+    }
+
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay">⚠️ ACCIÓN BLOQUEADA</div>
+
+  <div class="container">
+    <div class="header">
+      <h1>📖 Persuasión Peligrosa</h1>
+      <p>Lectura digital protegida con marcas de agua y URLs temporales</p>
+    </div>
+
+    <div class="viewer">
+      <div id="watermark" class="watermark">Confidencial</div>
+      <img id="pdf-image" src="" alt="Cargando página..." />
+      
+      <div class="controls">
+        <button id="prev-btn" onclick="prevPage()">⬅️ Anterior</button>
+        
+        <div class="page-info">
+          <span>Página</span>
+          <input 
+            type="number" 
+            id="page-input" 
+            min="1" 
+            max="19" 
+            onchange="goToPage(this.value)"
+          />
+          <span>de <strong id="total-pages">19</strong></span>
+        </div>
+        
+        <button id="next-btn" onclick="nextPage()">Siguiente ➡️</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <strong>⚠️ Contenido Protegido</strong><br>
+      Este material es confidencial. Screenshots bloqueados • Click derecho deshabilitado • URLs temporales (expiran en 5 min)
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // 🔧 CONFIGURACIÓN
+    // ============================================
+    const libro = "persuasion-peligrosa";
+    const totalPages = 19;
+    
+    // ⚠️ NUEVO ENDPOINT ACTUALIZADO
+    const apiBase = "https://dfafuyp2b5.execute-api.us-east-1.amazonaws.com/prod/get-url";
+    
+    let currentPage = 1;
+
+    // ============================================
+    // 📖 FUNCIONES DE NAVEGACIÓN
+    // ============================================
+    
+    async function updateImage() {
+      const imgElement = document.getElementById("pdf-image");
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+      
+      try {
+        // Mostrar loading
+        imgElement.alt = "Cargando...";
+        
+        // Hacer petición al API
+        const res = await fetch(`${apiBase}?libro=${libro}&pagina=${currentPage}`);
+        
+        if (!res.ok) {
+          throw new Error(`Error: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        // Actualizar imagen
+        imgElement.src = data.url;
+        imgElement.alt = `Página ${currentPage} de ${totalPages}`;
+        
+        // Actualizar input
+        document.getElementById("page-input").value = currentPage;
+        
+        // Actualizar botones
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+        
+      } catch (error) {
+        console.error("Error al cargar la imagen:", error);
+        imgElement.alt = "Error al cargar la página";
+        alert("❌ Error al cargar la página. Por favor, recarga la página.");
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        updateImage();
+        updateWatermark();
+      }
+    }
+
+    function nextPage() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        updateImage();
+        updateWatermark();
+      }
+    }
+
+    function goToPage(page) {
+      let pageNumber = parseInt(page);
+      if (pageNumber >= 1 && pageNumber <= totalPages) {
+        currentPage = pageNumber;
+        updateImage();
+        updateWatermark();
+      } else {
+        alert(`⚠️ Por favor, ingresa un número entre 1 y ${totalPages}`);
+        document.getElementById("page-input").value = currentPage;
+      }
+    }
+
+    // ============================================
+    // 🔒 MEDIDAS DE SEGURIDAD
+    // ============================================
+
+    // Ocultar imagen al cambiar de pestaña
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        document.getElementById("pdf-image").src = "";
+      } else {
+        updateImage();
+      }
+    });
+
+    // Bloquear capturas de pantalla
+    document.addEventListener("keydown", function (event) {
+      if (
+        event.key === "PrintScreen" ||
+        (event.ctrlKey && event.key === "s") ||
+        (event.metaKey && event.shiftKey && (event.key === "3" || event.key === "4"))
+      ) {
+        let overlay = document.getElementById("overlay");
+        overlay.style.opacity = "1";
+        setTimeout(() => {
+          overlay.style.opacity = "0";
+        }, 1000);
+        alert("⚠️ Captura de pantalla bloqueada.");
+        event.preventDefault();
+      }
+    });
+
+    // Bloquear click derecho
+    document.addEventListener("contextmenu", function (event) {
+      event.preventDefault();
+      alert("⚠️ Click derecho deshabilitado.");
+    });
+
+    // Bloquear arrastrar imagen
+    document.getElementById("pdf-image").addEventListener("dragstart", function(event) {
+      event.preventDefault();
+    });
+
+    // ============================================
+    // 🏷️ WATERMARK DINÁMICO
+    // ============================================
+
+    function updateWatermark() {
+      let now = new Date();
+      let formattedDate = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+      document.getElementById("watermark").innerText = `Confidencial - ${formattedDate}`;
+    }
+
+    // Actualizar watermark cada segundo
+    setInterval(updateWatermark, 1000);
+
+    // ============================================
+    // 🚀 NAVEGACIÓN CON TECLADO
+    // ============================================
+
+    document.addEventListener("keydown", function(event) {
+      // Evitar que otras funciones interfieran
+      if (event.target.tagName === "INPUT") return;
+      
+      switch(event.key) {
+        case "ArrowLeft":
+          prevPage();
+          break;
+        case "ArrowRight":
+          nextPage();
+          break;
+        case "Home":
+          currentPage = 1;
+          updateImage();
+          updateWatermark();
+          break;
+        case "End":
+          currentPage = totalPages;
+          updateImage();
+          updateWatermark();
+          break;
+      }
+    });
+
+    // ============================================
+    // 🎬 INICIALIZACIÓN
+    // ============================================
+
+    // Iniciar al cargar la página
+    window.addEventListener("load", function() {
+      updateWatermark();
+      updateImage();
+      
+      console.log("📚 Lector de libros digitales inicializado");
+      console.log("🔒 Medidas de seguridad activas");
+      console.log("⌨️ Usa ← y → para navegar");
+    });
+  </script>
+</body>
+</html>
+

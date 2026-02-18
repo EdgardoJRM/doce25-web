@@ -1,0 +1,66 @@
+<style>
+  .libro-viewer-container * { margin: 0; padding: 0; box-sizing: border-box; }
+  .libro-viewer-container { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+  #libro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.9); color: white; display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: bold; opacity: 0; pointer-events: none; z-index: 9999; transition: opacity 0.3s; }
+  .libro-container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden; }
+  .libro-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 30px; text-align: center; }
+  .libro-header h1 { font-size: 2rem; margin-bottom: 10px; }
+  .libro-header p { opacity: 0.9; font-size: 0.9rem; }
+  .libro-viewer { padding: 30px; position: relative; }
+  .libro-image { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); display: block; user-select: none; -webkit-user-drag: none; }
+  .libro-controls { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+  .libro-btn { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; }
+  .libro-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+  .libro-btn:active { transform: translateY(0); }
+  .libro-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .libro-page-info { display: flex; align-items: center; gap: 10px; flex: 1; justify-content: center; }
+  .libro-page-input { width: 60px; padding: 8px; text-align: center; border: 2px solid #4facfe; border-radius: 8px; font-size: 1rem; font-weight: 600; }
+  .libro-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 1.5rem; color: rgba(255, 0, 0, 0.2); font-weight: bold; pointer-events: none; white-space: nowrap; z-index: 10; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); }
+  .libro-footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 0.85rem; }
+  @media (max-width: 600px) { .libro-header h1 { font-size: 1.5rem; } .libro-controls { flex-direction: column; } .libro-btn { width: 100%; } }
+</style>
+
+<div class="libro-viewer-container">
+  <div id="libro-overlay">⚠️ ACCIÓN BLOQUEADA</div>
+  <div class="libro-container">
+    <div class="libro-header">
+      <h1>📖 Guía de Segmentación</h1>
+      <p>Lectura digital protegida • 17 páginas</p>
+    </div>
+    <div class="libro-viewer">
+      <div id="libro-watermark" class="libro-watermark">Confidencial</div>
+      <img id="libro-image" class="libro-image" src="" alt="Cargando..." />
+      <div class="libro-controls">
+        <button id="libro-prev-btn" class="libro-btn" onclick="libroPrevPage()">⬅️ Anterior</button>
+        <div class="libro-page-info">
+          <span>Página</span>
+          <input type="number" id="libro-page-input" class="libro-page-input" min="1" max="17" onchange="libroGoToPage(this.value)" />
+          <span>de <strong>17</strong></span>
+        </div>
+        <button id="libro-next-btn" class="libro-btn" onclick="libroNextPage()">Siguiente ➡️</button>
+      </div>
+    </div>
+    <div class="libro-footer">
+      <strong>⚠️ Contenido Protegido</strong><br>
+      Screenshots bloqueados • Click derecho deshabilitado • URLs temporales
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const libroConfig = { libro: "guia-segmentar", totalPages: 17, apiBase: "https://dfafuyp2b5.execute-api.us-east-1.amazonaws.com/prod/get-url" };
+  let libroCurrentPage = 1;
+  window.libroUpdateImage = async function() { const imgElement = document.getElementById("libro-image"); const prevBtn = document.getElementById("libro-prev-btn"); const nextBtn = document.getElementById("libro-next-btn"); try { imgElement.alt = "Cargando..."; const res = await fetch(`${libroConfig.apiBase}?libro=${libroConfig.libro}&pagina=${libroCurrentPage}`); if (!res.ok) throw new Error(`Error: ${res.status}`); const data = await res.json(); imgElement.src = data.url; imgElement.alt = `Página ${libroCurrentPage} de ${libroConfig.totalPages}`; document.getElementById("libro-page-input").value = libroCurrentPage; prevBtn.disabled = libroCurrentPage === 1; nextBtn.disabled = libroCurrentPage === libroConfig.totalPages; } catch (error) { console.error("Error:", error); imgElement.alt = "Error al cargar"; alert("❌ Error al cargar la página"); } };
+  window.libroPrevPage = function() { if (libroCurrentPage > 1) { libroCurrentPage--; libroUpdateImage(); libroUpdateWatermark(); } };
+  window.libroNextPage = function() { if (libroCurrentPage < libroConfig.totalPages) { libroCurrentPage++; libroUpdateImage(); libroUpdateWatermark(); } };
+  window.libroGoToPage = function(page) { let pageNumber = parseInt(page); if (pageNumber >= 1 && pageNumber <= libroConfig.totalPages) { libroCurrentPage = pageNumber; libroUpdateImage(); libroUpdateWatermark(); } else { alert(`⚠️ Ingresa un número entre 1 y ${libroConfig.totalPages}`); document.getElementById("libro-page-input").value = libroCurrentPage; } };
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { document.getElementById("libro-image").src = ""; } else { libroUpdateImage(); } });
+  document.addEventListener("keydown", function (event) { if (event.key === "PrintScreen" || (event.ctrlKey && event.key === "s") || (event.metaKey && event.shiftKey && (event.key === "3" || event.key === "4"))) { let overlay = document.getElementById("libro-overlay"); overlay.style.opacity = "1"; setTimeout(() => { overlay.style.opacity = "0"; }, 1000); alert("⚠️ Captura bloqueada"); event.preventDefault(); } if (event.target.tagName !== "INPUT") { if (event.key === "ArrowLeft") libroPrevPage(); if (event.key === "ArrowRight") libroNextPage(); if (event.key === "Home") { libroCurrentPage = 1; libroUpdateImage(); libroUpdateWatermark(); } if (event.key === "End") { libroCurrentPage = libroConfig.totalPages; libroUpdateImage(); libroUpdateWatermark(); } } });
+  document.addEventListener("contextmenu", function (event) { if (event.target.closest('.libro-viewer-container')) { event.preventDefault(); alert("⚠️ Click derecho deshabilitado"); } });
+  const libroImage = document.getElementById("libro-image"); if (libroImage) { libroImage.addEventListener("dragstart", function(event) { event.preventDefault(); }); }
+  window.libroUpdateWatermark = function() { let now = new Date(); let formattedDate = now.toLocaleDateString() + " " + now.toLocaleTimeString(); const watermark = document.getElementById("libro-watermark"); if (watermark) { watermark.innerText = `Confidencial - ${formattedDate}`; } };
+  setInterval(libroUpdateWatermark, 1000);
+  setTimeout(function() { libroUpdateWatermark(); libroUpdateImage(); console.log("📚 Guía de Segmentación - Lector iniciado"); }, 100);
+})();
+</script>
