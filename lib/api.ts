@@ -74,7 +74,8 @@ export async function getEvents() {
     throw new Error('Error al cargar eventos')
   }
 
-  return response.json()
+  const data = await response.json()
+  return data.events || []
 }
 
 export async function getEventBySlug(slug: string) {
@@ -89,7 +90,8 @@ export async function getEventBySlug(slug: string) {
     throw new Error('Evento no encontrado')
   }
 
-  return response.json()
+  const data = await response.json()
+  return data.event
 }
 
 export async function getRegistrations(eventId: string) {
