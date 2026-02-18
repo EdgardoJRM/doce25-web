@@ -77,6 +77,8 @@ Resources:
           AttributeType: S
         - AttributeName: userId
           AttributeType: S
+        - AttributeName: email
+          AttributeType: S
       KeySchema:
         - AttributeName: registrationId
           KeyType: HASH
@@ -96,6 +98,12 @@ Resources:
         - IndexName: UserIdIndex
           KeySchema:
             - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
               KeyType: HASH
           Projection:
             ProjectionType: ALL
@@ -586,6 +594,10 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref RegistrationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

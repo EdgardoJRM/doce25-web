@@ -24,7 +24,7 @@ export function EventList() {
     const fetchEvents = async () => {
       try {
         const data = await getEvents()
-        setEvents(data)
+        setEvents(data.events || [])
       } catch (err: any) {
         console.error('Error fetching events:', err)
         setError(err.message || 'Error al cargar eventos')

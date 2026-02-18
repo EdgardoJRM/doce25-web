@@ -82,7 +82,7 @@ export async function getEvents() {
   }
 
   const data = await response.json()
-  return data.events || []
+  return data // Devolver el objeto completo con { events: [...] }
 }
 
 export async function getEventBySlug(slug: string) {
