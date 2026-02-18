@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 
 interface EventRegistrationFormProps {
   eventId: string
-  onSuccess?: () => void
+  onSuccess?: (email: string) => void
 }
 
 export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationFormProps) {
@@ -156,7 +156,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
       await registerForEvent(eventId, data, token || undefined)
       
       if (onSuccess) {
-        onSuccess()
+        onSuccess(formData.email)
       }
     } catch (err: any) {
       setError(err.message || 'Error al registrarse. Por favor intenta de nuevo.')

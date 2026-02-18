@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { EventRegistrationForm } from './EventRegistrationForm'
 import { getEventBySlug } from '@/lib/api'
 
@@ -23,6 +24,7 @@ interface EventLandingProps {
 }
 
 export function EventLanding({ eventSlug }: EventLandingProps) {
+  const router = useRouter()
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -152,9 +154,10 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
             </p>
             <EventRegistrationForm 
               eventId={event.eventId} 
-              onSuccess={() => {
+              onSuccess={(email) => {
                 setShowForm(false)
-                window.scrollTo({ top: 0, behavior: 'smooth' })
+                // Redirigir a página de confirmación
+                router.push(`/registro-exitoso?event=${encodeURIComponent(event.name)}&email=${encodeURIComponent(email)}`)
               }} 
             />
           </div>

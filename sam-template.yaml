@@ -137,6 +137,8 @@ Resources:
     Properties:
       CodeUri: lambda/register-event/
       Handler: index.handler
+      Timeout: 60
+      MemorySize: 1024
       Events:
         RegisterEvent:
           Type: Api
@@ -147,6 +149,8 @@ Resources:
       Policies:
         - DynamoDBWritePolicy:
             TableName: !Ref RegistrationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
         - S3WritePolicy:
             BucketName: !Ref QRCodesBucket
         - Statement:
@@ -411,6 +415,8 @@ Resources:
     Properties:
       CodeUri: lambda/resend-qr-email/
       Handler: index.handler
+      Timeout: 60
+      MemorySize: 1024
       Events:
         ResendQREmail:
           Type: Api

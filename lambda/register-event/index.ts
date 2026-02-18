@@ -5,8 +5,9 @@ import { v4 as uuidv4 } from 'uuid'
 import QRCode from 'qrcode'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
-import PDFDocument from 'pdfkit'
-import https from 'https'
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 const s3Client = new S3Client({})
@@ -22,30 +23,15 @@ function generateAlternativeCode(registrationId: string): string {
   return registrationId.substring(0, 8).toUpperCase()
 }
 
-// Descargar el logo desde URL
-async function downloadLogo(): Promise<Buffer | null> {
-  return new Promise((resolve) => {
-    const logoUrl = `${process.env.FRONTEND_URL || 'https://dosce25.org'}/doce25-logo.png`
-    
-    https.get(logoUrl, (response) => {
-      if (response.statusCode !== 200) {
-        console.error('Error downloading logo:', response.statusCode)
-        resolve(null)
-        return
-      }
-
-      const chunks: Buffer[] = []
-      response.on('data', (chunk) => chunks.push(chunk))
-      response.on('end', () => resolve(Buffer.concat(chunks)))
-      response.on('error', (err) => {
-        console.error('Error downloading logo:', err)
-        resolve(null)
-      })
-    }).on('error', (err) => {
-      console.error('Error downloading logo:', err)
-      resolve(null)
-    })
-  })
+// Cargar el logo local (más rápido que descargarlo)
+function loadLogo(): Buffer | null {
+  try {
+    const logoPath = join(__dirname, 'doce25-logo.png')
+    return readFileSync(logoPath)
+  } catch (err) {
+    console.error('Error loading logo:', err)
+    return null
+  }
 }
 
 // Generar PDF profesional del ticket
@@ -60,210 +46,276 @@ async function generateTicketPDF(
   registrationId: string,
   logoBuffer: Buffer | null
 ): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({
-        size: [595.28, 841.89], // A4
-        margins: { top: 0, bottom: 0, left: 0, right: 0 }
-      })
-
-      const chunks: Buffer[] = []
-      doc.on('data', (chunk) => chunks.push(chunk))
-      doc.on('end', () => resolve(Buffer.concat(chunks)))
-      doc.on('error', reject)
-
-      // Colores corporativos
-      const primaryColor = '#0ea5e9'
-      const secondaryColor = '#14b8a6'
-      const darkGray = '#3d3d3d'
-      const lightGray = '#f8fafc'
-      const borderColor = '#cbd5e1'
-
-      // Header con gradiente (simulado con rectángulos)
-      doc.rect(0, 0, 595.28, 180).fill(primaryColor)
-      
-      // Logo de la organización
-      if (logoBuffer) {
-        try {
-          doc.image(logoBuffer, 50, 40, {
-            width: 120,
-            height: 60,
-            fit: [120, 60]
-          })
-        } catch (err) {
-          console.error('Error adding logo to PDF:', err)
-          // Fallback al texto si falla
-          doc.fontSize(32)
-             .fillColor('#ffffff')
-             .font('Helvetica-Bold')
-             .text('DOCE25', 50, 50)
-        }
-      } else {
-        // Fallback al texto si no hay logo
-        doc.fontSize(32)
-           .fillColor('#ffffff')
-           .font('Helvetica-Bold')
-           .text('DOCE25', 50, 50)
-      }
-      
-      doc.fontSize(14)
-         .fillColor('#ffffff')
-         .font('Helvetica')
-         .text('Fundación Tortuga Club PR', 50, 110)
-
-      // Título del ticket
-      doc.fontSize(24)
-         .fillColor('#ffffff')
-         .font('Helvetica-Bold')
-         .text('ENTRADA AL EVENTO', 50, 140)
-
-      // Contenedor principal del ticket
-      const ticketTop = 220
-      const ticketLeft = 50
-      const ticketWidth = 495.28
-      const ticketHeight = 500
-
-      // Fondo blanco del ticket
-      doc.rect(ticketLeft, ticketTop, ticketWidth, ticketHeight)
-         .fill('#ffffff')
-         .stroke(borderColor)
-
-      // Información del evento
-      let yPosition = ticketTop + 40
-
-      doc.fontSize(20)
-         .fillColor(darkGray)
-         .font('Helvetica-Bold')
-         .text(eventName || 'Evento Doce25', ticketLeft + 30, yPosition, {
-           width: ticketWidth - 60,
-           align: 'left'
-         })
-
-      yPosition += 40
-
-      // Fecha y ubicación
-      if (eventDate) {
-        doc.fontSize(12)
-           .fillColor('#6f6f6f')
-           .font('Helvetica')
-           .text('📅 ' + eventDate, ticketLeft + 30, yPosition)
-        yPosition += 25
-      }
-
-      if (eventLocation) {
-        doc.fontSize(12)
-           .fillColor('#6f6f6f')
-           .font('Helvetica')
-           .text('📍 ' + eventLocation, ticketLeft + 30, yPosition)
-        yPosition += 25
-      }
-
-      // Línea divisoria
-      yPosition += 10
-      doc.moveTo(ticketLeft + 30, yPosition)
-         .lineTo(ticketLeft + ticketWidth - 30, yPosition)
-         .stroke(borderColor)
-      yPosition += 30
-
-      // Información del asistente
-      doc.fontSize(11)
-         .fillColor('#6f6f6f')
-         .font('Helvetica')
-         .text('ASISTENTE', ticketLeft + 30, yPosition)
-      
-      yPosition += 20
-      doc.fontSize(14)
-         .fillColor(darkGray)
-         .font('Helvetica-Bold')
-         .text(name, ticketLeft + 30, yPosition)
-
-      yPosition += 25
-      doc.fontSize(11)
-         .fillColor('#6f6f6f')
-         .font('Helvetica')
-         .text(email, ticketLeft + 30, yPosition)
-
-      // Sección del QR Code y código alternativo
-      yPosition += 50
-
-      // Fondo gris claro para la sección de códigos
-      doc.rect(ticketLeft + 30, yPosition, ticketWidth - 60, 200)
-         .fill(lightGray)
-
-      yPosition += 20
-
-      // Título de la sección
-      doc.fontSize(12)
-         .fillColor(darkGray)
-         .font('Helvetica-Bold')
-         .text('PRESENTA ESTE CÓDIGO EN LA ENTRADA', ticketLeft + 30, yPosition, {
-           width: ticketWidth - 60,
-           align: 'center'
-         })
-
-      yPosition += 30
-
-      // QR Code (centrado)
-      const qrImageBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64')
-      const qrSize = 120
-      const qrX = (595.28 - qrSize) / 2
-      
-      doc.image(qrImageBuffer, qrX, yPosition, {
-        width: qrSize,
-        height: qrSize
-      })
-
-      yPosition += qrSize + 15
-
-      // Código alternativo
-      doc.fontSize(10)
-         .fillColor('#6f6f6f')
-         .font('Helvetica')
-         .text('Código alternativo:', ticketLeft + 30, yPosition, {
-           width: ticketWidth - 60,
-           align: 'center'
-         })
-
-      yPosition += 18
-      doc.fontSize(16)
-         .fillColor(primaryColor)
-         .font('Helvetica-Bold')
-         .text(alternativeCode, ticketLeft + 30, yPosition, {
-           width: ticketWidth - 60,
-           align: 'center'
-         })
-
-      // Footer con información adicional
-      const footerY = 760
-      doc.fontSize(9)
-         .fillColor('#9ca3af')
-         .font('Helvetica')
-         .text('ID de Registro: ' + registrationId, 50, footerY, {
-           width: 495.28,
-           align: 'center'
-         })
-
-      doc.fontSize(8)
-         .fillColor('#9ca3af')
-         .text('© ' + new Date().getFullYear() + ' Doce25. Todos los derechos reservados.', 50, footerY + 15, {
-           width: 495.28,
-           align: 'center'
-         })
-
-      // Borde decorativo del ticket con línea punteada
-      doc.save()
-         .strokeColor(borderColor)
-         .lineWidth(2)
-         .dash(5, { space: 3 })
-         .rect(ticketLeft, ticketTop, ticketWidth, ticketHeight)
-         .stroke()
-         .restore()
-
-      doc.end()
-    } catch (error) {
-      reject(error)
-    }
+  // Create PDF document
+  const pdfDoc = await PDFDocument.create()
+  const page = pdfDoc.addPage([595.28, 841.89]) // A4
+  
+  // Load fonts
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
+  
+  // Colors
+  const primaryColor = rgb(0.055, 0.647, 0.914) // #0ea5e9
+  const darkGray = rgb(0.239, 0.239, 0.239) // #3d3d3d
+  const lightGray = rgb(0.973, 0.980, 0.988) // #f8fafc
+  const borderColor = rgb(0.796, 0.835, 0.878) // #cbd5e1
+  const gray = rgb(0.435, 0.435, 0.435) // #6f6f6f
+  const lightGrayFooter = rgb(0.612, 0.639, 0.686) // #9ca3af
+  
+  // Header background
+  page.drawRectangle({
+    x: 0,
+    y: 841.89 - 180,
+    width: 595.28,
+    height: 180,
+    color: primaryColor,
   })
+  
+  // Logo
+  if (logoBuffer) {
+    try {
+      const logoImage = await pdfDoc.embedPng(logoBuffer)
+      const logoDims = logoImage.scale(0.3)
+      page.drawImage(logoImage, {
+        x: 50,
+        y: 841.89 - 100,
+        width: Math.min(logoDims.width, 120),
+        height: Math.min(logoDims.height, 60),
+      })
+    } catch (err) {
+      console.error('Error embedding logo:', err)
+      // Fallback to text
+      page.drawText('DOCE25', {
+        x: 50,
+        y: 841.89 - 82,
+        size: 32,
+        font: boldFont,
+        color: rgb(1, 1, 1),
+      })
+    }
+  } else {
+    page.drawText('DOCE25', {
+      x: 50,
+      y: 841.89 - 82,
+      size: 32,
+      font: boldFont,
+      color: rgb(1, 1, 1),
+    })
+  }
+  
+  // Subtitle
+  page.drawText('Fundación Tortuga Club PR', {
+    x: 50,
+    y: 841.89 - 121,
+    size: 14,
+    font: regularFont,
+    color: rgb(1, 1, 1),
+  })
+  
+  // Title
+  page.drawText('ENTRADA AL EVENTO', {
+    x: 50,
+    y: 841.89 - 151,
+    size: 24,
+    font: boldFont,
+    color: rgb(1, 1, 1),
+  })
+  
+  // Ticket container
+  const ticketTop = 841.89 - 220
+  const ticketLeft = 50
+  const ticketWidth = 495.28
+  const ticketHeight = 500
+  
+  // White background for ticket
+  page.drawRectangle({
+    x: ticketLeft,
+    y: ticketTop - ticketHeight,
+    width: ticketWidth,
+    height: ticketHeight,
+    color: rgb(1, 1, 1),
+    borderColor: borderColor,
+    borderWidth: 1,
+  })
+  
+  let yPos = ticketTop - 40
+  
+  // Event name
+  page.drawText(eventName || 'Evento Doce25', {
+    x: ticketLeft + 30,
+    y: yPos,
+    size: 20,
+    font: boldFont,
+    color: darkGray,
+    maxWidth: ticketWidth - 60,
+  })
+  
+  yPos -= 40
+  
+  // Date and location
+  if (eventDate) {
+    page.drawText('Fecha: ' + eventDate, {
+      x: ticketLeft + 30,
+      y: yPos,
+      size: 12,
+      font: regularFont,
+      color: gray,
+    })
+    yPos -= 25
+  }
+  
+  if (eventLocation) {
+    page.drawText('Lugar: ' + eventLocation, {
+      x: ticketLeft + 30,
+      y: yPos,
+      size: 12,
+      font: regularFont,
+      color: gray,
+    })
+    yPos -= 25
+  }
+  
+  // Divider line
+  yPos -= 10
+  page.drawLine({
+    start: { x: ticketLeft + 30, y: yPos },
+    end: { x: ticketLeft + ticketWidth - 30, y: yPos },
+    color: borderColor,
+    thickness: 1,
+  })
+  yPos -= 30
+  
+  // Attendee label
+  page.drawText('ASISTENTE', {
+    x: ticketLeft + 30,
+    y: yPos,
+    size: 11,
+    font: regularFont,
+    color: gray,
+  })
+  
+  yPos -= 20
+  
+  // Attendee name
+  page.drawText(name, {
+    x: ticketLeft + 30,
+    y: yPos,
+    size: 14,
+    font: boldFont,
+    color: darkGray,
+  })
+  
+  yPos -= 25
+  
+  // Email
+  page.drawText(email, {
+    x: ticketLeft + 30,
+    y: yPos,
+    size: 11,
+    font: regularFont,
+    color: gray,
+  })
+  
+  yPos -= 50
+  
+  // QR Code section background
+  page.drawRectangle({
+    x: ticketLeft + 30,
+    y: yPos - 200,
+    width: ticketWidth - 60,
+    height: 200,
+    color: lightGray,
+  })
+  
+  yPos -= 20
+  
+  // Section title
+  const titleText = 'PRESENTA ESTE CODIGO EN LA ENTRADA'
+  const titleWidth = boldFont.widthOfTextAtSize(titleText, 12)
+  page.drawText(titleText, {
+    x: ticketLeft + (ticketWidth - titleWidth) / 2,
+    y: yPos,
+    size: 12,
+    font: boldFont,
+    color: darkGray,
+  })
+  
+  yPos -= 30
+  
+  // QR Code
+  const qrImageBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64')
+  const qrImage = await pdfDoc.embedPng(qrImageBuffer)
+  const qrSize = 120
+  const qrX = (595.28 - qrSize) / 2
+  
+  page.drawImage(qrImage, {
+    x: qrX,
+    y: yPos - qrSize,
+    width: qrSize,
+    height: qrSize,
+  })
+  
+  yPos -= qrSize + 15
+  
+  // Alternative code label
+  const altLabel = 'Codigo alternativo:'
+  const altLabelWidth = regularFont.widthOfTextAtSize(altLabel, 10)
+  page.drawText(altLabel, {
+    x: ticketLeft + (ticketWidth - altLabelWidth) / 2,
+    y: yPos,
+    size: 10,
+    font: regularFont,
+    color: gray,
+  })
+  
+  yPos -= 18
+  
+  // Alternative code value
+  const altCodeWidth = boldFont.widthOfTextAtSize(alternativeCode, 16)
+  page.drawText(alternativeCode, {
+    x: ticketLeft + (ticketWidth - altCodeWidth) / 2,
+    y: yPos,
+    size: 16,
+    font: boldFont,
+    color: primaryColor,
+  })
+  
+  // Footer
+  const footerY = 80
+  const registrationText = 'ID de Registro: ' + registrationId
+  const registrationWidth = regularFont.widthOfTextAtSize(registrationText, 9)
+  page.drawText(registrationText, {
+    x: (595.28 - registrationWidth) / 2,
+    y: footerY,
+    size: 9,
+    font: regularFont,
+    color: lightGrayFooter,
+  })
+  
+  const copyrightText = `© ${new Date().getFullYear()} Doce25. Todos los derechos reservados.`
+  const copyrightWidth = regularFont.widthOfTextAtSize(copyrightText, 8)
+  page.drawText(copyrightText, {
+    x: (595.28 - copyrightWidth) / 2,
+    y: footerY - 15,
+    size: 8,
+    font: regularFont,
+    color: lightGrayFooter,
+  })
+  
+  // Dashed border
+  page.drawRectangle({
+    x: ticketLeft,
+    y: ticketTop - ticketHeight,
+    width: ticketWidth,
+    height: ticketHeight,
+    borderColor: borderColor,
+    borderWidth: 2,
+    borderDashArray: [5, 3],
+  })
+  
+  // Save and return
+  const pdfBytes = await pdfDoc.save()
+  return Buffer.from(pdfBytes)
 }
 
 async function sendEmailWithAttachments(
@@ -486,7 +538,7 @@ export const handler = async (
 
     // Generar código alternativo y PDF del ticket
     const alternativeCode = generateAlternativeCode(registrationId)
-    const logoBuffer = await downloadLogo()
+    const logoBuffer = loadLogo() // Cargar logo local (instantáneo)
     const pdfBuffer = await generateTicketPDF(
       fullName || name,
       email,
