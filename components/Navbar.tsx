@@ -1,187 +1,128 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const { user, logout } = useAuth()
+  const [isScrolled, setIsScrolled] = useState(false)
+  const { user, signOut } = useAuth()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className={`fixed top-0 left-0 right-0 z-50 bg-white transition-all duration-300 ${
+      isScrolled ? 'shadow-lg' : 'shadow-md'
+    }`}>
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-20">
+        {/* Main Navigation */}
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span className="text-2xl font-bold text-white">D25</span>
+            <div className={`transition-all duration-300 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center ${
+              isScrolled ? 'w-10 h-10' : 'w-12 h-12'
+            } group-hover:scale-110 group-hover:shadow-lg`}>
+              <span className={`text-white font-bold ${isScrolled ? 'text-lg' : 'text-xl'}`}>D25</span>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
+            <span className={`font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent transition-all ${
+              isScrolled ? 'text-xl' : 'text-2xl'
+            }`}>
               Doce25
             </span>
           </Link>
-          
+
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-1">
-            {/* Nuestra Historia Dropdown */}
+            {/* Nuestra Historia */}
             <div 
               className="relative group"
               onMouseEnter={() => setActiveDropdown('historia')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className="px-4 py-2 text-gray-700 hover:text-cyan-600 font-medium transition-colors flex items-center gap-1">
+              <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors flex items-center gap-1">
                 Nuestra Historia
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {activeDropdown === 'historia' && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-xl py-2 animate-slide-in">
-                  <Link href="/sobre-nosotros" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Historia
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                  <Link href="/sobre-nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                    Sobre Nosotros
                   </Link>
-                  <Link href="/impacto" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                  <Link href="/impacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Nuestro Impacto
                   </Link>
-                  <Link href="/sobre-nosotros" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Finanzas
+                  <Link href="/galeria" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                    Galería
                   </Link>
                 </div>
               )}
             </div>
 
-            {/* Nuestro Equipo Dropdown */}
-            <div 
-              className="relative group"
-              onMouseEnter={() => setActiveDropdown('equipo')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button className="px-4 py-2 text-gray-700 hover:text-cyan-600 font-medium transition-colors flex items-center gap-1">
-                Nuestro Equipo
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {activeDropdown === 'equipo' && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl py-2 animate-slide-in">
-                  <Link href="/sobre-nosotros" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Personas & Cultura
-                  </Link>
-                  <Link href="/carreras" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Oportunidades de Carrera
-                  </Link>
-                  <Link href="/sobre-nosotros" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Liderazgo & Junta
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Nuestro Trabajo Dropdown */}
+            {/* Nuestro Trabajo */}
             <div 
               className="relative group"
               onMouseEnter={() => setActiveDropdown('trabajo')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className="px-4 py-2 text-gray-700 hover:text-cyan-600 font-medium transition-colors flex items-center gap-1">
+              <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors flex items-center gap-1">
                 Nuestro Trabajo
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {activeDropdown === 'trabajo' && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl py-2 animate-slide-in">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Biodiversidad</div>
-                  <Link href="/proyectos/playas-urbanas" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                <div className="absolute top-full left-0 mt-1 w-52 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                  <Link href="/proyectos/playas-urbanas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Playas Urbanas
                   </Link>
-                  <Link href="/proyectos/playas-remotas" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                  <Link href="/proyectos/playas-remotas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Playas Remotas
                   </Link>
-                  <div className="border-t border-gray-100 my-2"></div>
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Educación</div>
-                  <Link href="/impacto" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Programas Educativos
+                  <Link href="/impacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                    Educación Ambiental
                   </Link>
                 </div>
               )}
             </div>
 
-            {/* Apoyar Dropdown */}
-            <div 
-              className="relative group"
-              onMouseEnter={() => setActiveDropdown('apoyar')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button className="px-4 py-2 text-gray-700 hover:text-cyan-600 font-medium transition-colors flex items-center gap-1">
-                Apoyar
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {activeDropdown === 'apoyar' && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl py-2 animate-slide-in">
-                  <Link href="/donar" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors font-semibold">
-                    Donar Ahora
-                  </Link>
-                  <Link href="/eventos" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Tomar Acción
-                  </Link>
-                  <Link href="/donar" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Formas de Dar
-                  </Link>
-                  <Link href="/contacto" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Apoyo Corporativo
-                  </Link>
-                </div>
-              )}
-            </div>
+            {/* Enlaces directos */}
+            <Link href="/eventos" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors">
+              Eventos
+            </Link>
 
-            {/* Sala de Prensa Dropdown */}
-            <div 
-              className="relative group"
-              onMouseEnter={() => setActiveDropdown('prensa')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button className="px-4 py-2 text-gray-700 hover:text-cyan-600 font-medium transition-colors flex items-center gap-1">
-                Sala de Prensa
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {activeDropdown === 'prensa' && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl py-2 animate-slide-in">
-                  <Link href="/prensa" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Comunicados de Prensa
-                  </Link>
-                  <Link href="/galeria" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Blog
-                  </Link>
-                  <Link href="/galeria" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
-                    Galería de Fotos
-              </Link>
-                </div>
-              )}
-            </div>
+            <Link href="/contacto" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors">
+              Contacto
+            </Link>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center space-x-3">
+          {/* Right Side Actions */}
+          <div className="hidden lg:flex items-center gap-3">
+            {/* Donar Button */}
             <Link
               href="/donar"
-              className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               Donar
             </Link>
+
+            {/* Tomar Acción Button */}
             <Link
               href="/eventos"
-              className="border-2 border-cyan-600 text-cyan-600 px-6 py-2.5 rounded-lg font-semibold hover:bg-cyan-50 transition-colors"
+              className="bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               Tomar Acción
             </Link>
-            
+
             {/* User Menu or Login */}
             {user ? (
               <div 
@@ -189,37 +130,38 @@ export function Navbar() {
                 onMouseEnter={() => setActiveDropdown('user')}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-cyan-600 font-medium transition-colors">
-                  <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    {user.fullName.charAt(0).toUpperCase()}
+                <button className="flex items-center gap-2">
+                  <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center text-white text-sm font-bold hover:scale-110 transition-transform shadow-md">
+                    {user.fullName ? user.fullName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
                   </div>
-                  <span className="hidden xl:inline">{user.fullName.split(' ')[0]}</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
                 </button>
                 {activeDropdown === 'user' && (
-                  <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-xl py-2 animate-slide-in">
-                    <Link href="/perfil" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{user.fullName || 'Usuario'}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    </div>
+                    <Link href="/perfil" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                       Mi Perfil
                     </Link>
-                    <Link href="/perfil/editar" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                    <Link href="/perfil/editar" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                       Editar Perfil
                     </Link>
-                    <div className="border-t border-gray-100 my-2"></div>
-                    <button 
-                      onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      Cerrar Sesión
-                    </button>
+                    <div className="border-t border-gray-100 mt-2 pt-2">
+                      <button 
+                        onClick={signOut}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        Cerrar Sesión
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             ) : (
               <Link
                 href="/login"
-                className="text-gray-700 hover:text-cyan-600 font-medium transition-colors"
+                className="border-2 border-gray-300 text-gray-700 px-5 py-2 rounded-full text-sm font-semibold hover:border-cyan-500 hover:text-cyan-600 transition-all"
               >
                 Iniciar Sesión
               </Link>
@@ -232,46 +174,77 @@ export function Navbar() {
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             {isOpen ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              ) : (
+            ) : (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-              )}
+            )}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-200 animate-slide-in">
-            <div className="space-y-2">
-              <Link href="/sobre-nosotros" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+          <div className="lg:hidden py-4 border-t border-gray-200">
+            <div className="space-y-1">
+              <Link href="/sobre-nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Sobre Nosotros
               </Link>
-              <Link href="/eventos" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/impacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+                Nuestro Impacto
+              </Link>
+              <Link href="/proyectos/playas-urbanas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+                Playas Urbanas
+              </Link>
+              <Link href="/proyectos/playas-remotas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+                Playas Remotas
+              </Link>
+              <Link href="/eventos" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Eventos
               </Link>
-              <Link href="/galeria" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/galeria" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Galería
               </Link>
-              <Link href="/contacto" className="block px-4 py-2 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/contacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Contacto
               </Link>
+              
               <div className="pt-4 space-y-2">
-              <Link 
-                href="/donar" 
-                  className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold text-center hover:shadow-lg transition-all"
+                <Link 
+                  href="/donar" 
+                  className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-full font-semibold text-center hover:shadow-lg transition-all text-sm"
                 >
                   Donar Ahora
                 </Link>
                 <Link
                   href="/eventos"
-                  className="block w-full border-2 border-cyan-600 text-cyan-600 px-6 py-3 rounded-lg font-semibold text-center hover:bg-cyan-50 transition-colors"
+                  className="block w-full bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-6 py-3 rounded-full font-semibold text-center hover:shadow-lg transition-all text-sm"
                 >
                   Tomar Acción
-              </Link>
+                </Link>
+                
+                {user ? (
+                  <>
+                    <Link href="/perfil" className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm">
+                      Mi Perfil
+                    </Link>
+                    <button
+                      onClick={signOut}
+                      className="block w-full border-2 border-red-300 text-red-600 px-6 py-3 rounded-full font-semibold text-center hover:bg-red-50 transition-all text-sm"
+                    >
+                      Cerrar Sesión
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                )}
               </div>
             </div>
           </div>

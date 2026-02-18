@@ -13,7 +13,7 @@ const TABLES = {
 
 async function sendEmail(to: string, subject: string, htmlBody: string, textBody?: string) {
   const command = new SendEmailCommand({
-    Source: process.env.SES_FROM_EMAIL || 'noreply@dosce25.org',
+    Source: process.env.SES_FROM_EMAIL || 'doce25@precotracks.org',
     Destination: {
       ToAddresses: [to],
     },

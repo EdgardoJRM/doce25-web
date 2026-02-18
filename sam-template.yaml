@@ -13,7 +13,7 @@ Globals:
         EVENTS_TABLE: !Ref EventsTable
         REGISTRATIONS_TABLE: !Ref RegistrationsTable
         S3_BUCKET: !Ref QRCodesBucket
-        SES_FROM_EMAIL: noreply@dosce25.org
+        SES_FROM_EMAIL: doce25@precotracks.org
         FRONTEND_URL: https://dosce25.org
         JWT_SECRET: dosce25-super-secret-key-change-in-production
     Architectures:

@@ -1,202 +1,252 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
-interface ImpactCounterProps {
-  target: number
-  label: string
-  unit?: string
+interface CounterProps {
+  end: number
   duration?: number
+  suffix?: string
+  prefix?: string
+  decimals?: number
 }
 
-function AnimatedCounter({ target, label, unit = '', duration = 2000 }: ImpactCounterProps) {
+function AnimatedCounter({ end, duration = 2000, suffix = '', prefix = '', decimals = 0 }: CounterProps) {
   const [count, setCount] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const counterRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true)
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+          
+          const startTime = Date.now()
+          const startCount = 0
+
+          const animate = () => {
+            const now = Date.now()
+            const progress = Math.min((now - startTime) / duration, 1)
+            
+            // Easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4)
+            const currentCount = startCount + (end - startCount) * easeOutQuart
+
+            setCount(currentCount)
+
+            if (progress < 1) {
+              requestAnimationFrame(animate)
+            } else {
+              setCount(end)
+            }
+          }
+
+          requestAnimationFrame(animate)
         }
       },
       { threshold: 0.3 }
     )
 
-    const element = document.getElementById('impact-counter')
-    if (element) {
-      observer.observe(element)
+    if (counterRef.current) {
+      observer.observe(counterRef.current)
     }
 
     return () => {
-      if (element) observer.unobserve(element)
-    }
-  }, [isVisible])
-
-  useEffect(() => {
-    if (!isVisible) return
-
-    const startTime = Date.now()
-    const startValue = 0
-
-    const animate = () => {
-      const now = Date.now()
-      const elapsed = now - startTime
-      const progress = Math.min(elapsed / duration, 1)
-
-      // Easing function (ease-out)
-      const easeOut = 1 - Math.pow(1 - progress, 3)
-      const currentValue = Math.floor(startValue + (target - startValue) * easeOut)
-
-      setCount(currentValue)
-
-      if (progress < 1) {
-        requestAnimationFrame(animate)
-      } else {
-        setCount(target)
+      if (counterRef.current) {
+        observer.unobserve(counterRef.current)
       }
     }
-
-    requestAnimationFrame(animate)
-  }, [isVisible, target, duration])
+  }, [end, duration, hasAnimated])
 
   return (
-    <div id="impact-counter" className="text-center">
-      <div className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-gradient mb-3">
-        {count.toLocaleString()}{unit}
-      </div>
-      <div className="text-gray-600 font-medium text-lg">{label}</div>
+    <div ref={counterRef} className="tabular-nums">
+      {prefix}
+      {count.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
+      {suffix}
     </div>
   )
 }
 
 export function ImpactCounter() {
-  const [progress, setProgress] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.3 }
-    )
-
-    const element = document.getElementById('impact-bar')
-    if (element) {
-      observer.observe(element)
-    }
-
-    return () => {
-      if (element) observer.unobserve(element)
-    }
-  }, [isVisible])
-
-  useEffect(() => {
-    if (!isVisible) return
-
-    // Animate progress bar
-    const targetProgress = 100 // 100% of our goal
-    const duration = 2500
-    const startTime = Date.now()
-
-    const animate = () => {
-      const now = Date.now()
-      const elapsed = now - startTime
-      const progressValue = Math.min((elapsed / duration) * targetProgress, targetProgress)
-
-      setProgress(progressValue)
-
-      if (progressValue < targetProgress) {
-        requestAnimationFrame(animate)
-      }
-    }
-
-    requestAnimationFrame(animate)
-  }, [isVisible])
-
-  const totalLbs = 69554
-  const goalLbs = 100000 // Meta de 100,000 libras
+  const stats = [
+    {
+      id: 1,
+      value: 69000,
+      suffix: '+',
+      label: 'Libras de Basura',
+      sublabel: 'Removidas de nuestras costas',
+      icon: '♻️',
+      gradient: 'from-emerald-500 to-teal-500',
+      bgGradient: 'from-emerald-50 to-teal-50',
+      ring: 'ring-emerald-500/20',
+    },
+    {
+      id: 2,
+      value: 1250,
+      suffix: '+',
+      label: 'Voluntarios',
+      sublabel: 'Comprometidos con el cambio',
+      icon: '👥',
+      gradient: 'from-blue-500 to-cyan-500',
+      bgGradient: 'from-blue-50 to-cyan-50',
+      ring: 'ring-blue-500/20',
+    },
+    {
+      id: 3,
+      value: 5,
+      suffix: '+',
+      label: 'Años de Impacto',
+      sublabel: 'Transformando Puerto Rico',
+      icon: '🌊',
+      gradient: 'from-cyan-500 to-teal-500',
+      bgGradient: 'from-cyan-50 to-teal-50',
+      ring: 'ring-cyan-500/20',
+    },
+    {
+      id: 4,
+      value: 50,
+      suffix: '+',
+      label: 'Eventos Realizados',
+      sublabel: 'En playas de toda la isla',
+      icon: '🏖️',
+      gradient: 'from-orange-500 to-amber-500',
+      bgGradient: 'from-orange-50 to-amber-50',
+      ring: 'ring-orange-500/20',
+    },
+  ]
 
   return (
-    <section className="section-padding bg-gradient-to-br from-blue-50 via-white to-ocean-50 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-ocean-200/20 rounded-full blur-3xl"></div>
+    <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-cyan-50 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-300 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-300 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12 animate-fade-in-up">
-            <span className="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
-              Nuestro Impacto
-            </span>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-900">
-              Basura removida de<br />
-              <span className="text-gradient">nuestras playas</span>
-            </h2>
-          </div>
+        {/* Header */}
+        <div className="text-center mb-16 animate-fade-in">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Nuestro Impacto en Números
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Cada acción cuenta. Juntos estamos haciendo la diferencia en nuestras playas.
+          </p>
+        </div>
 
-          {/* Animated Counter */}
-          <div className="mb-16">
-            <AnimatedCounter
-              target={totalLbs}
-              label="Libras de basura removida"
-              unit=" lbs"
-            />
-          </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {stats.map((stat, index) => (
+            <div
+              key={stat.id}
+              onMouseEnter={() => setHoveredCard(stat.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="group relative"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              {/* Glow Effect */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition-all duration-500 -z-10`}></div>
+              
+              {/* Card */}
+              <div className={`relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border-2 ${
+                hoveredCard === stat.id ? `border-transparent ring-4 ${stat.ring}` : 'border-gray-100'
+              } ${hoveredCard === stat.id ? 'scale-105 -translate-y-2' : ''}`}>
+                
+                {/* Background Pattern */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                
+                {/* Content */}
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className={`text-5xl mb-4 transform transition-all duration-500 ${
+                    hoveredCard === stat.id ? 'scale-125 rotate-12' : ''
+                  }`}>
+                    {stat.icon}
+                  </div>
 
-          {/* Progress Bar */}
-          <div id="impact-bar" className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-gray-700 font-semibold">Progreso hacia nuestra meta</span>
-              <span className="text-gray-600 font-bold">
-                {Math.round((totalLbs / goalLbs) * 100)}%
+                  {/* Counter */}
+                  <div className={`text-5xl md:text-6xl font-bold mb-3 bg-gradient-to-br ${stat.gradient} bg-clip-text text-transparent transition-all duration-500`}>
+                    <AnimatedCounter 
+                      end={stat.value} 
+                      suffix={stat.suffix}
+                      duration={2500}
+                    />
+                  </div>
+
+                  {/* Label */}
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {stat.label}
+                  </h3>
+
+                  {/* Sublabel */}
+                  <p className="text-sm text-gray-600">
+                    {stat.sublabel}
+                  </p>
+
+                  {/* Progress Bar Animation */}
+                  <div className="mt-4 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full bg-gradient-to-r ${stat.gradient} transition-all duration-1000 ease-out ${
+                        hoveredCard === stat.id ? 'w-full' : 'w-0'
+                      }`}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Sparkle Effect */}
+                {hoveredCard === stat.id && (
+                  <div className="absolute top-4 right-4">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center mt-16 animate-fade-in">
+          <p className="text-lg text-gray-700 mb-6 font-medium">
+            ¿Quieres ser parte de estos números?
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/eventos"
+              className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-cyan-600 to-teal-600 rounded-full overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Únete a un Evento
+                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </span>
-            </div>
-            <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-              <div
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-600 via-blue-500 to-ocean-600 rounded-full transition-all duration-1000 ease-out shadow-lg"
-                style={{
-                  width: `${isVisible ? (totalLbs / goalLbs) * 100 : 0}%`,
-                  transition: 'width 2.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-sm font-bold text-gray-700 z-10">
-                  {totalLbs.toLocaleString()} / {goalLbs.toLocaleString()} lbs
-                </span>
-              </div>
-            </div>
-            <p className="text-center text-gray-600 mt-4 font-medium">
-              Meta: 100,000 libras removidas
-            </p>
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-600 to-cyan-600 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+            </a>
+            
+            <a
+              href="/donar"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-cyan-600 bg-white border-2 border-cyan-600 rounded-full hover:bg-cyan-50 transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105"
+            >
+              Hacer una Donación
+            </a>
           </div>
+        </div>
 
-          {/* Additional Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-            <div className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
-              <div className="text-4xl mb-3">🏖️</div>
-              <div className="text-3xl font-display font-bold text-blue-600 mb-2">20</div>
-              <div className="text-gray-600 font-medium">Limpiezas realizadas</div>
-            </div>
-            <div className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
-              <div className="text-4xl mb-3">👥</div>
-              <div className="text-3xl font-display font-bold text-ocean-600 mb-2">500+</div>
-              <div className="text-gray-600 font-medium">Voluntarios movilizados</div>
-            </div>
-            <div className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
-              <div className="text-4xl mb-3">🌊</div>
-              <div className="text-3xl font-display font-bold text-blue-600 mb-2">1225</div>
-              <div className="text-gray-600 font-medium">Playas en Puerto Rico</div>
-            </div>
+        {/* Live Counter Indicator */}
+        <div className="mt-12 text-center">
+          <div className="inline-flex items-center gap-2 bg-white px-6 py-3 rounded-full shadow-lg border border-gray-200">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-gray-700">
+              Impacto en tiempo real
+            </span>
           </div>
         </div>
       </div>
     </section>
   )
 }
-

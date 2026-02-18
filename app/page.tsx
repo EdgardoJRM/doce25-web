@@ -1,38 +1,47 @@
 import Link from 'next/link'
 import { EventList } from '@/components/EventList'
+import { ImpactCounter } from '@/components/ImpactCounter'
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section with Video Background Effect */}
+      {/* Hero Section with Video Background */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-ocean-800 to-teal-900">
-          <div className="absolute inset-0 bg-black/40"></div>
-          {/* Animated Wave Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-transparent animate-pulse"></div>
-          </div>
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/videos/hero-beach.mp4" type="video/mp4" />
+          </video>
+          {/* Video Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
         </div>
 
         {/* Hero Content */}
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in">
-            Un océano saludable y un planeta<br />próspero, para siempre y para todos
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-6 leading-tight animate-fade-in">
+            Un océano saludable<br />
+            y un planeta próspero
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-blue-100 animate-slide-in">
-            Limpiamos playas, protegemos nuestro océano y construimos comunidades más fuertes en Puerto Rico.
+          <p className="text-2xl md:text-3xl mb-12 max-w-4xl mx-auto text-blue-100 font-light animate-slide-in">
+            para siempre y para todos
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center animate-slide-in">
             <Link
               href="/donar"
-              className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300"
+              className="group relative bg-gradient-to-r from-orange-500 to-orange-600 text-white px-12 py-5 rounded-full text-xl font-bold hover:shadow-2xl transition-all duration-300 overflow-hidden"
             >
-              Donar Ahora
+              <span className="relative z-10">Donar Ahora</span>
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             </Link>
             <Link
               href="/eventos"
-              className="bg-white/10 backdrop-blur-md border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white/20 transition-all duration-300"
+              className="bg-white/10 backdrop-blur-md border-2 border-white text-white px-12 py-5 rounded-full text-xl font-bold hover:bg-white hover:text-cyan-900 transition-all duration-300"
             >
               Únete a un Evento
             </Link>
@@ -40,222 +49,268 @@ export default function Home() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce z-10">
+          <div className="w-8 h-14 border-2 border-white rounded-full flex justify-center p-2">
+            <div className="w-2 h-3 bg-white rounded-full animate-pulse"></div>
           </div>
         </div>
       </section>
 
-      {/* Impact Stats Section */}
-      <section className="py-20 bg-gradient-to-br from-cyan-50 to-blue-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-gray-900">
-            No podríamos hacer nuestro trabajo sin ti
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Stat 1 */}
-            <div className="text-center group hover:scale-105 transition-transform duration-300">
-              <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-cyan-500">
-                <div className="text-6xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mb-4">
-                  5+
-                </div>
-                <div className="text-xl font-semibold text-gray-800 mb-2">
-                  Años de Impacto
-                </div>
-                <p className="text-gray-600">
-                  Transformando playas de Puerto Rico
-                </p>
-              </div>
+      {/* Impact Counter - Interactive */}
+      <ImpactCounter />
+
+      {/* Mission Statement with Video */}
+      <section className="py-24 bg-gradient-to-br from-cyan-900 via-blue-900 to-ocean-900 text-white relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute w-full h-full">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute bg-white rounded-full"
+                style={{
+                  width: Math.random() * 4 + 2 + 'px',
+                  height: Math.random() * 4 + 2 + 'px',
+                  left: Math.random() * 100 + '%',
+                  top: Math.random() * 100 + '%',
+                  animation: `float ${Math.random() * 10 + 10}s ease-in-out infinite`,
+                  animationDelay: Math.random() * 5 + 's'
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-5xl md:text-6xl font-bold mb-8 leading-tight">
+                Nuestro Océano<br />Necesita Tu Ayuda
+              </h2>
+              <p className="text-xl text-blue-100 mb-6 leading-relaxed">
+                Nuestro océano produce la mitad del oxígeno del mundo, absorbe el 90% del exceso de calor del cambio climático y soporta millones de especies.
+              </p>
+              <p className="text-xl text-blue-100 mb-8 leading-relaxed">
+                En Doce25, trabajamos para proteger nuestras playas y océanos de Puerto Rico a través de limpiezas comunitarias, educación ambiental y conservación marina.
+              </p>
+              <Link
+                href="/sobre-nosotros"
+                className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border-2 border-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-cyan-900 transition-all duration-300"
+              >
+                Conoce Más
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </div>
 
-            {/* Stat 2 */}
-            <div className="text-center group hover:scale-105 transition-transform duration-300">
-              <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-orange-500">
-                <div className="text-6xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4">
-                  50K+
-                </div>
-                <div className="text-xl font-semibold text-gray-800 mb-2">
-                  Libras de Basura
-                </div>
-                <p className="text-gray-600">
-                  Removidas de nuestras costas
-                </p>
+            <div className="relative">
+              <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl">
+                <video
+                  controls
+                  className="w-full h-full object-cover"
+                  poster="/images/video-poster.jpg"
+                >
+                  <source src="/videos/beach-cleanup.mp4" type="video/mp4" />
+                </video>
               </div>
-            </div>
-
-            {/* Stat 3 */}
-            <div className="text-center group hover:scale-105 transition-transform duration-300">
-              <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-teal-500">
-                <div className="text-6xl font-bold bg-gradient-to-r from-teal-600 to-green-600 bg-clip-text text-transparent mb-4">
-                  1,000+
-                </div>
-                <div className="text-xl font-semibold text-gray-800 mb-2">
-                  Voluntarios
-                </div>
-                <p className="text-gray-600">
-                  Trabajando juntos por PR
-                </p>
-              </div>
+              {/* Decorative element */}
+              <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-3xl -z-10 blur-2xl opacity-30"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Our Work Section */}
-      <section className="py-20 bg-white">
+      {/* Our Work Grid */}
+      <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto mb-16 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               Nuestro Trabajo
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
-              Nuestro océano produce la mitad del oxígeno del mundo y soporta millones de especies. 
-              En Doce25 trabajamos para proteger nuestras playas y océanos de Puerto Rico a través de 
-              limpiezas comunitarias, educación ambiental y conservación marina.
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Protegemos nuestras playas y océanos a través de tres pilares fundamentales
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Beach Cleanups */}
-            <div className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
-                <div className="h-64 bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
-                  <span className="text-8xl">🏖️</span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2 group-hover:translate-y-[-4px] transition-transform">
-                    Limpiezas de Playas
-                  </h3>
-                  <p className="text-blue-100">
-                    Eventos comunitarios para mantener nuestras costas limpias y hermosas.
-                  </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Work Card 1 - Beach Cleanups */}
+            <Link href="/proyectos/playas-urbanas" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-500">
+                <div className="absolute inset-0 bg-[url('/images/beach-cleanup-1.jpg')] bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"></div>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform group-hover:-translate-y-2 transition-transform duration-300">
+                <div className="text-6xl mb-4">🏖️</div>
+                <h3 className="text-3xl font-bold mb-3">
+                  Limpiezas de Playas
+                </h3>
+                <p className="text-lg text-blue-100 mb-4">
+                  Eventos comunitarios para mantener nuestras costas limpias y hermosas
+                </p>
+                <div className="flex items-center gap-2 text-cyan-300 font-semibold">
+                  <span>Conoce Más</span>
+                  <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </div>
-            </div>
+            </Link>
 
-            {/* Marine Conservation */}
-            <div className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
-                <div className="h-64 bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center">
-                  <span className="text-8xl">🐢</span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2 group-hover:translate-y-[-4px] transition-transform">
-                    Conservación Marina
-                  </h3>
-                  <p className="text-teal-100">
-                    Protegemos la vida marina y los ecosistemas costeros de Puerto Rico.
-                  </p>
+            {/* Work Card 2 - Conservation */}
+            <Link href="/proyectos/playas-remotas" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-green-500">
+                <div className="absolute inset-0 bg-[url('/images/marine-life.jpg')] bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"></div>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform group-hover:-translate-y-2 transition-transform duration-300">
+                <div className="text-6xl mb-4">🐢</div>
+                <h3 className="text-3xl font-bold mb-3">
+                  Conservación Marina
+                </h3>
+                <p className="text-lg text-blue-100 mb-4">
+                  Protegemos la vida marina y los ecosistemas costeros de Puerto Rico
+                </p>
+                <div className="flex items-center gap-2 text-teal-300 font-semibold">
+                  <span>Conoce Más</span>
+                  <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </div>
-            </div>
+            </Link>
 
-            {/* Education */}
-            <div className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
-                <div className="h-64 bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center">
-                  <span className="text-8xl">📚</span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2 group-hover:translate-y-[-4px] transition-transform">
-                    Educación Ambiental
-                  </h3>
-                  <p className="text-green-100">
-                    Concienciamos sobre la importancia de cuidar nuestro planeta.
-                  </p>
+            {/* Work Card 3 - Education */}
+            <Link href="/impacto" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500">
+                <div className="absolute inset-0 bg-[url('/images/education.jpg')] bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"></div>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform group-hover:-translate-y-2 transition-transform duration-300">
+                <div className="text-6xl mb-4">📚</div>
+                <h3 className="text-3xl font-bold mb-3">
+                  Educación Ambiental
+                </h3>
+                <p className="text-lg text-blue-100 mb-4">
+                  Concienciamos sobre la importancia de cuidar nuestro planeta
+                </p>
+                <div className="flex items-center gap-2 text-cyan-300 font-semibold">
+                  <span>Conoce Más</span>
+                  <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Spotlight/Featured Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-900 to-ocean-900 text-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
-            En el Foco
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {/* Featured 1 */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 border border-white/20">
-              <div className="text-5xl mb-4">🌊</div>
-              <h3 className="text-2xl font-bold mb-4">Protege Nuestras Playas</h3>
-              <p className="text-blue-100 mb-6">
-                El cambio climático está afectando nuestras costas. Únete a nosotros para proteger 
-                las playas de Puerto Rico para las futuras generaciones.
-              </p>
-              <Link
-                href="/eventos"
-                className="inline-block bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
-              >
-                Únete Ahora →
-              </Link>
-            </div>
-
-            {/* Featured 2 */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 border border-white/20">
-              <div className="text-5xl mb-4">🤝</div>
-              <h3 className="text-2xl font-bold mb-4">Conviértete en Donante Mensual</h3>
-              <p className="text-blue-100 mb-6">
-                Ayuda a mantener nuestro océano limpio y protegido. Tu donación mensual nos permite 
-                planificar y responder rápidamente a emergencias ambientales.
-              </p>
-              <Link
-                href="/donar"
-                className="inline-block bg-white text-ocean-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Donar Ahora →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Upcoming Events Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-              Próximos Eventos
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Únete a nuestras limpiezas de playa y eventos comunitarios. Cada acción cuenta.
-            </p>
-          </div>
-          <EventList />
-          <div className="text-center mt-12">
-            <Link
-              href="/eventos"
-              className="inline-block bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
-            >
-              Ver Todos los Eventos
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Call to Action Section */}
-      <section className="py-20 bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            ¿Amas el Océano?
+      {/* Spotlight Section */}
+      <section className="py-24 bg-gradient-to-br from-slate-900 via-blue-900 to-cyan-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/images/ocean-pattern.svg')] opacity-5"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <h2 className="text-5xl md:text-6xl font-bold text-center mb-20">
+            En el Foco
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Convierte tu pasión en impacto. Explora acciones que puedes tomar ahora mismo 
-            para proteger la vida marina y defender el futuro de nuestro océano.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-7xl mx-auto">
+            {/* Featured 1 */}
+            <div className="group relative bg-white/5 backdrop-blur-xl rounded-3xl p-10 border border-white/10 hover:bg-white/10 transition-all duration-500 overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-teal-400 rounded-2xl flex items-center justify-center text-4xl mb-6 group-hover:scale-110 transition-transform">
+                  🌊
+                </div>
+                <h3 className="text-3xl font-bold mb-6">Protege el Ártico Central</h3>
+                <p className="text-blue-100 text-lg mb-8 leading-relaxed">
+                  El cambio climático está derritiendo rápidamente el hielo marino, proporcionando nuevo acceso a industrias. Exige protección internacional de este tesoro global.
+                </p>
+                <Link
+                  href="/eventos"
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                >
+                  Tomar Acción
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+
+            {/* Featured 2 */}
+            <div className="group relative bg-white/5 backdrop-blur-xl rounded-3xl p-10 border border-white/10 hover:bg-white/10 transition-all duration-500 overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-400 rounded-2xl flex items-center justify-center text-4xl mb-6 group-hover:scale-110 transition-transform">
+                  🤝
+                </div>
+                <h3 className="text-3xl font-bold mb-6">Donante Mensual</h3>
+                <p className="text-blue-100 text-lg mb-8 leading-relaxed">
+                  Ayuda a mantener nuestro océano limpio y protegido. Tu donación mensual nos permite planificar y responder rápidamente a emergencias.
+                </p>
+                <Link
+                  href="/donar"
+                  className="inline-flex items-center gap-3 bg-white text-cyan-900 px-8 py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                >
+                  Donar Ahora
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming Events */}
+      <section className="py-24 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900">
+              Próximos Eventos
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Únete a nuestras limpiezas de playa y eventos comunitarios. Cada acción cuenta.
+            </p>
+          </div>
+          <EventList />
+          <div className="text-center mt-16">
             <Link
               href="/eventos"
-              className="bg-white text-orange-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-12 py-5 rounded-full text-xl font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300"
+            >
+              Ver Todos los Eventos
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-32 bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/images/wave-pattern.svg')] opacity-10"></div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-5xl md:text-7xl font-bold mb-8">
+            ¿Amas el Océano?
+          </h2>
+          <p className="text-2xl mb-12 max-w-3xl mx-auto font-light">
+            Convierte tu pasión en impacto. Explora acciones que puedes tomar ahora mismo para proteger la vida marina.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Link
+              href="/eventos"
+              className="bg-white text-orange-600 px-12 py-5 rounded-full text-xl font-bold hover:bg-gray-100 hover:shadow-2xl hover:scale-105 transition-all duration-300"
             >
               Tomar Acción
             </Link>
             <Link
               href="/contacto"
-              className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white/10 transition-colors"
+              className="bg-transparent border-2 border-white text-white px-12 py-5 rounded-full text-xl font-bold hover:bg-white/10 transition-all duration-300"
             >
               Contáctanos
             </Link>
@@ -264,28 +319,35 @@ export default function Home() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
+      <section className="py-24 bg-gradient-to-br from-cyan-50 via-blue-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
-              Mantente Informado
-            </h2>
-            <p className="text-lg text-gray-600 mb-8">
-              Recibe actualizaciones y haz la diferencia por el futuro de nuestro océano
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <input
-                type="email"
-                placeholder="Tu email"
-                className="flex-1 px-6 py-4 rounded-lg border-2 border-gray-300 focus:border-cyan-500 focus:outline-none text-gray-900"
-              />
-              <button className="bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition-all">
-                Suscribirse
-              </button>
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-12 md:p-16">
+              <div className="text-center mb-10">
+                <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+                  Mantente Informado
+                </h2>
+                <p className="text-xl text-gray-600">
+                  Recibe actualizaciones y haz la diferencia por el futuro de nuestro océano
+                </p>
+              </div>
+              <form className="flex flex-col sm:flex-row gap-4">
+                <input
+                  type="email"
+                  placeholder="tu@email.com"
+                  className="flex-1 px-8 py-5 rounded-full border-2 border-gray-300 focus:border-cyan-500 focus:outline-none text-lg text-gray-900"
+                />
+                <button 
+                  type="submit"
+                  className="bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-12 py-5 rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                >
+                  Suscribirse
+                </button>
+              </form>
+              <p className="text-sm text-gray-500 mt-6 text-center">
+                Doce25 es una organización 501(c)3. Las donaciones son 100% deducibles de impuestos.
+              </p>
             </div>
-            <p className="text-sm text-gray-500 mt-4">
-              Doce25 es una organización 501(c)3 – Las donaciones son 100% deducibles de impuestos.
-            </p>
           </div>
         </div>
       </section>
