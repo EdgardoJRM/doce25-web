@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
@@ -10,6 +10,7 @@ export function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
   const { user, logout } = useAuth()
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,6 +19,20 @@ export function Navbar() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleMouseEnter = (dropdown: string) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
+    setActiveDropdown(dropdown)
+  }
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150) // 150ms delay antes de cerrar
+  }
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 bg-white transition-all duration-300 ${
@@ -45,8 +60,8 @@ export function Navbar() {
             {/* Nuestra Historia */}
             <div 
               className="relative group"
-              onMouseEnter={() => setActiveDropdown('historia')}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={() => handleMouseEnter('historia')}
+              onMouseLeave={handleMouseLeave}
             >
               <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors flex items-center gap-1">
                 Nuestra Historia
@@ -55,7 +70,11 @@ export function Navbar() {
                 </svg>
               </button>
               {activeDropdown === 'historia' && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                <div 
+                  className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100"
+                  onMouseEnter={() => handleMouseEnter('historia')}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <Link href="/sobre-nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Sobre Nosotros
                   </Link>
@@ -72,8 +91,8 @@ export function Navbar() {
             {/* Nuestro Trabajo */}
             <div 
               className="relative group"
-              onMouseEnter={() => setActiveDropdown('trabajo')}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={() => handleMouseEnter('trabajo')}
+              onMouseLeave={handleMouseLeave}
             >
               <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-cyan-600 transition-colors flex items-center gap-1">
                 Nuestro Trabajo
@@ -82,7 +101,11 @@ export function Navbar() {
                 </svg>
               </button>
               {activeDropdown === 'trabajo' && (
-                <div className="absolute top-full left-0 mt-1 w-52 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                <div 
+                  className="absolute top-full left-0 mt-1 w-52 bg-white rounded-lg shadow-xl py-2 border border-gray-100"
+                  onMouseEnter={() => handleMouseEnter('trabajo')}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <Link href="/proyectos/playas-urbanas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Playas Urbanas
                   </Link>
@@ -128,8 +151,8 @@ export function Navbar() {
             {user ? (
               <div 
                 className="relative"
-                onMouseEnter={() => setActiveDropdown('user')}
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => handleMouseEnter('user')}
+                onMouseLeave={handleMouseLeave}
               >
                 <button className="flex items-center gap-2">
                   <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center text-white text-sm font-bold hover:scale-110 transition-transform shadow-md">
@@ -137,7 +160,11 @@ export function Navbar() {
                   </div>
                 </button>
                 {activeDropdown === 'user' && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                  <div 
+                    className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100"
+                    onMouseEnter={() => handleMouseEnter('user')}
+                    onMouseLeave={handleMouseLeave}
+                  >
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-semibold text-gray-900 truncate">{user.fullName || 'Usuario'}</p>
                       <p className="text-xs text-gray-500 truncate">{user.email}</p>
