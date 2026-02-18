@@ -9,16 +9,39 @@ Globals:
     Handler: index.handler
     Environment:
       Variables:
+        USERS_TABLE: !Ref UsersTable
         EVENTS_TABLE: !Ref EventsTable
         REGISTRATIONS_TABLE: !Ref RegistrationsTable
         S3_BUCKET: !Ref QRCodesBucket
         SES_FROM_EMAIL: noreply@dosce25.org
         FRONTEND_URL: https://dosce25.org
+        JWT_SECRET: dosce25-super-secret-key-change-in-production
     Architectures:
       - x86_64
 
 Resources:
   # DynamoDB Tables
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Dosce25-Users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
   EventsTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -52,6 +75,8 @@ Resources:
           AttributeType: S
         - AttributeName: qrToken
           AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
       KeySchema:
         - AttributeName: registrationId
           KeyType: HASH
@@ -65,6 +90,12 @@ Resources:
         - IndexName: QRTokenIndex
           KeySchema:
             - AttributeName: qrToken
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
               KeyType: HASH
           Projection:
             ProjectionType: ALL
@@ -428,6 +459,127 @@ Resources:
                 - ses:SendEmail
                 - ses:SendRawEmail
               Resource: '*'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
+
+  # User Auth Functions
+  RegisterUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/register-user/
+      Handler: index.handler
+      Events:
+        RegisterUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /auth/register
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
+
+  LoginUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/login-user/
+      Handler: index.handler
+      Events:
+        LoginUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /auth/login
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
+
+  GetUserProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-user-profile/
+      Handler: index.handler
+      Events:
+        GetUserProfile:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /auth/profile
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref UsersTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
+
+  UpdateUserProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/update-user-profile/
+      Handler: index.handler
+      Events:
+        UpdateUserProfile:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /auth/profile
+            Method: put
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
+
+  GetUserRegistrationsByUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-user-registrations-by-user/
+      Handler: index.handler
+      Events:
+        GetUserRegistrations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /users/{userId}/registrations
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref RegistrationsTable
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

@@ -1,0 +1,17 @@
+{
+  "name": "update-user-profile",
+  "version": "1.0.0",
+  "description": "Lambda function to update user profile",
+  "main": "index.ts",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.540.0",
+    "@aws-sdk/lib-dynamodb": "^3.540.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.0",
+    "@types/jsonwebtoken": "^9.0.5",
+    "typescript": "^5.3.0"
+  }
+}
+
