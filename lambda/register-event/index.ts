@@ -18,6 +18,113 @@ const TABLES = {
   REGISTRATIONS: 'Dosce25-Registrations',
 }
 
+const ADMIN_NOTIFICATION_EMAILS = [
+  'r.tirado@doce25.org',
+  'info@doce25.org',
+  'edgardoehernandezjr@gmail.com',
+  'a.delvalle@doce25.org',
+]
+
+async function sendAdminNotification(data: {
+  name: string
+  fullName: string
+  email: string
+  phone?: string
+  eventName: string
+  eventDate: string
+  eventLocation: string
+  organization: string
+  city: string
+  ageRange: string
+  gender: string
+  registrationId: string
+}) {
+  const fromEmail = process.env.SES_FROM_EMAIL || 'doce25@precotracks.org'
+  const subject = `🎉 Nuevo registro: ${data.fullName} → ${data.eventName}`
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+        .wrap { max-width: 580px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%); padding: 28px 30px; }
+        .header h2 { color: #fff; margin: 0; font-size: 20px; }
+        .header p { color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 14px; }
+        .body { padding: 28px 30px; }
+        .event-box { background: #f0fdf4; border-left: 4px solid #14b8a6; padding: 14px 16px; border-radius: 4px; margin-bottom: 24px; }
+        .event-box p { margin: 0; font-size: 15px; font-weight: 600; color: #065f46; }
+        .event-box span { font-size: 13px; color: #047857; font-weight: 400; }
+        .row { display: flex; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+        .row:last-child { border-bottom: none; }
+        .label { width: 140px; font-size: 13px; color: #6b7280; flex-shrink: 0; }
+        .value { font-size: 14px; color: #111827; font-weight: 500; }
+        .footer { background: #f9fafb; padding: 16px 30px; text-align: center; font-size: 12px; color: #9ca3af; }
+        .badge { display: inline-block; background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <div class="header">
+          <h2>🎉 Nuevo registro recibido</h2>
+          <p>Un participante se ha inscrito a un evento de Doce25</p>
+        </div>
+        <div class="body">
+          <div class="event-box">
+            <p>📅 ${data.eventName}</p>
+            <span>${data.eventDate ? new Date(data.eventDate).toLocaleDateString('es-PR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''} · ${data.eventLocation}</span>
+          </div>
+
+          <div class="row"><span class="label">Nombre completo</span><span class="value">${data.fullName}</span></div>
+          <div class="row"><span class="label">Email</span><span class="value">${data.email}</span></div>
+          <div class="row"><span class="label">Teléfono</span><span class="value">${data.phone || '—'}</span></div>
+          <div class="row"><span class="label">Organización</span><span class="value">${data.organization || '—'}</span></div>
+          <div class="row"><span class="label">Ciudad</span><span class="value">${data.city || '—'}</span></div>
+          <div class="row"><span class="label">Rango de edad</span><span class="value">${data.ageRange || '—'}</span></div>
+          <div class="row"><span class="label">Género</span><span class="value">${data.gender || '—'}</span></div>
+          <div class="row"><span class="label">ID Registro</span><span class="value" style="font-size:12px;color:#6b7280;">${data.registrationId}</span></div>
+
+          <p style="margin-top:20px;font-size:13px;color:#6b7280;">
+            Este es un aviso automático. Para gestionar registros visita el 
+            <a href="https://doce25.precotracks.org/admin" style="color:#0ea5e9;">panel de administración</a>.
+          </p>
+        </div>
+        <div class="footer">© ${new Date().getFullYear()} Doce25 · Fundación Tortuga Club PR, Inc.</div>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `Nuevo registro: ${data.fullName} → ${data.eventName}\n\nEmail: ${data.email}\nTeléfono: ${data.phone || '—'}\nOrganización: ${data.organization || '—'}\nCiudad: ${data.city || '—'}\nID: ${data.registrationId}`
+
+  const boundary = `----=_Notif_${Date.now()}`
+  const rawEmail = [
+    `From: Doce25 <${fromEmail}>`,
+    `To: ${ADMIN_NOTIFICATION_EMAILS.join(', ')}`,
+    `Subject: ${subject}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/plain; charset=UTF-8`,
+    ``,
+    text,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/html; charset=UTF-8`,
+    ``,
+    html,
+    ``,
+    `--${boundary}--`,
+  ].join('\r\n')
+
+  await sesClient.send(new SendRawEmailCommand({
+    RawMessage: { Data: Buffer.from(rawEmail) },
+  }))
+}
+
 // Generar código alternativo de 8 caracteres
 function generateAlternativeCode(registrationId: string): string {
   return registrationId.substring(0, 8).toUpperCase()
@@ -897,6 +1004,27 @@ Comprometidos con el cambio y el desarrollo comunitario
       pdfBuffer,
       logoBuffer
     )
+
+    // Notificación interna al equipo de Doce25
+    try {
+      await sendAdminNotification({
+        name,
+        fullName: fullName || name,
+        email: normalizedEmail,
+        phone,
+        eventName: eventInfo.name || 'Evento Doce25',
+        eventDate: eventInfo.date || '',
+        eventLocation: eventInfo.location || '',
+        organization: organization || '',
+        city: city || '',
+        ageRange: ageRange || '',
+        gender: gender || '',
+        registrationId,
+      })
+    } catch (notifErr) {
+      // No bloquear el registro si falla la notificación interna
+      console.error('Error sending admin notification:', notifErr)
+    }
 
     return {
       statusCode: 200,
