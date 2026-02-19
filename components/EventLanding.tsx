@@ -15,6 +15,7 @@ interface Event {
   description: string
   slug: string
   shortId?: string
+  shortCode?: string
   imageUrl?: string
   image?: string
   capacity?: number
@@ -50,10 +51,21 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
   }, [eventSlug])
 
   const getShareUrl = () => {
-    if (event?.shortId) {
-      return `${window.location.origin}/e/${event.shortId}`
+    // Usar el dominio de producción o el origin actual si estamos en desarrollo
+    const baseUrl = typeof window !== 'undefined' 
+      ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? window.location.origin
+          : 'https://doce25.precotracks.org')
+      : 'https://doce25.precotracks.org'
+    
+    // Priorizar shortCode, luego shortId, finalmente slug
+    if (event?.shortCode) {
+      return `${baseUrl}/e/${event.shortCode}`
     }
-    return `${window.location.origin}/eventos/${event?.slug}`
+    if (event?.shortId) {
+      return `${baseUrl}/e/${event.shortId}`
+    }
+    return `${baseUrl}/eventos/${event?.slug}`
   }
 
   const copyToClipboard = async () => {
@@ -199,7 +211,7 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
               <h3 className="text-xl font-bold mb-4 text-gray-900">Comparte este Evento</h3>
               
               {/* Short Link Display */}
-              {event.shortId && (
+              {(event.shortCode || event.shortId) && (
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Link Corto

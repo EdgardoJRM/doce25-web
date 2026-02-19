@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { getEventById } from '@/lib/api'
+import { getEventById, getEventByShortId } from '@/lib/api'
 
 export default function EventShortLinkPage() {
   const params = useParams()
@@ -13,7 +13,18 @@ export default function EventShortLinkPage() {
   useEffect(() => {
     async function redirectToEvent() {
       try {
-        const event = await getEventById(eventId)
+        // Intentar obtener el evento por shortId/shortCode primero
+        let event
+        try {
+          event = await getEventByShortId(eventId)
+        } catch (shortIdError) {
+          // Si falla, intentar por eventId
+          try {
+            event = await getEventById(eventId)
+          } catch (idError) {
+            throw new Error('Evento no encontrado')
+          }
+        }
         
         if (event && event.slug) {
           router.replace(`/eventos/${event.slug}`)

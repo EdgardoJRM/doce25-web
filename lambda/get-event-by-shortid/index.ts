@@ -35,11 +35,11 @@ export const handler = async (
       }
     }
 
-    // Buscar el evento por shortId
+    // Buscar el evento por shortId o shortCode
     const result = await dynamoClient.send(
       new ScanCommand({
         TableName: EVENTS_TABLE,
-        FilterExpression: 'shortId = :shortId',
+        FilterExpression: 'shortId = :shortId OR shortCode = :shortId',
         ExpressionAttributeValues: {
           ':shortId': shortId,
         },

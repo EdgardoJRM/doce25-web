@@ -102,7 +102,7 @@ export async function getEventBySlug(slug: string) {
 }
 
 export async function getEventByShortId(shortId: string) {
-  const response = await fetch(`${API_ENDPOINT}/e/${shortId}`, {
+  const response = await fetch(`${API_ENDPOINT}/events/short/${shortId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -113,7 +113,8 @@ export async function getEventByShortId(shortId: string) {
     throw new Error('Evento no encontrado')
   }
 
-  return response.json()
+  const data = await response.json()
+  return data.event || data
 }
 
 export async function getRegistrations(eventId: string) {
