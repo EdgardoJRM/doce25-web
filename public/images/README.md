@@ -102,3 +102,4 @@ Si necesitas actualizar estas imágenes:
 2. Mantén el mismo nombre o actualiza las referencias en los componentes
 3. Optimiza con: `sips -s format jpeg -Z 1920 [imagen-original] --out [destino]`
 
+

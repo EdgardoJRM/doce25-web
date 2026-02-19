@@ -293,3 +293,4 @@ Para problemas o preguntas técnicas:
 **Sistema Doce25 v1.0**  
 *Última actualización: 12 de Febrero de 2026*
 
+

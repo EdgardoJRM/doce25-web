@@ -43,3 +43,4 @@ echo "2. Ejecuta 'npm run dev' para probar localmente"
 echo "3. Sigue las instrucciones en DEPLOYMENT.md para desplegar en AWS"
 echo ""
 
+

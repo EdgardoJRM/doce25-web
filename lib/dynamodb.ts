@@ -16,3 +16,4 @@ export const TABLES = {
   REGISTRATIONS: 'Dosce25-Registrations',
 }
 
+

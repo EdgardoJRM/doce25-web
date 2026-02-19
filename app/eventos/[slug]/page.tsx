@@ -13,3 +13,4 @@ export default async function EventPage({ params }: PageProps) {
   return <EventLanding eventSlug={params.slug} />
 }
 
+

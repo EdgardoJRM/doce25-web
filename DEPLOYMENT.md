@@ -227,3 +227,4 @@ aws apigateway get-rest-apis --query "items[?contains(name, 'Doce25')]"
 4. Implementar CI/CD con GitHub Actions
 5. Agregar más funcionalidades al panel admin
 
+

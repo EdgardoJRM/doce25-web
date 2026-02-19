@@ -103,3 +103,4 @@ Puedes probar el frontend localmente sin configurar AWS. Las llamadas a la API f
 - `DEPLOYMENT.md` - Guía completa de despliegue en AWS
 - `package.json` - Dependencias y scripts disponibles
 
+

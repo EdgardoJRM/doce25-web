@@ -123,3 +123,4 @@ curl -X POST https://tu-api-endpoint/prod/checkin/QR_TOKEN
 - Verifica que el frontend use el endpoint correcto
 - Los headers CORS están configurados en las lambdas
 
+
