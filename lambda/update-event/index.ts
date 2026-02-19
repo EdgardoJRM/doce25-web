@@ -119,7 +119,8 @@ export const handler = async (
     // Generar shortCode si no existe
     if (!getResult.Item.shortCode) {
       const newShortCode = await generateUniqueShortCode()
-      updateExpressions.push('shortCode = :shortCode')
+      updateExpressions.push('#shortCode = :shortCode')
+      expressionAttributeNames['#shortCode'] = 'shortCode'
       expressionAttributeValues[':shortCode'] = newShortCode
     }
 
@@ -130,12 +131,14 @@ export const handler = async (
     }
 
     if (body.slug !== undefined) {
-      updateExpressions.push('slug = :slug')
+      updateExpressions.push('#slug = :slug')
+      expressionAttributeNames['#slug'] = 'slug'
       expressionAttributeValues[':slug'] = body.slug
     }
 
     if (body.description !== undefined) {
-      updateExpressions.push('description = :description')
+      updateExpressions.push('#description = :description')
+      expressionAttributeNames['#description'] = 'description'
       expressionAttributeValues[':description'] = body.description
     }
 
@@ -154,12 +157,14 @@ export const handler = async (
     }
 
     if (body.capacity !== undefined) {
-      updateExpressions.push('capacity = :capacity')
+      updateExpressions.push('#capacity = :capacity')
+      expressionAttributeNames['#capacity'] = 'capacity'
       expressionAttributeValues[':capacity'] = body.capacity
     }
 
     if (body.image !== undefined) {
-      updateExpressions.push('image = :image')
+      updateExpressions.push('#image = :image')
+      expressionAttributeNames['#image'] = 'image'
       expressionAttributeValues[':image'] = body.image
     }
 
@@ -170,7 +175,8 @@ export const handler = async (
     }
 
     // Siempre actualizar updatedAt
-    updateExpressions.push('updatedAt = :updatedAt')
+    updateExpressions.push('#updatedAt = :updatedAt')
+    expressionAttributeNames['#updatedAt'] = 'updatedAt'
     expressionAttributeValues[':updatedAt'] = new Date().toISOString()
 
     if (updateExpressions.length === 0) {
