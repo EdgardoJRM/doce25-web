@@ -94,7 +94,7 @@ export default function Home() {
                 Nuestro océano produce la mitad del oxígeno del mundo, absorbe el 90% del exceso de calor del cambio climático y soporta millones de especies.
               </p>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                En Doce25, trabajamos para proteger nuestras playas y océanos de Puerto Rico a través de limpiezas comunitarias, educación ambiental y conservación marina.
+                En Doce25, trabajamos para proteger nuestras playas y océanos de Puerto Rico a través de limpiezas comunitarias y educación ambiental.
               </p>
               <Link
                 href="/nosotros"
@@ -132,11 +132,11 @@ export default function Home() {
               Nuestro Trabajo
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Protegemos nuestras playas y océanos a través de tres pilares fundamentales
+              Protegemos nuestras playas y océanos a través de dos pilares fundamentales
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Work Card 1 - Beach Cleanups */}
             <Link href="/proyectos/playas-urbanas" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-500">
@@ -145,7 +145,7 @@ export default function Home() {
                   alt="Limpiezas de playas"
                   fill
                   className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
@@ -166,44 +166,15 @@ export default function Home() {
               </div>
             </Link>
 
-            {/* Work Card 2 - Conservation */}
-            <Link href="/proyectos/playas-remotas" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-green-500">
-                <Image
-                  src="/hero/hero-2.jpg"
-                  alt="Conservación marina"
-                  fill
-                  className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform group-hover:-translate-y-2 transition-transform duration-300">
-                <div className="text-6xl mb-4">🐢</div>
-                <h3 className="text-3xl font-bold mb-3">
-                  Conservación Marina
-                </h3>
-                <p className="text-lg text-blue-100 mb-4">
-                  Protegemos la vida marina y los ecosistemas costeros de Puerto Rico
-                </p>
-                <div className="flex items-center gap-2 text-teal-300 font-semibold">
-                  <span>Conoce Más</span>
-                  <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
-
-            {/* Work Card 3 - Education */}
+            {/* Work Card 2 - Education */}
             <Link href="/impacto" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500">
                 <Image
-                  src="/hero/hero-3.jpg"
+                  src="/hero/hero-2.jpg"
                   alt="Educación ambiental"
                   fill
                   className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
