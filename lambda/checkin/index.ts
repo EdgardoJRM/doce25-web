@@ -48,40 +48,40 @@ export const handler = async (
       )
 
       if (!getResult.Item) {
-        return {
+      return {
           statusCode: 404,
-          headers,
+        headers,
           body: JSON.stringify({ 
             status: 'invalid',
             message: 'Registration not found' 
           }),
-        }
       }
+    }
 
       registration = getResult.Item
     } else if (token) {
       // Check-in por QR token (método original)
-      const queryResult = await dynamoClient.send(
-        new QueryCommand({
-          TableName: TABLES.REGISTRATIONS,
-          IndexName: 'QRTokenIndex',
-          KeyConditionExpression: 'qrToken = :token',
-          ExpressionAttributeValues: {
-            ':token': token,
-          },
-        })
-      )
+    const queryResult = await dynamoClient.send(
+      new QueryCommand({
+        TableName: TABLES.REGISTRATIONS,
+        IndexName: 'QRTokenIndex',
+        KeyConditionExpression: 'qrToken = :token',
+        ExpressionAttributeValues: {
+          ':token': token,
+        },
+      })
+    )
 
-      if (!queryResult.Items || queryResult.Items.length === 0) {
-        return {
-          statusCode: 404,
-          headers,
-          body: JSON.stringify({ 
-            status: 'invalid',
-            message: 'Token not found or invalid' 
-          }),
-        }
+    if (!queryResult.Items || queryResult.Items.length === 0) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ 
+          status: 'invalid',
+          message: 'Token not found or invalid' 
+        }),
       }
+    }
 
       registration = queryResult.Items[0]
     } else {

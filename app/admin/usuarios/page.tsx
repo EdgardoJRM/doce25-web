@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
 
               {/* Vista desktop - Tabla */}
               <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
+              <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">

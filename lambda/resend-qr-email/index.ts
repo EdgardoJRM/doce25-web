@@ -321,7 +321,8 @@ async function sendEmailWithAttachments(
   htmlBody: string,
   textBody: string,
   qrCodeBuffer: Buffer,
-  pdfBuffer: Buffer
+  pdfBuffer: Buffer,
+  logoBuffer: Buffer | null = null
 ) {
   const fromEmail = process.env.SES_FROM_EMAIL || 'doce25@precotracks.org'
   const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substring(7)}`
@@ -360,6 +361,24 @@ async function sendEmailWithAttachments(
     ``,
     qrCodeBuffer.toString('base64'),
     ``,
+  ]
+
+  // Agregar logo si está disponible
+  if (logoBuffer) {
+    rawEmail.push(
+      `--${boundary}`,
+      `Content-Type: image/png; name="doce25-logo.png"`,
+      `Content-Transfer-Encoding: base64`,
+      `Content-Disposition: inline; filename="doce25-logo.png"`,
+      `Content-ID: <logo>`,
+      ``,
+      logoBuffer.toString('base64'),
+      ``,
+    )
+  }
+
+  // Agregar PDF
+  rawEmail.push(
     `--${boundary}`,
     `Content-Type: application/pdf; name="entrada-doce25.pdf"`,
     `Content-Transfer-Encoding: base64`,
@@ -368,11 +387,13 @@ async function sendEmailWithAttachments(
     pdfBuffer.toString('base64'),
     ``,
     `--${boundary}--`,
-  ].join('\r\n')
+  )
+
+  const rawEmailString = rawEmail.join('\r\n')
 
   const command = new SendRawEmailCommand({
     RawMessage: {
-      Data: Buffer.from(rawEmail),
+      Data: Buffer.from(rawEmailString),
     },
   })
 
@@ -626,7 +647,7 @@ export const handler = async (
             <div class="email-container">
               <!-- Header -->
             <div class="header">
-                <div class="resend-icon">📧</div>
+                ${logoBuffer ? '<img src="cid:logo" alt="Doce25 Logo" style="max-width: 200px; height: auto; margin-bottom: 20px;" />' : '<div class="resend-icon">📧</div>'}
                 <h1>Tu Código QR</h1>
             </div>
 
@@ -695,7 +716,7 @@ export const handler = async (
 
               <!-- Footer -->
               <div class="footer">
-                <div class="footer-logo">DOCE25</div>
+                ${logoBuffer ? '<img src="cid:logo" alt="Doce25 Logo" style="max-width: 150px; height: auto; margin-bottom: 15px;" />' : '<div class="footer-logo">DOCE25</div>'}
                 <p class="footer-text">
                   Fundación Tortuga Club PR, Inc.<br>
                   Comprometidos con el cambio y el desarrollo comunitario
@@ -748,7 +769,8 @@ Comprometidos con el cambio y el desarrollo comunitario
       emailHtml,
       textBody,
       qrCodeBuffer,
-      pdfBuffer
+      pdfBuffer,
+      logoBuffer
     )
 
     return {

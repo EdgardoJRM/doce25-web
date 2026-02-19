@@ -82,7 +82,7 @@ export default function AdminLayout({
         </div>
       </div>
       <div className="pb-4">
-        {children}
+      {children}
       </div>
     </div>
   )

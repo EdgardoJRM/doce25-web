@@ -10,20 +10,20 @@ export default function ScannerPage() {
   const [error, setError] = useState('')
   const [lastScan, setLastScan] = useState('')
   const scannerRef = useRef<Html5Qrcode | null>(null)
-  const hasStarted = useRef(false)
+  const isRunningRef = useRef(false)
 
   useEffect(() => {
-    // Evitar inicialización múltiple
-    if (hasStarted.current) return
-
     const scanner = new Html5Qrcode('qr-reader')
     scannerRef.current = scanner
-    hasStarted.current = true
 
     const startScanner = async () => {
+      // Evitar iniciar si ya está corriendo
+      if (isRunningRef.current) return
+      
       try {
         setIsScanning(true)
         setError('')
+        isRunningRef.current = true
         
         await scanner.start(
           { facingMode: 'environment' }, // Cámara trasera
@@ -31,27 +31,45 @@ export default function ScannerPage() {
             fps: 10,
             qrbox: { width: 250, height: 250 },
           },
-          (decodedText) => {
+          async (decodedText) => {
             // Extraer el token del URL escaneado
             try {
               const url = new URL(decodedText)
               const pathParts = url.pathname.split('/')
               const token = pathParts[pathParts.length - 1]
               
-              if (token && token !== lastScan) {
+              if (token && token !== lastScan && isRunningRef.current) {
                 setLastScan(token)
+                isRunningRef.current = false
+                
                 // Detener el escáner antes de navegar
-                scanner.stop().then(() => {
-                  router.push(`/checkin/${token}`)
-                }).catch(console.error)
+                try {
+                  await scanner.stop()
+                } catch (stopErr: any) {
+                  // Ignorar error si el scanner ya está detenido
+                  if (!stopErr.message?.includes('not running')) {
+                    console.error('Error stopping scanner:', stopErr)
+                  }
+                }
+                
+                router.push(`/checkin/${token}`)
               }
             } catch {
               // Si no es un URL válido, asumir que es el token directamente
-              if (decodedText && decodedText !== lastScan) {
+              if (decodedText && decodedText !== lastScan && isRunningRef.current) {
                 setLastScan(decodedText)
-                scanner.stop().then(() => {
-                  router.push(`/checkin/${decodedText}`)
-                }).catch(console.error)
+                isRunningRef.current = false
+                
+                try {
+                  await scanner.stop()
+                } catch (stopErr: any) {
+                  // Ignorar error si el scanner ya está detenido
+                  if (!stopErr.message?.includes('not running')) {
+                    console.error('Error stopping scanner:', stopErr)
+                  }
+                }
+                
+                router.push(`/checkin/${decodedText}`)
               }
             }
           },
@@ -63,17 +81,24 @@ export default function ScannerPage() {
         console.error('Scanner error:', err)
         setError('Error al iniciar la cámara. Asegúrate de haber dado permisos.')
         setIsScanning(false)
+        isRunningRef.current = false
       }
     }
 
     startScanner()
 
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(console.error)
+      if (scannerRef.current && isRunningRef.current) {
+        isRunningRef.current = false
+        scannerRef.current.stop().catch((err: any) => {
+          // Ignorar error si el scanner ya está detenido
+          if (!err.message?.includes('not running') && !err.message?.includes('not paused')) {
+            console.error('Error stopping scanner on cleanup:', err)
+          }
+        })
       }
     }
-  }, [router, lastScan])
+  }, [router])
 
   return (
     <div className="container mx-auto px-4 py-8">
