@@ -6,14 +6,3 @@
     "@aws-sdk/client-ses": "^3.540.0"
   }
 }
-
-
-  "name": "send-form-notification",
-  "version": "1.0.0",
-  "main": "index.ts",
-  "dependencies": {
-    "@aws-sdk/client-ses": "^3.540.0"
-  }
-}
-
-
