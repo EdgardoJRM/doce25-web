@@ -4,9 +4,7 @@ import { DynamoDBDocumentClient, UpdateCommand, GetCommand } from '@aws-sdk/lib-
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
-const TABLES = {
-  EVENTS: 'Dosce25-Events',
-}
+const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
 
 interface UpdateEventBody {
   name?: string
@@ -51,7 +49,7 @@ export const handler = async (
     // Verificar que el evento existe
     const getResult = await dynamoClient.send(
       new GetCommand({
-        TableName: TABLES.EVENTS,
+        TableName: EVENTS_TABLE,
         Key: { eventId },
       })
     )
@@ -88,8 +86,9 @@ export const handler = async (
     }
 
     if (body.dateTime !== undefined) {
-      updateExpressions.push('#date = :date, dateTime = :dateTime')
+      updateExpressions.push('#date = :date, #dateTime = :dateTime')
       expressionAttributeNames['#date'] = 'date'
+      expressionAttributeNames['#dateTime'] = 'dateTime'
       expressionAttributeValues[':date'] = body.dateTime
       expressionAttributeValues[':dateTime'] = body.dateTime
     }
@@ -130,7 +129,7 @@ export const handler = async (
 
     await dynamoClient.send(
       new UpdateCommand({
-        TableName: TABLES.EVENTS,
+        TableName: EVENTS_TABLE,
         Key: { eventId },
         UpdateExpression: `SET ${updateExpressions.join(', ')}`,
         ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined,
