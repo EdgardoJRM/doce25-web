@@ -221,8 +221,8 @@ export default function NosotrosPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-2xl text-white">
               <p className="text-2xl md:text-4xl font-black leading-snug">
-                "Cada libra de basura que sacamos del océano<br className="hidden md:block" />
-                es una promesa cumplida con las generaciones futuras."
+                &ldquo;Cada libra de basura que sacamos del océano<br className="hidden md:block" />
+                es una promesa cumplida con las generaciones futuras.&rdquo;
               </p>
               <p className="mt-4 text-white/70 text-lg">— Equipo Doce25</p>
             </div>
