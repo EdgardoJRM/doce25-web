@@ -14,6 +14,7 @@ interface Event {
   location: string
   description: string
   slug: string
+  shortCode?: string
   imageUrl?: string
   image?: string
   capacity?: number
@@ -30,6 +31,7 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -46,6 +48,25 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
 
     fetchEvent()
   }, [eventSlug])
+
+  const getShortLink = () => {
+    if (!event?.shortCode) return ''
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://doce25.org'
+    return `${baseUrl}/e/${event.shortCode}`
+  }
+
+  const copyShortLink = async () => {
+    const shortLink = getShortLink()
+    if (shortLink) {
+      try {
+        await navigator.clipboard.writeText(shortLink)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch (err) {
+        console.error('Error copying to clipboard:', err)
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -141,6 +162,42 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
           </div>
         </div>
       </section>
+
+      {/* Share Section */}
+      {event.shortCode && (
+        <section className="py-12 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span>🔗</span> Compartir Evento
+                </h3>
+                <p className="text-gray-600 mb-4 text-sm">
+                  Comparte este evento fácilmente con este enlace corto:
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-mono text-sm text-gray-800 break-all">
+                    {getShortLink()}
+                  </div>
+                  <button
+                    onClick={copyShortLink}
+                    className={`px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap ${
+                      copied
+                        ? 'bg-green-500 text-white'
+                        : 'bg-cyan-600 text-white hover:bg-cyan-700'
+                    }`}
+                  >
+                    {copied ? '✓ Copiado!' : '📋 Copiar'}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-3">
+                  También puedes compartir usando: <span className="font-mono">/eventos/{event.slug}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Featured Image Section */}
       <section className="py-16 bg-gray-50">

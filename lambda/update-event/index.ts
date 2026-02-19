@@ -1,10 +1,57 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, UpdateCommand, GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
+
+// Generar código corto único (6 caracteres alfanuméricos)
+function generateShortCode(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  let code = ''
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return code
+}
+
+// Verificar si el código ya existe
+async function isShortCodeUnique(code: string): Promise<boolean> {
+  try {
+    const result = await dynamoClient.send(
+      new ScanCommand({
+        TableName: EVENTS_TABLE,
+        FilterExpression: 'shortCode = :code',
+        ExpressionAttributeValues: {
+          ':code': code,
+        },
+      })
+    )
+    return !result.Items || result.Items.length === 0
+  } catch (error) {
+    console.error('Error checking shortCode uniqueness:', error)
+    return true
+  }
+}
+
+// Generar código único
+async function generateUniqueShortCode(): Promise<string> {
+  let code = generateShortCode()
+  let attempts = 0
+  const maxAttempts = 10
+
+  while (!(await isShortCodeUnique(code)) && attempts < maxAttempts) {
+    code = generateShortCode()
+    attempts++
+  }
+
+  if (attempts >= maxAttempts) {
+    code = Date.now().toString(36).slice(-4) + generateShortCode().slice(0, 2)
+  }
+
+  return code
+}
 
 interface UpdateEventBody {
   name?: string
@@ -68,6 +115,13 @@ export const handler = async (
     const updateExpressions: string[] = []
     const expressionAttributeNames: Record<string, string> = {}
     const expressionAttributeValues: Record<string, any> = {}
+
+    // Generar shortCode si no existe
+    if (!getResult.Item.shortCode) {
+      const newShortCode = await generateUniqueShortCode()
+      updateExpressions.push('shortCode = :shortCode')
+      expressionAttributeValues[':shortCode'] = newShortCode
+    }
 
     if (body.name !== undefined) {
       updateExpressions.push('#name = :name')

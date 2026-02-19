@@ -52,6 +52,8 @@ Resources:
           AttributeType: S
         - AttributeName: slug
           AttributeType: S
+        - AttributeName: shortCode
+          AttributeType: S
       KeySchema:
         - AttributeName: eventId
           KeyType: HASH
@@ -59,6 +61,12 @@ Resources:
         - IndexName: SlugIndex
           KeySchema:
             - AttributeName: slug
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: ShortCodeIndex
+          KeySchema:
+            - AttributeName: shortCode
               KeyType: HASH
           Projection:
             ProjectionType: ALL
@@ -212,6 +220,30 @@ Resources:
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /events/slug/{slug}
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - index.ts
+
+  GetEventByShortCodeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-event-by-shortcode/
+      Handler: index.handler
+      Events:
+        GetEventByShortCode:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/shortcode/{shortCode}
             Method: get
       Policies:
         - DynamoDBReadPolicy:
