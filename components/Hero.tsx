@@ -100,7 +100,9 @@ export function Hero() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-ocean-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </Link>
             <Link
-              href="/donar"
+              href="https://www.paypal.com/donate/?hosted_button_id=A8X4ZTZDF8F5N"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group relative bg-transparent border-2 border-white/80 text-white px-10 py-5 rounded-xl font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all duration-300 backdrop-blur-sm hover:scale-105 overflow-hidden"
             >
               <span className="relative z-10">Hacer una Donación</span>
@@ -115,6 +117,18 @@ export function Hero() {
         <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>
+      </div>
+    </section>
+  )
+}
+
+
+      </div>
+    </section>
+  )
+}
+
+
       </div>
     </section>
   )

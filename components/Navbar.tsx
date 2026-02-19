@@ -75,7 +75,7 @@ export function Navbar() {
                   onMouseEnter={() => handleMouseEnter('historia')}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <Link href="/sobre-nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                  <Link href="/nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Sobre Nosotros
                   </Link>
                   <Link href="/impacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
@@ -115,6 +115,13 @@ export function Navbar() {
                   <Link href="/impacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
                     Educación Ambiental
                   </Link>
+                  <div className="border-t border-gray-100 my-2"></div>
+                  <Link href="/auspiciadores" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                    🏢 Auspiciadores
+                  </Link>
+                  <Link href="/voluntarios-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-colors">
+                    👥 Voluntario Staff
+                  </Link>
                 </div>
               )}
             </div>
@@ -132,12 +139,14 @@ export function Navbar() {
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center gap-3">
             {/* Donar Button */}
-            <Link
-              href="/donar"
+            <a
+              href="https://www.paypal.com/donate/?hosted_button_id=A8X4ZTZDF8F5N"
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               Donar
-            </Link>
+            </a>
 
             {/* Tomar Acción Button */}
             <Link
@@ -217,7 +226,7 @@ export function Navbar() {
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-gray-200">
             <div className="space-y-1">
-              <Link href="/sobre-nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Sobre Nosotros
               </Link>
               <Link href="/impacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
@@ -228,6 +237,12 @@ export function Navbar() {
               </Link>
               <Link href="/proyectos/playas-remotas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Playas Remotas
+              </Link>
+              <Link href="/auspiciadores" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+                Auspiciadores
+              </Link>
+              <Link href="/voluntarios-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+                Voluntario Staff
               </Link>
               <Link href="/eventos" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Eventos
@@ -240,12 +255,14 @@ export function Navbar() {
               </Link>
               
               <div className="pt-4 space-y-2">
-                <Link 
-                  href="/donar" 
+                <a 
+                  href="https://www.paypal.com/donate/?hosted_button_id=A8X4ZTZDF8F5N"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-full font-semibold text-center hover:shadow-lg transition-all text-sm"
                 >
                   Donar Ahora
-                </Link>
+                </a>
                 <Link
                   href="/eventos"
                   className="block w-full bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-6 py-3 rounded-full font-semibold text-center hover:shadow-lg transition-all text-sm"
@@ -265,6 +282,40 @@ export function Navbar() {
                       Cerrar Sesión
                     </button>
                   </>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+                ) : (
+                  <Link
+                    href="/login"
+                    className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  )
+}
+
                 ) : (
                   <Link
                     href="/login"
