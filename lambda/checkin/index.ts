@@ -5,8 +5,8 @@ import { DynamoDBDocumentClient, QueryCommand, UpdateCommand, GetCommand } from 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const TABLES = {
-  REGISTRATIONS: 'Doce25-Registrations',
-  EVENTS: 'Doce25-Events',
+  REGISTRATIONS: 'Dosce25-Registrations',
+  EVENTS: 'Dosce25-Events',
 }
 
 export const handler = async (

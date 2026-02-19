@@ -5,7 +5,7 @@ import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb'
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const TABLES = {
-  EVENTS: 'Doce25-Events',
+  EVENTS: 'Dosce25-Events',
 }
 
 export const handler = async (

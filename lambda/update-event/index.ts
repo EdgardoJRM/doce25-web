@@ -5,7 +5,7 @@ import { DynamoDBDocumentClient, UpdateCommand, GetCommand } from '@aws-sdk/lib-
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const TABLES = {
-  EVENTS: 'Doce25-Events',
+  EVENTS: 'Dosce25-Events',
 }
 
 interface UpdateEventBody {

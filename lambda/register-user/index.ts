@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken'
 import { randomUUID } from 'crypto'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
-const USERS_TABLE = process.env.USERS_TABLE || 'Doce25-Users'
+const USERS_TABLE = process.env.USERS_TABLE || 'Dosce25-Users'
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
 
 const headers = {

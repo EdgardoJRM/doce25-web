@@ -11,8 +11,8 @@ const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 const sesClient = new SESClient({})
 
 const TABLES = {
-  REGISTRATIONS: 'Doce25-Registrations',
-  EVENTS: 'Doce25-Events',
+  REGISTRATIONS: 'Dosce25-Registrations',
+  EVENTS: 'Dosce25-Events',
 }
 
 // Generar código alternativo de 8 caracteres

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const TABLES = {
-  EVENTS: 'Doce25-Events',
+  EVENTS: 'Dosce25-Events',
 }
 
 interface CreateEventBody {

@@ -4,8 +4,8 @@ import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 const TABLES = {
-  EVENTS: 'Doce25-Events',
-  REGISTRATIONS: 'Doce25-Registrations',
+  EVENTS: 'Dosce25-Events',
+  REGISTRATIONS: 'Dosce25-Registrations',
 }
 
 export const handler = async (

@@ -3,10 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
-const TABLES = {
-  EVENTS: 'Doce25-Events',
-  REGISTRATIONS: 'Doce25-Registrations',
-}
+const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -30,7 +27,7 @@ export const handler = async (
     // Obtener solo eventos publicados
     const result = await dynamoClient.send(
       new ScanCommand({
-        TableName: TABLES.EVENTS,
+        TableName: EVENTS_TABLE,
         FilterExpression: '#status = :status',
         ExpressionAttributeNames: {
           '#status': 'status',
