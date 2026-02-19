@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getAllUsers, getUserRegistrations } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface User {
   userId: string
@@ -33,6 +34,7 @@ export default function AdminUserDetailPage() {
   const params = useParams()
   const router = useRouter()
   const userId = params.userId as string
+  const { token } = useAuth()
 
   const [user, setUser] = useState<User | null>(null)
   const [registrations, setRegistrations] = useState<Registration[]>([])
@@ -40,8 +42,10 @@ export default function AdminUserDetailPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    loadUserData()
-  }, [userId])
+    if (token) {
+      loadUserData()
+    }
+  }, [userId, token])
 
   const loadUserData = async () => {
     try {
@@ -56,10 +60,16 @@ export default function AdminUserDetailPage() {
 
       setUser(foundUser)
 
-      // Get user registrations (this will need a token, for now we'll skip)
-      // In production, admin should have a special token
-      // const regsData = await getUserRegistrations(adminToken, userId)
-      // setRegistrations(regsData.registrations || [])
+      // Get user registrations with admin token
+      if (token) {
+        try {
+          const regsData = await getUserRegistrations(token, userId)
+          setRegistrations(regsData.registrations || [])
+        } catch (regError) {
+          console.error('Error loading registrations:', regError)
+          // No mostrar error, solo dejar registrations vacío
+        }
+      }
     } catch (err: any) {
       setError(err.message)
     } finally {
