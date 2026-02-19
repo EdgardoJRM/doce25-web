@@ -73,23 +73,13 @@ export function EventList() {
           className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition group"
         >
           <div className="relative h-48 w-full overflow-hidden">
-            {event.image || event.imageUrl ? (
-              <Image
-                src={event.image || event.imageUrl}
-                alt={event.name}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            ) : (
-              <Image
-                src="/images/doce25-featured.jpg"
-                alt="Doce25 - Limpieza de playas"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            )}
+            <Image
+              src={event.image || event.imageUrl || '/images/doce25-featured.jpg'}
+              alt={event.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
           </div>
           <div className="p-6">

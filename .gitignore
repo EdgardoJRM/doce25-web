@@ -51,3 +51,6 @@ amplify/
 .amplifyrc
 amplify-backup/
 aws-exports.js
+
+# Fotos grandes - usar hero/ e images/ en public/
+Fotos doce25/

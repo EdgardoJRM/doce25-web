@@ -105,7 +105,7 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl">
+              <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl">
                 <Image
                   src="/images/doce25-featured.jpg"
                   alt="Doce25 - Impacto comunitario"

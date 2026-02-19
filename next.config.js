@@ -14,8 +14,7 @@ const nextConfig = {
       },
     ],
   },
-  // Para AWS Amplify
-  output: 'standalone',
+  // AWS Amplify usa next start - NO usar output: 'standalone'
   // Excluir carpeta lambda del build
   webpack: (config) => {
     config.externals = config.externals || []
