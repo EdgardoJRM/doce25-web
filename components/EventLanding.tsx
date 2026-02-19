@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { EventRegistrationForm } from './EventRegistrationForm'
 import { getEventBySlug } from '@/lib/api'
 
@@ -77,16 +78,22 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-cyan-600 via-teal-600 to-ocean-600 text-white py-20">
-        {(event.image || event.imageUrl) && (
-          <div className="absolute inset-0 opacity-20">
-            <img 
-              src={event.image || event.imageUrl} 
-              alt={event.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+      <section className="relative bg-gradient-to-br from-cyan-600 via-teal-600 to-ocean-600 text-white py-20 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src={event.image || event.imageUrl || '/images/doce25-hero-main.jpg'}
+            alt={event.name}
+            fill
+            className="object-cover opacity-30"
+            priority
+            sizes="100vw"
+          />
+        </div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/80 via-teal-800/70 to-ocean-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40"></div>
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">{event.name}</h1>
@@ -131,6 +138,29 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
             <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">
               {event.description}
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Image Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl">
+              <Image
+                src="/images/doce25-featured.jpg"
+                alt="Doce25 - Impacto comunitario en limpiezas de playas"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1280px"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
+                <div className="p-8 text-white">
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">Únete a la Transformación</h3>
+                  <p className="text-lg opacity-90">Cada limpieza marca la diferencia en nuestras playas y comunidades</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

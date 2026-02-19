@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getEvents } from '@/lib/api'
 
 interface Event {
@@ -69,19 +70,28 @@ export function EventList() {
         <Link
           key={event.eventId}
           href={`/eventos/${event.slug}`}
-          className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
+          className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition group"
         >
-          {event.image || event.imageUrl ? (
-            <img 
-              src={event.image || event.imageUrl} 
-              alt={event.name}
-              className="h-48 w-full object-cover"
-            />
-          ) : (
-            <div className="h-48 bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center">
-              <span className="text-white text-6xl">🌊</span>
-            </div>
-          )}
+          <div className="relative h-48 w-full overflow-hidden">
+            {event.image || event.imageUrl ? (
+              <Image
+                src={event.image || event.imageUrl}
+                alt={event.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <Image
+                src="/images/doce25-featured.jpg"
+                alt="Doce25 - Limpieza de playas"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          </div>
           <div className="p-6">
             <h3 className="text-xl font-semibold mb-2 text-gray-900">{event.name}</h3>
             <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
