@@ -85,46 +85,46 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Vista general del sistema</p>
+    <div className="container mx-auto px-4 py-4 lg:py-8">
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-sm lg:text-base text-gray-600">Vista general del sistema</p>
       </div>
 
-      {/* Estadísticas Globales */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-lg p-6">
-          <div className="text-sm font-medium opacity-80 mb-2">Total Eventos</div>
-          <div className="text-4xl font-bold">{stats.totalEvents}</div>
-          <div className="text-sm opacity-80 mt-2">
+      {/* Estadísticas Globales - Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-lg p-4 lg:p-6">
+          <div className="text-xs lg:text-sm font-medium opacity-80 mb-1 lg:mb-2">Total Eventos</div>
+          <div className="text-3xl lg:text-4xl font-bold">{stats.totalEvents}</div>
+          <div className="text-xs lg:text-sm opacity-80 mt-1 lg:mt-2">
             {stats.publishedEvents} publicados
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-6">
-          <div className="text-sm font-medium opacity-80 mb-2">Total Registros</div>
-          <div className="text-4xl font-bold">{stats.totalRegistrations}</div>
-          <div className="text-sm opacity-80 mt-2">
+        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-4 lg:p-6">
+          <div className="text-xs lg:text-sm font-medium opacity-80 mb-1 lg:mb-2">Total Registros</div>
+          <div className="text-3xl lg:text-4xl font-bold">{stats.totalRegistrations}</div>
+          <div className="text-xs lg:text-sm opacity-80 mt-1 lg:mt-2">
             En todos los eventos
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-lg p-6">
-          <div className="text-sm font-medium opacity-80 mb-2">Check-ins Realizados</div>
-          <div className="text-4xl font-bold">{stats.totalCheckins}</div>
-          <div className="text-sm opacity-80 mt-2">
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-lg p-4 lg:p-6">
+          <div className="text-xs lg:text-sm font-medium opacity-80 mb-1 lg:mb-2">Check-ins</div>
+          <div className="text-3xl lg:text-4xl font-bold">{stats.totalCheckins}</div>
+          <div className="text-xs lg:text-sm opacity-80 mt-1 lg:mt-2">
             Asistencias confirmadas
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-lg p-6">
-          <div className="text-sm font-medium opacity-80 mb-2">Tasa de Asistencia</div>
-          <div className="text-4xl font-bold">
+        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-lg p-4 lg:p-6">
+          <div className="text-xs lg:text-sm font-medium opacity-80 mb-1 lg:mb-2">Tasa de Asistencia</div>
+          <div className="text-3xl lg:text-4xl font-bold">
             {stats.totalRegistrations > 0 
               ? Math.round((stats.totalCheckins / stats.totalRegistrations) * 100)
               : 0}%
           </div>
-          <div className="text-sm opacity-80 mt-2">
+          <div className="text-xs lg:text-sm opacity-80 mt-1 lg:mt-2">
             Check-ins vs registros
           </div>
         </div>
@@ -132,11 +132,42 @@ export default function DashboardPage() {
 
       {/* Estadísticas por Evento */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Eventos Recientes</h2>
+        <div className="px-4 lg:px-6 py-3 lg:py-4 border-b border-gray-200">
+          <h2 className="text-lg lg:text-xl font-bold text-gray-900">Eventos Recientes</h2>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Vista móvil - Cards */}
+        <div className="lg:hidden p-4 space-y-3">
+          {eventStats.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No hay datos de eventos aún</p>
+          ) : (
+            eventStats.map((event) => (
+              <div key={event.eventId} className="border border-gray-200 rounded-lg p-3">
+                <h3 className="font-bold text-gray-900 mb-2">{event.name}</h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  📅 {new Date(event.date).toLocaleDateString('es-PR')}
+                </p>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <div className="text-lg font-bold text-blue-600">{event.totalRegistrations}</div>
+                    <div className="text-xs text-gray-500">Registros</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-green-600">{event.checkedIn}</div>
+                    <div className="text-xs text-gray-500">Check-ins</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-orange-600">{event.pending}</div>
+                    <div className="text-xs text-gray-500">Pendientes</div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Vista desktop - Tabla */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>

@@ -46,82 +46,82 @@ export default function AdminUsersPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-4 lg:py-8">
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        {/* Header - Responsive */}
+        <div className="mb-6 lg:mb-8">
+          <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-2">
             Usuarios Registrados
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm lg:text-base text-gray-600">
             Gestiona los usuarios de la plataforma
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-cyan-500">
-            <div className="text-3xl font-bold text-cyan-600 mb-2">
+        {/* Stats Cards - Responsive */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border-t-4 border-cyan-500">
+            <div className="text-2xl lg:text-3xl font-bold text-cyan-600 mb-1 lg:mb-2">
               {users.length}
             </div>
-            <div className="text-gray-600 font-semibold">
+            <div className="text-xs lg:text-base text-gray-600 font-semibold">
               Total Usuarios
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-green-500">
-            <div className="text-3xl font-bold text-green-600 mb-2">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border-t-4 border-green-500">
+            <div className="text-2xl lg:text-3xl font-bold text-green-600 mb-1 lg:mb-2">
               {users.filter(u => u.status === 'active').length}
             </div>
-            <div className="text-gray-600 font-semibold">
+            <div className="text-xs lg:text-base text-gray-600 font-semibold">
               Activos
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-orange-500">
-            <div className="text-3xl font-bold text-orange-600 mb-2">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border-t-4 border-orange-500">
+            <div className="text-2xl lg:text-3xl font-bold text-orange-600 mb-1 lg:mb-2">
               {users.filter(u => {
                 const lastLogin = new Date(u.lastLogin)
                 const daysSince = (Date.now() - lastLogin.getTime()) / (1000 * 60 * 60 * 24)
                 return daysSince <= 7
               }).length}
             </div>
-            <div className="text-gray-600 font-semibold">
-              Activos (7 días)
+            <div className="text-xs lg:text-base text-gray-600 font-semibold">
+              Activos (7d)
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-teal-500">
-            <div className="text-3xl font-bold text-teal-600 mb-2">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border-t-4 border-teal-500">
+            <div className="text-2xl lg:text-3xl font-bold text-teal-600 mb-1 lg:mb-2">
               {users.filter(u => {
                 const created = new Date(u.createdAt)
                 const daysSince = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
                 return daysSince <= 30
               }).length}
             </div>
-            <div className="text-gray-600 font-semibold">
-              Nuevos (30 días)
+            <div className="text-xs lg:text-base text-gray-600 font-semibold">
+              Nuevos (30d)
             </div>
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        {/* Search Bar - Responsive */}
+        <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-6 mb-4 lg:mb-6">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 lg:w-5 lg:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
             <input
               type="text"
-              placeholder="Buscar por nombre, email u organización..."
+              placeholder="Buscar por nombre, email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             />
           </div>
         </div>
 
-        {/* Users Table */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        {/* Users - Responsive */}
+        <div className="bg-white rounded-lg lg:rounded-xl shadow-lg overflow-hidden">
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto mb-4"></div>
@@ -136,8 +136,48 @@ export default function AdminUsersPage() {
               <p className="text-gray-600">No se encontraron usuarios</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <>
+              {/* Vista móvil - Cards */}
+              <div className="lg:hidden p-4 space-y-4">
+                {filteredUsers.map((user) => (
+                  <div key={user.userId} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3 flex-shrink-0">
+                        {user.fullName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-gray-900 truncate">{user.fullName}</h3>
+                        <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                        <span className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                          user.status === 'active'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {user.status === 'active' ? '✓ Activo' : 'Inactivo'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1 text-sm text-gray-600 mb-3">
+                      {user.phone && <p>📞 {user.phone}</p>}
+                      {user.city && <p>📍 {user.city}</p>}
+                      {user.organization && <p>🏢 {user.organization}</p>}
+                      <p className="text-xs">📅 Registrado: {new Date(user.createdAt).toLocaleDateString('es-PR')}</p>
+                    </div>
+
+                    <Link
+                      href={`/admin/usuarios/${user.userId}`}
+                      className="block w-full text-center bg-cyan-50 text-cyan-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-cyan-100 transition"
+                    >
+                      Ver Detalles →
+                    </Link>
+                  </div>
+                ))}
+              </div>
+
+              {/* Vista desktop - Tabla */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -223,6 +263,7 @@ export default function AdminUsersPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       </div>
