@@ -3,13 +3,14 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
+
 const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': 'https://doce25.precotracks.org',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Content-Type': 'application/json',
@@ -24,26 +25,25 @@ export const handler = async (
   }
 
   try {
-    const shortCode = event.pathParameters?.shortCode
-    if (!shortCode) {
+    const shortId = event.pathParameters?.shortId
+
+    if (!shortId) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ message: 'Short code is required' }),
+        body: JSON.stringify({ message: 'ShortId is required' }),
       }
     }
 
+    // Buscar el evento por shortId
     const result = await dynamoClient.send(
       new ScanCommand({
         TableName: EVENTS_TABLE,
-        FilterExpression: 'shortCode = :shortCode AND #status = :status',
-        ExpressionAttributeNames: {
-          '#status': 'status',
-        },
+        FilterExpression: 'shortId = :shortId',
         ExpressionAttributeValues: {
-          ':shortCode': shortCode,
-          ':status': 'published',
+          ':shortId': shortId,
         },
+        Limit: 1,
       })
     )
 
@@ -58,9 +58,7 @@ export const handler = async (
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({
-        event: result.Items[0],
-      }),
+      body: JSON.stringify(result.Items[0]),
     }
   } catch (error: any) {
     console.error('Error:', error)
@@ -74,4 +72,3 @@ export const handler = async (
     }
   }
 }
-

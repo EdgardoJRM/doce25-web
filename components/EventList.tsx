@@ -20,6 +20,7 @@ export function EventList() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [copiedEventId, setCopiedEventId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -36,6 +37,18 @@ export function EventList() {
 
     fetchEvents()
   }, [])
+
+  const copyShortLink = (eventId: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const shortLink = `${window.location.origin}/e/${eventId}`
+    navigator.clipboard.writeText(shortLink).then(() => {
+      setCopiedEventId(eventId)
+      setTimeout(() => setCopiedEventId(null), 2000)
+    }).catch(err => {
+      console.error('Error copying link:', err)
+    })
+  }
 
   if (loading) {
     return (
@@ -67,44 +80,65 @@ export function EventList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {events.map((event) => (
-        <Link
+        <div
           key={event.eventId}
-          href={`/eventos/${event.slug}`}
           className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition group"
         >
-          <div className="relative h-48 w-full overflow-hidden">
-            <Image
-              src={event.image || event.imageUrl || '/images/doce25-featured.jpg'}
-              alt={event.name}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          <Link href={`/eventos/${event.slug}`} className="block">
+            <div className="relative h-48 w-full overflow-hidden">
+              <Image
+                src={event.image || event.imageUrl || '/images/doce25-featured.jpg'}
+                alt={event.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">{event.name}</h3>
+              <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
+              <div className="flex items-center text-sm text-gray-500 mb-2">
+                <span className="mr-2">📅</span>
+                {new Date(event.date).toLocaleDateString('es-MX', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </div>
+              <div className="flex items-center text-sm text-gray-500">
+                <span className="mr-2">📍</span>
+                {event.location}
+              </div>
+            </div>
+          </Link>
+          <div className="px-6 pb-6 flex gap-2">
+            <Link
+              href={`/eventos/${event.slug}`}
+              className="flex-1 text-center bg-cyan-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-cyan-700 transition"
+            >
+              Registrarse
+            </Link>
+            <button
+              onClick={(e) => copyShortLink(event.eventId, e)}
+              className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-1"
+              title="Copiar link para compartir"
+            >
+              {copiedEventId === event.eventId ? (
+                <>
+                  <span>✓</span>
+                  <span className="text-sm">Copiado</span>
+                </>
+              ) : (
+                <>
+                  <span>🔗</span>
+                  <span className="text-sm">Compartir</span>
+                </>
+              )}
+            </button>
           </div>
-          <div className="p-6">
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">{event.name}</h3>
-            <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
-            <div className="flex items-center text-sm text-gray-500 mb-2">
-              <span className="mr-2">📅</span>
-              {new Date(event.date).toLocaleDateString('es-MX', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </div>
-            <div className="flex items-center text-sm text-gray-500">
-              <span className="mr-2">📍</span>
-              {event.location}
-            </div>
-            <div className="mt-4">
-              <span className="text-blue-600 font-semibold hover:underline">
-                Registrarse →
-              </span>
-            </div>
-          </div>
-        </Link>
+        </div>
       ))}
     </div>
   )

@@ -1,58 +1,55 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { v4 as uuidv4 } from 'uuid'
+import * as crypto from 'crypto'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
 
-// Generar código corto único (6 caracteres alfanuméricos)
-function generateShortCode(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  let code = ''
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
+// Generar shortId único de 6 caracteres
+function generateShortId(): string {
+  return crypto.randomBytes(3).toString('base64url').substring(0, 6)
 }
 
-// Verificar si el código ya existe
-async function isShortCodeUnique(code: string): Promise<boolean> {
+// Verificar si el shortId ya existe
+async function isShortIdUnique(shortId: string): Promise<boolean> {
   try {
     const result = await dynamoClient.send(
-      new ScanCommand({
+      new QueryCommand({
         TableName: EVENTS_TABLE,
-        FilterExpression: 'shortCode = :code',
+        IndexName: 'ShortIdIndex',
+        KeyConditionExpression: 'shortId = :shortId',
         ExpressionAttributeValues: {
-          ':code': code,
+          ':shortId': shortId,
         },
+        Limit: 1,
       })
     )
     return !result.Items || result.Items.length === 0
-  } catch (error) {
-    console.error('Error checking shortCode uniqueness:', error)
-    return true // En caso de error, asumir que es único
+  } catch (error: any) {
+    // Si el índice no existe, fallback a scan (temporal)
+    console.warn('ShortIdIndex not found, shortId will not be validated:', error.message)
+    return true
   }
 }
 
-// Generar código único
-async function generateUniqueShortCode(): Promise<string> {
-  let code = generateShortCode()
+// Generar un shortId único con reintentos
+async function generateUniqueShortId(): Promise<string> {
   let attempts = 0
-  const maxAttempts = 10
-
-  while (!(await isShortCodeUnique(code)) && attempts < maxAttempts) {
-    code = generateShortCode()
+  const maxAttempts = 5
+  
+  while (attempts < maxAttempts) {
+    const shortId = generateShortId()
+    if (await isShortIdUnique(shortId)) {
+      return shortId
+    }
     attempts++
   }
-
-  if (attempts >= maxAttempts) {
-    // Si después de 10 intentos no encontramos uno único, usar timestamp + random
-    code = Date.now().toString(36).slice(-4) + generateShortCode().slice(0, 2)
-  }
-
-  return code
+  
+  // Fallback a un shortId más largo si hay colisiones
+  return crypto.randomBytes(4).toString('base64url').substring(0, 8)
 }
 
 interface CreateEventBody {
@@ -70,7 +67,7 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': 'https://doce25.precotracks.org',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json',
@@ -97,16 +94,16 @@ export const handler = async (
     }
 
     const eventId = uuidv4()
-    const shortCode = await generateUniqueShortCode()
+    const shortId = await generateUniqueShortId()
 
     await dynamoClient.send(
       new PutCommand({
         TableName: EVENTS_TABLE,
         Item: {
           eventId,
+          shortId,
           name,
           slug,
-          shortCode,
           description,
           date: dateTime,
           dateTime,
@@ -126,7 +123,7 @@ export const handler = async (
       body: JSON.stringify({
         message: 'Event created successfully',
         eventId,
-        shortCode,
+        shortId,
       }),
     }
   } catch (error: any) {

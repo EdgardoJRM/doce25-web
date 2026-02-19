@@ -52,8 +52,6 @@ Resources:
           AttributeType: S
         - AttributeName: slug
           AttributeType: S
-        - AttributeName: shortCode
-          AttributeType: S
       KeySchema:
         - AttributeName: eventId
           KeyType: HASH
@@ -61,12 +59,6 @@ Resources:
         - IndexName: SlugIndex
           KeySchema:
             - AttributeName: slug
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
-        - IndexName: ShortCodeIndex
-          KeySchema:
-            - AttributeName: shortCode
               KeyType: HASH
           Projection:
             ProjectionType: ALL
@@ -233,17 +225,17 @@ Resources:
         EntryPoints:
           - index.ts
 
-  GetEventByShortCodeFunction:
+  GetEventByShortIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/get-event-by-shortcode/
+      CodeUri: lambda/get-event-by-shortid/
       Handler: index.handler
       Events:
-        GetEventByShortCode:
+        GetEventByShortId:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /events/shortcode/{shortCode}
+            Path: /events/short/{shortId}
             Method: get
       Policies:
         - DynamoDBReadPolicy:
@@ -683,4 +675,3 @@ Outputs:
   QRCodesBucketName:
     Description: S3 Bucket for QR codes
     Value: !Ref QRCodesBucket
-

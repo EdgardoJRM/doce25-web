@@ -9,7 +9,7 @@ const USERS_TABLE = process.env.USERS_TABLE || 'Dosce25-Users'
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
 
 const headers = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://doce25.precotracks.org',
   'Access-Control-Allow-Headers': 'Content-Type,Authorization',
   'Access-Control-Allow-Methods': 'POST,OPTIONS',
   'Content-Type': 'application/json',
