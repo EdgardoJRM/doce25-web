@@ -189,7 +189,7 @@ feat: Agregar páginas de crear/editar eventos y lambdas
 ```bash
 # Login como admin
 Email: admin@dosce25.org
-Password: Dosce25Admin2026!
+Password: Doce25Admin2026!
 
 # Ir a crear evento
 https://d10lzd121ayedb.amplifyapp.com/admin/eventos/nuevo

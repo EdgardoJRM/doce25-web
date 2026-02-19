@@ -4,9 +4,9 @@ import { DynamoDBDocumentClient, QueryCommand, GetCommand, BatchGetCommand } fro
 import * as jwt from 'jsonwebtoken'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
-const REGISTRATIONS_TABLE = process.env.REGISTRATIONS_TABLE || 'Dosce25-Registrations'
-const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
-const USERS_TABLE = process.env.USERS_TABLE || 'Dosce25-Users'
+const REGISTRATIONS_TABLE = process.env.REGISTRATIONS_TABLE || 'Doce25-Registrations'
+const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Doce25-Events'
+const USERS_TABLE = process.env.USERS_TABLE || 'Doce25-Users'
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
 
 const headers = {

@@ -44,7 +44,7 @@ export default function TerminosPage() {
                 </h2>
                 <p className="text-gray-700 mb-4">
                   Todo el contenido incluido en este sitio, como texto, gráficos, logos, imágenes,
-                  audio clips, videos y software, es propiedad de la Fundación Dosce25 o sus
+                  audio clips, videos y software, es propiedad de la Fundación Doce25 o sus
                   proveedores de contenido y está protegido por las leyes de derechos de autor.
                 </p>
               </section>
@@ -69,7 +69,7 @@ export default function TerminosPage() {
                   5. Limitación de Responsabilidad
                 </h2>
                 <p className="text-gray-700">
-                  La Fundación Dosce25 no será responsable por ningún daño directo, indirecto,
+                  La Fundación Doce25 no será responsable por ningún daño directo, indirecto,
                   incidental, especial o consecuente que resulte del uso o la imposibilidad de
                   usar este sitio o cualquier información contenida en él.
                 </p>
@@ -116,7 +116,7 @@ export default function TerminosPage() {
                 </p>
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <p className="text-gray-700 mb-2">
-                    <strong>Fundación Dosce25</strong>
+                    <strong>Fundación Doce25</strong>
                   </p>
                   <p className="text-gray-700 mb-2">
                     Email: <a href="mailto:info@doce25.org" className="text-blue-600 hover:underline">

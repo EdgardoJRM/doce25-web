@@ -67,7 +67,7 @@ export const handler = async (
       }
     }
 
-    // Email al equipo de Dosce25
+    // Email al equipo de Doce25
     const adminEmailHtml = `
       <!DOCTYPE html>
       <html>

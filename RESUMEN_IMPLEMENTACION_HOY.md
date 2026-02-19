@@ -136,7 +136,7 @@
 
 ### 5. `send-contact-email` - POST /contact
 - Recibe formulario de contacto
-- Envía email al equipo de Dosce25
+- Envía email al equipo de Doce25
 - Envía confirmación al usuario
 - Emails HTML con branding
 

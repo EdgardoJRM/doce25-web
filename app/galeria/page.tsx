@@ -38,7 +38,7 @@ export default function GaleriaPage() {
               >
                 <img
                   src={photo}
-                  alt={`Galería Dosce25 ${index + 1}`}
+                  alt={`Galería Doce25 ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
               </div>

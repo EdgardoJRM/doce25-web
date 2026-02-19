@@ -34,11 +34,11 @@
 ## 📁 RECURSOS AWS
 
 ### DynamoDB Tables:
-1. **Dosce25-Events**
+1. **Doce25-Events**
    - Partition Key: eventId
    - GSI: SlugIndex (slug)
 
-2. **Dosce25-Registrations**
+2. **Doce25-Registrations**
    - Partition Key: registrationId
    - GSI: EventIdIndex (eventId)
    - GSI: QRTokenIndex (qrToken)
@@ -69,8 +69,8 @@ NEXT_PUBLIC_AWS_REGION=us-east-1
 
 ### Backend (sam-template.yaml):
 ```yaml
-EVENTS_TABLE: Dosce25-Events
-REGISTRATIONS_TABLE: Dosce25-Registrations
+EVENTS_TABLE: Doce25-Events
+REGISTRATIONS_TABLE: Doce25-Registrations
 S3_BUCKET: dosce25-qr-codes
 SES_FROM_EMAIL: noreply@dosce25.org
 FRONTEND_URL: https://dosce25.org

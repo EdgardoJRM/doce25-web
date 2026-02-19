@@ -12,10 +12,10 @@ Implementar un sistema completo de usuarios donde:
 
 ## 🏗️ ARQUITECTURA PROPUESTA
 
-### **1. NUEVA TABLA DYNAMODB: `Dosce25-Users`**
+### **1. NUEVA TABLA DYNAMODB: `Doce25-Users`**
 
 ```yaml
-TableName: Dosce25-Users
+TableName: Doce25-Users
 PartitionKey: userId (String)
 Attributes:
   - userId: UUID único
@@ -36,10 +36,10 @@ GlobalSecondaryIndex:
   - EmailIndex: email (para login)
 ```
 
-### **2. MODIFICAR TABLA `Dosce25-Registrations`**
+### **2. MODIFICAR TABLA `Doce25-Registrations`**
 
 Agregar campo:
-- `userId: String` (referencia a Dosce25-Users)
+- `userId: String` (referencia a Doce25-Users)
 
 Esto conecta registros con usuarios.
 
@@ -178,7 +178,7 @@ Esto conecta registros con usuarios.
 ## 🎯 FASES DE IMPLEMENTACIÓN
 
 ### **FASE 1: Backend Auth** (2-3 horas)
-- ✅ Crear tabla Dosce25-Users
+- ✅ Crear tabla Doce25-Users
 - ✅ Lambda: register-user
 - ✅ Lambda: login-user
 - ✅ Lambda: get-user-profile

@@ -76,15 +76,14 @@ export function Hero() {
               🌊 Limpiezas de Playas en Puerto Rico
             </span>
           </div>
-          <h1 className="font-display text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold mb-8 leading-[1.1] tracking-tight animate-fade-in-up">
-            Únete a la mayor<br />
+          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-8 leading-[1.2] tracking-tight animate-fade-in-up">
+            Un Océano Saludable y un<br />
             <span className="text-gradient bg-gradient-to-r from-blue-300 via-white to-ocean-300 bg-clip-text text-transparent">
-              transformación
+              Planeta Próspero
             </span>
           </h1>
-          <p className="text-xl md:text-2xl lg:text-3xl mb-12 text-gray-100 max-w-3xl mx-auto leading-relaxed font-light animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            Organizamos limpiezas masivas de playas en Puerto Rico para retirar residuos, 
-            proteger la vida marina y recuperar espacios para nuestras comunidades costeras.
+          <p className="text-2xl md:text-3xl lg:text-4xl mb-12 text-gray-100 max-w-3xl mx-auto leading-relaxed font-light animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            Para Siempre y Para Todos
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <Link

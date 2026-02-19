@@ -17,7 +17,7 @@ export default function RelevoResponsabilidadPage() {
                   1. Aceptación de Riesgos
                 </h2>
                 <p className="text-gray-700 mb-4">
-                  Al registrarse y participar en cualquier evento organizado por la Fundación Dosce25,
+                  Al registrarse y participar en cualquier evento organizado por la Fundación Doce25,
                   usted reconoce y acepta que la participación en actividades físicas, recreativas y/o
                   educativas conlleva ciertos riesgos inherentes, incluyendo pero no limitado a:
                 </p>
@@ -36,7 +36,7 @@ export default function RelevoResponsabilidadPage() {
                 </h2>
                 <p className="text-gray-700 mb-4">
                   El participante (o su representante legal en caso de menores de edad) exonera de toda
-                  responsabilidad a la Fundación Dosce25, sus directivos, empleados, voluntarios y
+                  responsabilidad a la Fundación Doce25, sus directivos, empleados, voluntarios y
                   colaboradores por cualquier:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
@@ -57,7 +57,7 @@ export default function RelevoResponsabilidadPage() {
                   <li>Estar en condiciones físicas y de salud adecuadas para participar en el evento</li>
                   <li>Contar con seguro médico vigente</li>
                   <li>
-                    Autorizar a la Fundación Dosce25 a buscar atención médica de emergencia si fuera necesario,
+                    Autorizar a la Fundación Doce25 a buscar atención médica de emergencia si fuera necesario,
                     asumiendo la responsabilidad por los costos derivados
                   </li>
                   <li>
@@ -91,13 +91,13 @@ export default function RelevoResponsabilidadPage() {
                   El participante se compromete a:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
-                  <li>Seguir todas las instrucciones del personal y voluntarios de Dosce25</li>
+                  <li>Seguir todas las instrucciones del personal y voluntarios de Doce25</li>
                   <li>Respetar a otros participantes, personal y las instalaciones</li>
                   <li>No participar bajo la influencia de alcohol o sustancias prohibidas</li>
                   <li>Cumplir con las normas de seguridad establecidas para cada actividad</li>
                 </ul>
                 <p className="text-gray-700 mt-4">
-                  La Fundación Dosce25 se reserva el derecho de negar o revocar la participación de
+                  La Fundación Doce25 se reserva el derecho de negar o revocar la participación de
                   cualquier persona que no cumpla con estas normas.
                 </p>
               </section>
@@ -107,7 +107,7 @@ export default function RelevoResponsabilidadPage() {
                   6. Uso de Imagen
                 </h2>
                 <p className="text-gray-700 mb-4">
-                  El participante autoriza a la Fundación Dosce25 a tomar fotografías y/o videos
+                  El participante autoriza a la Fundación Doce25 a tomar fotografías y/o videos
                   durante el evento y a utilizarlos para:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
@@ -145,7 +145,7 @@ export default function RelevoResponsabilidadPage() {
                   8. Modificaciones y Cancelaciones
                 </h2>
                 <p className="text-gray-700 mb-4">
-                  La Fundación Dosce25 se reserva el derecho de:
+                  La Fundación Doce25 se reserva el derecho de:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li>Modificar la fecha, hora o ubicación del evento por causas de fuerza mayor</li>
@@ -186,7 +186,7 @@ export default function RelevoResponsabilidadPage() {
                 </p>
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <p className="text-gray-700 mb-2">
-                    <strong>Fundación Dosce25</strong>
+                    <strong>Fundación Doce25</strong>
                   </p>
                   <p className="text-gray-700 mb-2">
                     Email: <a href="mailto:info@dosce25.org" className="text-blue-600 hover:underline">

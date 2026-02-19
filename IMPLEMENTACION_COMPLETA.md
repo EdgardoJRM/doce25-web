@@ -106,8 +106,8 @@ NEXT_PUBLIC_API_ENDPOINT=https://moo5jpvl56.execute-api.us-east-1.amazonaws.com/
 - **Región**: `us-east-1`
 
 ### Tablas DynamoDB:
-- `Dosce25-Events` (con SlugIndex)
-- `Dosce25-Registrations` (con EventIdIndex y **QRTokenIndex** nuevo)
+- `Doce25-Events` (con SlugIndex)
+- `Doce25-Registrations` (con EventIdIndex y **QRTokenIndex** nuevo)
 
 ### Bucket S3:
 - `dosce25-qr-codes` (para almacenar códigos QR generados)

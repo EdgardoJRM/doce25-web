@@ -17,7 +17,7 @@ export default function PrivacidadPage() {
                   1. Información que Recopilamos
                 </h2>
                 <p className="text-gray-700 mb-4">
-                  La Fundación Dosce25 recopila la siguiente información personal cuando usted
+                  La Fundación Doce25 recopila la siguiente información personal cuando usted
                   se registra a nuestros eventos:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
@@ -150,7 +150,7 @@ export default function PrivacidadPage() {
                 </p>
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <p className="text-gray-700 mb-2">
-                    <strong>Fundación Dosce25</strong>
+                    <strong>Fundación Doce25</strong>
                   </p>
                   <p className="text-gray-700 mb-2">
                     <strong>Responsable de Protección de Datos</strong>

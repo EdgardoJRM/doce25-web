@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Configurando Dosce25 - Fundación Web"
+echo "🚀 Configurando Doce25 - Fundación Web"
 echo "========================================"
 echo ""
 

@@ -1,6 +1,6 @@
-# Guía de Despliegue - Dosce25
+# Guía de Despliegue - Doce25
 
-Esta guía te ayudará a desplegar la aplicación Dosce25 en AWS usando Amplify y SAM (Serverless Application Model).
+Esta guía te ayudará a desplegar la aplicación Doce25 en AWS usando Amplify y SAM (Serverless Application Model).
 
 ## Prerrequisitos
 
@@ -52,8 +52,8 @@ Después del despliegue, SAM mostrará los outputs. Guarda estos valores:
 
 ```
 ApiEndpoint: https://xxxxx.execute-api.us-east-1.amazonaws.com/prod
-EventsTableName: Dosce25-Events
-RegistrationsTableName: Dosce25-Registrations
+EventsTableName: Doce25-Events
+RegistrationsTableName: Doce25-Registrations
 QRCodesBucketName: dosce25-qr-codes
 ```
 
@@ -176,7 +176,7 @@ amplify publish
 ### Verificar Lambda Functions
 
 ```bash
-aws lambda list-functions --query "Functions[?contains(FunctionName, 'Dosce25')].FunctionName"
+aws lambda list-functions --query "Functions[?contains(FunctionName, 'Doce25')].FunctionName"
 ```
 
 ### Verificar DynamoDB Tables
@@ -188,7 +188,7 @@ aws dynamodb list-tables
 ### Verificar API Gateway
 
 ```bash
-aws apigateway get-rest-apis --query "items[?contains(name, 'Dosce25')]"
+aws apigateway get-rest-apis --query "items[?contains(name, 'Doce25')]"
 ```
 
 ## Troubleshooting

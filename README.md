@@ -1,6 +1,6 @@
-# Dosce25 - Fundación Web
+# Doce25 - Fundación Web
 
-Sitio web de la fundación Dosce25 con sistema de gestión de eventos, registro de asistentes y generación de códigos QR.
+Sitio web de la fundación Doce25 con sistema de gestión de eventos, registro de asistentes y generación de códigos QR.
 
 ## Stack Tecnológico
 
