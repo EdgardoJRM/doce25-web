@@ -331,8 +331,12 @@ async function sendEmailWithAttachments(
   // Crear el email MIME multipart con el QR embebido y PDF adjunto
   const rawEmail = [
     `From: Doce25 <${fromEmail}>`,
+    `Reply-To: info@doce25.org`,
     `To: ${to}`,
     `Subject: ${subject}`,
+    `List-Unsubscribe: <mailto:info@doce25.org?subject=unsubscribe>`,
+    `List-Unsubscribe-Post: List-Unsubscribe=One-Click`,
+    `Precedence: bulk`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/mixed; boundary="${boundary}"`,
     ``,

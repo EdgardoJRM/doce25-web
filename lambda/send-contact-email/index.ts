@@ -13,7 +13,8 @@ interface ContactFormBody {
 
 async function sendEmail(to: string, subject: string, htmlBody: string, textBody?: string) {
   const command = new SendEmailCommand({
-    Source: process.env.SES_FROM_EMAIL || 'doce25@precotracks.org',
+    Source: 'Doce25 <doce25@precotracks.org>',
+    ReplyToAddresses: ['info@doce25.org'],
     Destination: {
       ToAddresses: [to],
     },
