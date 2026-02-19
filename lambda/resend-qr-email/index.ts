@@ -525,16 +525,14 @@ export const handler = async (
               margin: 0;
               letter-spacing: -0.5px;
             }
-            .resend-icon {
-              width: 60px;
-              height: 60px;
-              background-color: #ffffff;
-              border-radius: 50%;
+            .brand-name {
+              display: inline-block;
               margin: 0 auto 20px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
               font-size: 32px;
+              font-weight: 800;
+              color: #ffffff;
+              letter-spacing: -1px;
+              text-shadow: 0 2px 8px rgba(0,0,0,0.15);
             }
             .content {
               padding: 40px 30px;
@@ -651,7 +649,7 @@ export const handler = async (
             <div class="email-container">
               <!-- Header -->
             <div class="header">
-                ${logoBuffer ? '<img src="cid:logo" alt="Doce25 Logo" style="max-width: 200px; height: auto; margin-bottom: 20px;" />' : '<div class="resend-icon">📧</div>'}
+                ${logoBuffer ? '<img src="cid:logo" alt="Doce25 Logo" style="max-width: 200px; height: auto; margin-bottom: 20px;" />' : '<div class="brand-name">Doce25</div>'}
                 <h1>Tu Código QR</h1>
             </div>
 

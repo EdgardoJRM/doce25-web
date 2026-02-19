@@ -20,8 +20,6 @@ export function EventList() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [copiedEventId, setCopiedEventId] = useState<string | null>(null)
-
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -37,18 +35,6 @@ export function EventList() {
 
     fetchEvents()
   }, [])
-
-  const copyShortLink = (eventId: string, e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const shortLink = `${window.location.origin}/e/${eventId}`
-    navigator.clipboard.writeText(shortLink).then(() => {
-      setCopiedEventId(eventId)
-      setTimeout(() => setCopiedEventId(null), 2000)
-    }).catch(err => {
-      console.error('Error copying link:', err)
-    })
-  }
 
   if (loading) {
     return (
@@ -113,30 +99,13 @@ export function EventList() {
               </div>
             </div>
           </Link>
-          <div className="px-6 pb-6 flex gap-2">
+          <div className="px-6 pb-6">
             <Link
               href={`/eventos/${event.slug}`}
-              className="flex-1 text-center bg-cyan-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-cyan-700 transition"
+              className="block w-full text-center bg-cyan-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-cyan-700 transition"
             >
               Registrarse
             </Link>
-            <button
-              onClick={(e) => copyShortLink(event.eventId, e)}
-              className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-1"
-              title="Copiar link para compartir"
-            >
-              {copiedEventId === event.eventId ? (
-                <>
-                  <span>✓</span>
-                  <span className="text-sm">Copiado</span>
-                </>
-              ) : (
-                <>
-                  <span>🔗</span>
-                  <span className="text-sm">Compartir</span>
-                </>
-              )}
-            </button>
           </div>
         </div>
       ))}

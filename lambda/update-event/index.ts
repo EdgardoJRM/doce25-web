@@ -1,3 +1,5 @@
+
+
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, UpdateCommand, GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
@@ -68,7 +70,7 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   const headers = {
-    'Access-Control-Allow-Origin': 'https://doce25.precotracks.org',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'PUT, OPTIONS',
     'Content-Type': 'application/json',
@@ -119,8 +121,7 @@ export const handler = async (
     // Generar shortCode si no existe
     if (!getResult.Item.shortCode) {
       const newShortCode = await generateUniqueShortCode()
-      updateExpressions.push('#shortCode = :shortCode')
-      expressionAttributeNames['#shortCode'] = 'shortCode'
+      updateExpressions.push('shortCode = :shortCode')
       expressionAttributeValues[':shortCode'] = newShortCode
     }
 
@@ -131,14 +132,12 @@ export const handler = async (
     }
 
     if (body.slug !== undefined) {
-      updateExpressions.push('#slug = :slug')
-      expressionAttributeNames['#slug'] = 'slug'
+      updateExpressions.push('slug = :slug')
       expressionAttributeValues[':slug'] = body.slug
     }
 
     if (body.description !== undefined) {
-      updateExpressions.push('#description = :description')
-      expressionAttributeNames['#description'] = 'description'
+      updateExpressions.push('description = :description')
       expressionAttributeValues[':description'] = body.description
     }
 
@@ -163,8 +162,7 @@ export const handler = async (
     }
 
     if (body.image !== undefined) {
-      updateExpressions.push('#image = :image')
-      expressionAttributeNames['#image'] = 'image'
+      updateExpressions.push('image = :image')
       expressionAttributeValues[':image'] = body.image
     }
 
@@ -175,8 +173,7 @@ export const handler = async (
     }
 
     // Siempre actualizar updatedAt
-    updateExpressions.push('#updatedAt = :updatedAt')
-    expressionAttributeNames['#updatedAt'] = 'updatedAt'
+    updateExpressions.push('updatedAt = :updatedAt')
     expressionAttributeValues[':updatedAt'] = new Date().toISOString()
 
     if (updateExpressions.length === 0) {
