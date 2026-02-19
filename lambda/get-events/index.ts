@@ -24,6 +24,8 @@ export const handler = async (
   }
 
   try {
+    console.log('Getting events from table:', EVENTS_TABLE)
+    
     // Obtener solo eventos publicados
     const result = await dynamoClient.send(
       new ScanCommand({
@@ -38,6 +40,8 @@ export const handler = async (
       })
     )
 
+    console.log('Events retrieved:', result.Items?.length || 0)
+
     return {
       statusCode: 200,
       headers,
@@ -46,13 +50,16 @@ export const handler = async (
       }),
     }
   } catch (error: any) {
-    console.error('Error:', error)
+    console.error('Error getting events:', error)
+    console.error('Error stack:', error.stack)
+    
+    // Asegurar que siempre devolvemos headers CORS incluso en errores
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         message: 'Internal server error',
-        error: error.message,
+        error: error.message || 'Unknown error',
       }),
     }
   }
