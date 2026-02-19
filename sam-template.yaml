@@ -525,12 +525,24 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /forms/auspiciador
             Method: post
+        SendFormAuspiciadorOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /forms/auspiciador
+            Method: options
         SendFormStaff:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
             Path: /forms/staff
             Method: post
+        SendFormStaffOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /forms/staff
+            Method: options
       Policies:
         - Statement:
             - Effect: Allow
