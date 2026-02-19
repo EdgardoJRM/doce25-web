@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section with Image Background */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden py-16 md:py-24">
         {/* Image Background */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -22,36 +22,37 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
         </div>
 
-        {/* Hero Content */}
-        <div className="relative z-10 container mx-auto px-4 text-center text-white">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-6 leading-tight animate-fade-in">
-            Un océano saludable<br />
+        {/* Hero Content - más espacio, tipografía más equilibrada */}
+        <div className="relative z-10 container mx-auto px-4 text-center text-white flex-1 flex flex-col justify-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in normal-case">
+            Un océano saludable
+            <br />
             y un planeta próspero
           </h1>
-          <p className="text-2xl md:text-3xl mb-12 max-w-4xl mx-auto text-blue-100 font-light animate-slide-in">
+          <p className="text-lg md:text-xl lg:text-2xl mb-10 max-w-2xl mx-auto text-blue-100 font-light animate-slide-in">
             para siempre y para todos
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center animate-slide-in">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in">
             <Link
               href="/donar"
-              className="group relative bg-gradient-to-r from-orange-500 to-orange-600 text-white px-12 py-5 rounded-full text-xl font-bold hover:shadow-2xl transition-all duration-300 overflow-hidden"
+              className="group relative bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition-all duration-300 overflow-hidden"
             >
               <span className="relative z-10">Donar Ahora</span>
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             </Link>
             <Link
               href="/eventos"
-              className="bg-white/10 backdrop-blur-md border-2 border-white text-white px-12 py-5 rounded-full text-xl font-bold hover:bg-white hover:text-cyan-900 transition-all duration-300"
+              className="bg-white/10 backdrop-blur-md border-2 border-white text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:text-cyan-900 transition-all duration-300"
             >
               Únete a un Evento
             </Link>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce z-10">
-          <div className="w-8 h-14 border-2 border-white rounded-full flex justify-center p-2">
-            <div className="w-2 h-3 bg-white rounded-full animate-pulse"></div>
+        {/* Scroll Indicator - debajo de los botones, sin superponer */}
+        <div className="relative z-10 pt-8 pb-4 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/80 rounded-full flex justify-center p-1.5">
+            <div className="w-1.5 h-2 bg-white/90 rounded-full"></div>
           </div>
         </div>
       </section>
