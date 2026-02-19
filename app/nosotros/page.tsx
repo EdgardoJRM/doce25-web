@@ -1,3 +1,15 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Sobre Nosotros | Nuestra Misión y Visión',
+  description: 'Conoce a Doce25, Fundación Tortuga Club PR. Organización 501(c)(3) sin fines de lucro dedicada a la limpieza de playas y conservación marina en Puerto Rico desde 2020. Más de 69,000 libras de basura removidas.',
+  openGraph: {
+    title: 'Sobre Doce25 - Fundación Tortuga Club PR',
+    description: 'Transformando vidas a través del servicio y la solidaridad. Conoce nuestra misión de limpieza y conservación de playas en Puerto Rico.',
+    type: 'website',
+  },
+}
+
 export default function NosotrosPage() {
   return (
     <div className="min-h-screen">
