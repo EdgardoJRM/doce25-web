@@ -10,11 +10,11 @@ export function Footer() {
             <div className="mb-6">
               <Link href="/" className="block">
                 <Image
-                  src="/doce25-logo.png"
+                  src="/doce25-logo-horizontal.png"
                   alt="Doce25 Logo"
-                  width={200}
-                  height={70}
-                  className="h-12 md:h-16 w-auto object-contain brightness-0 invert"
+                  width={280}
+                  height={90}
+                  className="h-14 md:h-20 w-auto object-contain"
                   priority
                 />
               </Link>
