@@ -77,13 +77,13 @@ export function Hero() {
             </span>
           </div>
           <h1 className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-8 leading-[1.2] tracking-tight animate-fade-in-up">
-            Un Océano Saludable y un<br />
+            Un Océano Saludable Y Un<br />
             <span className="text-gradient bg-gradient-to-r from-blue-300 via-white to-ocean-300 bg-clip-text text-transparent">
               Planeta Próspero
             </span>
           </h1>
           <p className="text-2xl md:text-3xl lg:text-4xl mb-12 text-gray-100 max-w-3xl mx-auto leading-relaxed font-light animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            Para Siempre y Para Todos
+            Para Siempre Y Para Todos
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <Link
