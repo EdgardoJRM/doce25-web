@@ -123,6 +123,7 @@ export const handler = async (
       return {
         registrationId: reg.registrationId,
         eventId: reg.eventId,
+        eventSlug: event?.slug || '',
         eventName: event?.name || 'Evento no disponible',
         eventDate: event?.date || '',
         eventLocation: event?.location || '',

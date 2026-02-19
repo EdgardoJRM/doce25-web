@@ -9,6 +9,7 @@ import { getUserRegistrations } from '@/lib/api'
 interface Registration {
   registrationId: string
   eventId: string
+  eventSlug?: string
   eventName: string
   eventDate: string
   eventLocation: string
@@ -210,7 +211,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex gap-2">
                       <Link
-                        href={`/eventos/${registration.eventId}`}
+                        href={`/eventos/${registration.eventSlug || registration.eventId}`}
                         className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         Ver Evento
