@@ -155,7 +155,7 @@ Resources:
             Path: /events/{eventId}/register
             Method: post
       Policies:
-        - DynamoDBWritePolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref RegistrationsTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventsTable
