@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { v4 as uuidv4 } from 'uuid'
 import QRCode from 'qrcode'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
@@ -473,9 +473,38 @@ export const handler = async (
       }
     }
 
+    // Verificar si el email ya está registrado para este evento
+    const existingRegistrations = await dynamoClient.send(
+      new QueryCommand({
+        TableName: TABLES.REGISTRATIONS,
+        IndexName: 'EmailIndex',
+        KeyConditionExpression: 'email = :email',
+        FilterExpression: 'eventId = :eventId',
+        ExpressionAttributeValues: {
+          ':email': email.toLowerCase().trim(),
+          ':eventId': eventId,
+        },
+        Limit: 1, // Solo necesitamos saber si existe uno
+      })
+    )
+
+    if (existingRegistrations.Items && existingRegistrations.Items.length > 0) {
+      return {
+        statusCode: 409, // Conflict
+        headers,
+        body: JSON.stringify({ 
+          message: 'Ya estás registrado para este evento. Revisa tu correo electrónico para ver tu entrada.',
+          registrationExists: true
+        }),
+      }
+    }
+
     // Generar token único para el QR
     const qrToken = uuidv4()
     const registrationId = uuidv4()
+
+    // Normalizar email (lowercase y trim)
+    const normalizedEmail = email.toLowerCase().trim()
 
     // Guardar registro en DynamoDB
     await dynamoClient.send(
@@ -485,7 +514,7 @@ export const handler = async (
           registrationId,
           eventId,
           name,
-          email,
+          email: normalizedEmail,
           phone: phone || '',
           qrToken,
           termsAccepted: termsAccepted || false,
