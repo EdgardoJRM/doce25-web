@@ -283,9 +283,9 @@ async function generateTicketPDF(
   let infoY = cardTop - 95
 
   if (eventDate) {
-    // Calendar icon area
-    page.drawRectangle({ x: cardX + 24, y: infoY - 2, width: 16, height: 16, color: rgb(0.9, 0.97, 1) })
-    page.drawText('📅', { x: cardX + 25, y: infoY, size: 11, font: regularFont, color: cyan })
+    // Small cyan square as date icon
+    page.drawRectangle({ x: cardX + 24, y: infoY - 3, width: 14, height: 14, color: cyan })
+    page.drawText('F', { x: cardX + 27, y: infoY - 1, size: 9, font: boldFont, color: white })
     const dateLabel = 'FECHA'
     page.drawText(dateLabel, { x: cardX + 46, y: infoY + 6, size: 7, font: regularFont, color: midGray })
     page.drawText(eventDate, { x: cardX + 46, y: infoY - 4, size: 11, font: boldFont, color: dark })
@@ -293,7 +293,9 @@ async function generateTicketPDF(
   }
 
   if (eventLocation) {
-    page.drawText('📍', { x: cardX + 25, y: infoY, size: 11, font: regularFont, color: teal })
+    // Small teal square as location icon
+    page.drawRectangle({ x: cardX + 24, y: infoY - 3, width: 14, height: 14, color: teal })
+    page.drawText('L', { x: cardX + 27, y: infoY - 1, size: 9, font: boldFont, color: white })
     const locLabel = 'LUGAR'
     page.drawText(locLabel, { x: cardX + 46, y: infoY + 6, size: 7, font: regularFont, color: midGray })
     page.drawText(eventLocation, { x: cardX + 46, y: infoY - 4, size: 11, font: boldFont, color: dark, maxWidth: cardW - 100 })
