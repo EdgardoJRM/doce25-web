@@ -141,7 +141,7 @@ export default function EditarEventoPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="mt-1 text-sm text-gray-500">
-                URL: https://dosce25.org/eventos/{formData.slug}
+                URL: https://doce25.org/eventos/{formData.slug}
               </p>
             </div>
 

@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dosce25.org'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://doce25.org'
   
   // Páginas estáticas principales
   const staticPages = [

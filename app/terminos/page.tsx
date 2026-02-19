@@ -17,7 +17,7 @@ export default function TerminosPage() {
                   1. Aceptación de los Términos
                 </h2>
                 <p className="text-gray-700">
-                  Al acceder y utilizar el sitio web de la Fundación Dosce25 (dosce25.org), usted
+                  Al acceder y utilizar el sitio web de la Fundación Doce25 (doce25.org), usted
                   acepta cumplir y estar sujeto a los siguientes términos y condiciones de uso.
                   Si no está de acuerdo con alguno de estos términos, por favor no utilice nuestro sitio.
                 </p>
@@ -119,8 +119,8 @@ export default function TerminosPage() {
                     <strong>Fundación Dosce25</strong>
                   </p>
                   <p className="text-gray-700 mb-2">
-                    Email: <a href="mailto:info@dosce25.org" className="text-blue-600 hover:underline">
-                      info@dosce25.org
+                    Email: <a href="mailto:info@doce25.org" className="text-blue-600 hover:underline">
+                      info@doce25.org
                     </a>
                   </p>
                 </div>

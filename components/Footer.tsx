@@ -127,8 +127,8 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
             <p>&copy; {new Date().getFullYear()} Fundación Doce25. Todos los derechos reservados.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="mailto:info@dosce25.org" className="hover:text-white transition">
-                info@dosce25.org
+              <a href="mailto:info@doce25.org" className="hover:text-white transition">
+                info@doce25.org
               </a>
             </div>
           </div>

@@ -100,8 +100,8 @@ export default function PrivacidadPage() {
                 </ul>
                 <p className="text-gray-700 mt-4">
                   Para ejercer estos derechos, contáctenos a{' '}
-                  <a href="mailto:privacidad@dosce25.org" className="text-blue-600 hover:underline">
-                    privacidad@dosce25.org
+                  <a href="mailto:info@doce25.org" className="text-blue-600 hover:underline">
+                    info@doce25.org
                   </a>
                 </p>
               </section>
@@ -155,14 +155,9 @@ export default function PrivacidadPage() {
                   <p className="text-gray-700 mb-2">
                     <strong>Responsable de Protección de Datos</strong>
                   </p>
-                  <p className="text-gray-700 mb-2">
-                    Email: <a href="mailto:privacidad@dosce25.org" className="text-blue-600 hover:underline">
-                      privacidad@dosce25.org
-                    </a>
-                  </p>
                   <p className="text-gray-700">
-                    General: <a href="mailto:info@dosce25.org" className="text-blue-600 hover:underline">
-                      info@dosce25.org
+                    Email: <a href="mailto:info@doce25.org" className="text-blue-600 hover:underline">
+                      info@doce25.org
                     </a>
                   </p>
                 </div>

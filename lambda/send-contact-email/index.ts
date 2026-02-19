@@ -108,7 +108,7 @@ export const handler = async (
     `
 
     await sendEmail(
-      'info@dosce25.org', // Email del equipo
+      'info@doce25.org', // Email del equipo
       `Contacto Web: ${subject}`,
       adminEmailHtml,
       `Nuevo mensaje de contacto\n\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone || 'No proporcionado'}\nAsunto: ${subject}\n\nMensaje:\n${message}`
@@ -137,7 +137,7 @@ export const handler = async (
               <p>Hemos recibido tu mensaje y te responderemos lo antes posible.</p>
               <p>Tu asunto: <strong>${subject}</strong></p>
               <p>Normalmente respondemos en un plazo de 24-48 horas.</p>
-              <p>¡Gracias por tu interés en Dosce25!</p>
+              <p>¡Gracias por tu interés en Doce25!</p>
             </div>
           </div>
         </body>
@@ -146,9 +146,9 @@ export const handler = async (
 
     await sendEmail(
       email,
-      'Gracias por contactarnos - Dosce25',
+      'Gracias por contactarnos - Doce25',
       userEmailHtml,
-      `Hola ${name},\n\nHemos recibido tu mensaje y te responderemos pronto.\n\n¡Gracias!\n\nFundación Dosce25`
+      `Hola ${name},\n\nHemos recibido tu mensaje y te responderemos pronto.\n\n¡Gracias!\n\nFundación Doce25`
     )
 
     return {

@@ -65,34 +65,11 @@ export default function ContactoPage() {
                       <div>
                         <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
                         <a
-                          href="mailto:info@dosce25.org"
+                          href="mailto:info@doce25.org"
                           className="text-blue-600 hover:underline"
                         >
-                          info@dosce25.org
+                          info@doce25.org
                         </a>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <div className="text-cyan-500 text-2xl mr-4">📱</div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">Teléfono</h3>
-                        <a
-                          href="tel:+525512345678"
-                          className="text-blue-600 hover:underline"
-                        >
-                          +52 55 1234 5678
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <div className="text-cyan-500 text-2xl mr-4">📍</div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">Dirección</h3>
-                        <p className="text-gray-600">
-                          Ciudad de México, México
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -101,7 +78,7 @@ export default function ContactoPage() {
                     <h3 className="font-semibold text-gray-900 mb-4">Síguenos</h3>
                     <div className="flex space-x-4">
                       <a
-                        href="https://facebook.com/dosce25"
+                        href="https://www.facebook.com/doce25"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-gray-600 hover:text-cyan-500 transition"
@@ -111,7 +88,7 @@ export default function ContactoPage() {
                         </svg>
                       </a>
                       <a
-                        href="https://instagram.com/dosce25"
+                        href="https://www.instagram.com/doce25pr/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-gray-600 hover:text-cyan-500 transition"
@@ -121,17 +98,6 @@ export default function ContactoPage() {
                         </svg>
                       </a>
                     </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-cyan-50 to-teal-50 p-8 rounded-lg">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">
-                    Horario de Atención
-                  </h3>
-                  <div className="space-y-2 text-gray-700">
-                    <p><strong>Lunes a Viernes:</strong> 9:00 AM - 6:00 PM</p>
-                    <p><strong>Sábados:</strong> 10:00 AM - 2:00 PM</p>
-                    <p><strong>Domingos:</strong> Cerrado</p>
                   </div>
                 </div>
               </div>
