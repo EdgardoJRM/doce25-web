@@ -141,6 +141,25 @@ function loadLogo(): Buffer | null {
   }
 }
 
+// Helper: center text on page
+function centerText(text: string, font: any, size: number, pageWidth: number): number {
+  return (pageWidth - font.widthOfTextAtSize(text, size)) / 2
+}
+
+// Helper: draw dashed horizontal line
+function drawDashedLine(page: any, x1: number, x2: number, y: number, color: any, dashLen = 4, gapLen = 4) {
+  let x = x1
+  while (x < x2) {
+    page.drawLine({
+      start: { x, y },
+      end: { x: Math.min(x + dashLen, x2), y },
+      color,
+      thickness: 1,
+    })
+    x += dashLen + gapLen
+  }
+}
+
 // Generar PDF profesional del ticket
 async function generateTicketPDF(
   name: string,
@@ -153,274 +172,207 @@ async function generateTicketPDF(
   registrationId: string,
   logoBuffer: Buffer | null
 ): Promise<Buffer> {
-  // Create PDF document
   const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage([595.28, 841.89]) // A4
-  
-  // Load fonts
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  // Ticket size: wider than tall — like a real boarding-pass ticket
+  const W = 595.28
+  const H = 841.89
+  const page = pdfDoc.addPage([W, H])
+
+  const boldFont   = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
-  
-  // Colors
-  const primaryColor = rgb(0.055, 0.647, 0.914) // #0ea5e9
-  const darkGray = rgb(0.239, 0.239, 0.239) // #3d3d3d
-  const lightGray = rgb(0.973, 0.980, 0.988) // #f8fafc
-  const borderColor = rgb(0.796, 0.835, 0.878) // #cbd5e1
-  const gray = rgb(0.435, 0.435, 0.435) // #6f6f6f
-  const lightGrayFooter = rgb(0.612, 0.639, 0.686) // #9ca3af
-  
-  // Header background
-  page.drawRectangle({
-    x: 0,
-    y: 841.89 - 180,
-    width: 595.28,
-    height: 180,
-    color: primaryColor,
-  })
-  
-  // Logo
+
+  // ── Color palette ──────────────────────────────────────────────
+  const cyan      = rgb(0.055, 0.647, 0.914)   // #0ea5e9
+  const teal      = rgb(0.082, 0.722, 0.647)   // #14b8a6
+  const dark      = rgb(0.086, 0.110, 0.133)   // #16191c
+  const midGray   = rgb(0.435, 0.463, 0.494)   // #6f7680
+  const lightBg   = rgb(0.965, 0.980, 0.996)   // #f6fafe
+  const border    = rgb(0.859, 0.898, 0.941)   // #dbe5f0
+  const white     = rgb(1, 1, 1)
+  const stubBg    = rgb(0.941, 0.980, 0.996)   // #f0faff
+
+  // ── Page background ────────────────────────────────────────────
+  page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(0.949, 0.961, 0.976) })
+
+  // ── HEADER BAND (gradient via two overlapping rects) ───────────
+  const headerH = 210
+  page.drawRectangle({ x: 0, y: H - headerH, width: W, height: headerH, color: cyan })
+  // Teal accent strip on the right 40% of the header for a gradient feel
+  page.drawRectangle({ x: W * 0.60, y: H - headerH, width: W * 0.40, height: headerH, color: teal, opacity: 0.55 })
+
+  // Decorative circles in header
+  page.drawEllipse({ x: W - 60,  y: H - 30,  xScale: 90,  yScale: 90,  color: white, opacity: 0.06 })
+  page.drawEllipse({ x: W - 20,  y: H - 140, xScale: 60,  yScale: 60,  color: white, opacity: 0.06 })
+  page.drawEllipse({ x: 30,      y: H - 190, xScale: 50,  yScale: 50,  color: white, opacity: 0.06 })
+
+  // ── LOGO in header ─────────────────────────────────────────────
+  let logoPlaced = false
   if (logoBuffer) {
     try {
       const logoImage = await pdfDoc.embedPng(logoBuffer)
-      const logoDims = logoImage.scale(0.3)
-      page.drawImage(logoImage, {
-        x: 50,
-        y: 841.89 - 100,
-        width: Math.min(logoDims.width, 120),
-        height: Math.min(logoDims.height, 60),
-      })
+      const maxLogoW = 160
+      const maxLogoH = 70
+      const natural   = logoImage.scale(1)
+      const ratio     = Math.min(maxLogoW / natural.width, maxLogoH / natural.height)
+      const logoW     = natural.width  * ratio
+      const logoH     = natural.height * ratio
+      const logoX     = (W - logoW) / 2
+      const logoY     = H - headerH / 2 - logoH / 2 + 20
+      page.drawImage(logoImage, { x: logoX, y: logoY, width: logoW, height: logoH })
+      logoPlaced = true
     } catch (err) {
-      console.error('Error embedding logo:', err)
-      // Fallback to text
-      page.drawText('DOCE25', {
-        x: 50,
-        y: 841.89 - 82,
-        size: 32,
-        font: boldFont,
-        color: rgb(1, 1, 1),
-      })
+      console.error('Error embedding logo in PDF:', err)
     }
-  } else {
-    page.drawText('DOCE25', {
-      x: 50,
-      y: 841.89 - 82,
-      size: 32,
-      font: boldFont,
-      color: rgb(1, 1, 1),
+  }
+
+  if (!logoPlaced) {
+    // Fallback text logo
+    const logoText = 'DOCE25'
+    const logoSize = 44
+    page.drawText(logoText, {
+      x: centerText(logoText, boldFont, logoSize, W),
+      y: H - headerH / 2 - logoSize / 2 + 22,
+      size: logoSize, font: boldFont, color: white,
     })
   }
-  
-  // Subtitle
-  page.drawText('Fundación Tortuga Club PR', {
-    x: 50,
-    y: 841.89 - 121,
-    size: 14,
-    font: regularFont,
-    color: rgb(1, 1, 1),
+
+  // Tagline below logo
+  const tagline = 'Fundación Tortuga Club PR, Inc.'
+  page.drawText(tagline, {
+    x: centerText(tagline, regularFont, 11, W),
+    y: H - headerH + 18,
+    size: 11, font: regularFont, color: rgb(0.85, 0.96, 1),
   })
-  
-  // Title
-  page.drawText('ENTRADA AL EVENTO', {
-    x: 50,
-    y: 841.89 - 151,
-    size: 24,
+
+  // ── MAIN TICKET CARD ──────────────────────────────────────────
+  const cardX = 40
+  const cardW = W - 80
+  const cardTop = H - headerH - 20
+  const stubH  = 110
+  const cardH  = 490
+  const cardY  = cardTop - cardH
+
+  // Card shadow (offset rect)
+  page.drawRectangle({ x: cardX + 4, y: cardY - 4, width: cardW, height: cardH, color: rgb(0.78, 0.82, 0.88), opacity: 0.4 })
+  // Card body
+  page.drawRectangle({ x: cardX, y: cardY, width: cardW, height: cardH, color: white })
+
+  // ── CYAN LEFT ACCENT STRIP ────────────────────────────────────
+  page.drawRectangle({ x: cardX, y: cardY, width: 6, height: cardH, color: cyan })
+
+  // ── EVENT BADGE / LABEL ───────────────────────────────────────
+  const badgeTxt = 'ENTRADA OFICIAL'
+  const badgeW   = boldFont.widthOfTextAtSize(badgeTxt, 9) + 20
+  page.drawRectangle({ x: cardX + 24, y: cardTop - 28, width: badgeW, height: 18, color: cyan })
+  page.drawText(badgeTxt, { x: cardX + 34, y: cardTop - 23, size: 9, font: boldFont, color: white })
+
+  // ── EVENT NAME ────────────────────────────────────────────────
+  const evName = (eventName || 'Evento Doce25').toUpperCase()
+  // Wrap long event names
+  const evFontSize = evName.length > 30 ? 16 : 20
+  page.drawText(evName, {
+    x: cardX + 24,
+    y: cardTop - 60,
+    size: evFontSize,
     font: boldFont,
-    color: rgb(1, 1, 1),
+    color: dark,
+    maxWidth: cardW - 48,
   })
-  
-  // Ticket container
-  const ticketTop = 841.89 - 220
-  const ticketLeft = 50
-  const ticketWidth = 495.28
-  const ticketHeight = 500
-  
-  // White background for ticket
-  page.drawRectangle({
-    x: ticketLeft,
-    y: ticketTop - ticketHeight,
-    width: ticketWidth,
-    height: ticketHeight,
-    color: rgb(1, 1, 1),
-    borderColor: borderColor,
-    borderWidth: 1,
-  })
-  
-  let yPos = ticketTop - 40
-  
-  // Event name
-  page.drawText(eventName || 'Evento Doce25', {
-    x: ticketLeft + 30,
-    y: yPos,
-    size: 20,
-    font: boldFont,
-    color: darkGray,
-    maxWidth: ticketWidth - 60,
-  })
-  
-  yPos -= 40
-  
-  // Date and location
+
+  // ── DATE & LOCATION ROW ───────────────────────────────────────
+  let infoY = cardTop - 95
+
   if (eventDate) {
-    page.drawText('Fecha: ' + eventDate, {
-      x: ticketLeft + 30,
-      y: yPos,
-      size: 12,
-      font: regularFont,
-      color: gray,
-    })
-    yPos -= 25
+    // Calendar icon area
+    page.drawRectangle({ x: cardX + 24, y: infoY - 2, width: 16, height: 16, color: rgb(0.9, 0.97, 1) })
+    page.drawText('📅', { x: cardX + 25, y: infoY, size: 11, font: regularFont, color: cyan })
+    const dateLabel = 'FECHA'
+    page.drawText(dateLabel, { x: cardX + 46, y: infoY + 6, size: 7, font: regularFont, color: midGray })
+    page.drawText(eventDate, { x: cardX + 46, y: infoY - 4, size: 11, font: boldFont, color: dark })
+    infoY -= 32
   }
-  
+
   if (eventLocation) {
-    page.drawText('Lugar: ' + eventLocation, {
-      x: ticketLeft + 30,
-      y: yPos,
-      size: 12,
-      font: regularFont,
-      color: gray,
-    })
-    yPos -= 25
+    page.drawText('📍', { x: cardX + 25, y: infoY, size: 11, font: regularFont, color: teal })
+    const locLabel = 'LUGAR'
+    page.drawText(locLabel, { x: cardX + 46, y: infoY + 6, size: 7, font: regularFont, color: midGray })
+    page.drawText(eventLocation, { x: cardX + 46, y: infoY - 4, size: 11, font: boldFont, color: dark, maxWidth: cardW - 100 })
+    infoY -= 32
   }
-  
-  // Divider line
-  yPos -= 10
-  page.drawLine({
-    start: { x: ticketLeft + 30, y: yPos },
-    end: { x: ticketLeft + ticketWidth - 30, y: yPos },
-    color: borderColor,
-    thickness: 1,
+
+  // ── DIVIDER ───────────────────────────────────────────────────
+  infoY -= 8
+  page.drawLine({ start: { x: cardX + 24, y: infoY }, end: { x: cardX + cardW - 24, y: infoY }, color: border, thickness: 0.8 })
+  infoY -= 20
+
+  // ── ATTENDEE SECTION ─────────────────────────────────────────
+  page.drawText('ASISTENTE', { x: cardX + 24, y: infoY, size: 8, font: regularFont, color: cyan })
+  infoY -= 16
+  page.drawText(name, { x: cardX + 24, y: infoY, size: 16, font: boldFont, color: dark })
+  infoY -= 18
+  page.drawText(email, { x: cardX + 24, y: infoY, size: 10, font: regularFont, color: midGray })
+  infoY -= 28
+
+  // ── DASHED STUB SEPARATOR ─────────────────────────────────────
+  // Semicircle notches on the sides
+  page.drawEllipse({ x: cardX,        y: infoY, xScale: 10, yScale: 10, color: rgb(0.949, 0.961, 0.976) })
+  page.drawEllipse({ x: cardX + cardW, y: infoY, xScale: 10, yScale: 10, color: rgb(0.949, 0.961, 0.976) })
+  drawDashedLine(page, cardX + 10, cardX + cardW - 10, infoY, border, 6, 5)
+  infoY -= 20
+
+  // ── QR SECTION (stub area) ───────────────────────────────────
+  page.drawRectangle({ x: cardX, y: cardY, width: cardW, height: infoY - cardY + 10, color: stubBg })
+
+  // "Presenta en entrada" label
+  const scanTxt = 'PRESENTA ESTE CÓDIGO EN LA ENTRADA'
+  page.drawText(scanTxt, {
+    x: centerText(scanTxt, boldFont, 9, W),
+    y: infoY - 2,
+    size: 9, font: boldFont, color: cyan,
   })
-  yPos -= 30
-  
-  // Attendee label
-  page.drawText('ASISTENTE', {
-    x: ticketLeft + 30,
-    y: yPos,
-    size: 11,
-    font: regularFont,
-    color: gray,
-  })
-  
-  yPos -= 20
-  
-  // Attendee name
-  page.drawText(name, {
-    x: ticketLeft + 30,
-    y: yPos,
-    size: 14,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  yPos -= 25
-  
-  // Email
-  page.drawText(email, {
-    x: ticketLeft + 30,
-    y: yPos,
-    size: 11,
-    font: regularFont,
-    color: gray,
-  })
-  
-  yPos -= 50
-  
-  // QR Code section background
-  page.drawRectangle({
-    x: ticketLeft + 30,
-    y: yPos - 200,
-    width: ticketWidth - 60,
-    height: 200,
-    color: lightGray,
-  })
-  
-  yPos -= 20
-  
-  // Section title
-  const titleText = 'PRESENTA ESTE CODIGO EN LA ENTRADA'
-  const titleWidth = boldFont.widthOfTextAtSize(titleText, 12)
-  page.drawText(titleText, {
-    x: ticketLeft + (ticketWidth - titleWidth) / 2,
-    y: yPos,
-    size: 12,
-    font: boldFont,
-    color: darkGray,
-  })
-  
-  yPos -= 30
-  
-  // QR Code
+  infoY -= 22
+
+  // QR code — centered, large
   const qrImageBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64')
   const qrImage = await pdfDoc.embedPng(qrImageBuffer)
-  const qrSize = 120
-  const qrX = (595.28 - qrSize) / 2
-  
-  page.drawImage(qrImage, {
-    x: qrX,
-    y: yPos - qrSize,
-    width: qrSize,
-    height: qrSize,
+  const qrSize  = 140
+  const qrX     = (W - qrSize) / 2
+
+  // White QR background pad
+  page.drawRectangle({ x: qrX - 8, y: infoY - qrSize - 8, width: qrSize + 16, height: qrSize + 16, color: white, borderColor: border, borderWidth: 1 })
+  page.drawImage(qrImage, { x: qrX, y: infoY - qrSize, width: qrSize, height: qrSize })
+
+  // Alternative code below QR
+  const codeY = infoY - qrSize - 30
+  page.drawText('Código alternativo', {
+    x: centerText('Código alternativo', regularFont, 9, W),
+    y: codeY,
+    size: 9, font: regularFont, color: midGray,
   })
-  
-  yPos -= qrSize + 15
-  
-  // Alternative code label
-  const altLabel = 'Codigo alternativo:'
-  const altLabelWidth = regularFont.widthOfTextAtSize(altLabel, 10)
-  page.drawText(altLabel, {
-    x: ticketLeft + (ticketWidth - altLabelWidth) / 2,
-    y: yPos,
-    size: 10,
-    font: regularFont,
-    color: gray,
-  })
-  
-  yPos -= 18
-  
-  // Alternative code value
-  const altCodeWidth = boldFont.widthOfTextAtSize(alternativeCode, 16)
   page.drawText(alternativeCode, {
-    x: ticketLeft + (ticketWidth - altCodeWidth) / 2,
-    y: yPos,
-    size: 16,
-    font: boldFont,
-    color: primaryColor,
+    x: centerText(alternativeCode, boldFont, 18, W),
+    y: codeY - 20,
+    size: 18, font: boldFont, color: cyan,
   })
-  
-  // Footer
-  const footerY = 80
-  const registrationText = 'ID de Registro: ' + registrationId
-  const registrationWidth = regularFont.widthOfTextAtSize(registrationText, 9)
-  page.drawText(registrationText, {
-    x: (595.28 - registrationWidth) / 2,
+
+  // ── FOOTER ────────────────────────────────────────────────────
+  const footerY = 55
+  const regLine  = `ID: ${registrationId}`
+  page.drawText(regLine, {
+    x: centerText(regLine, regularFont, 8, W),
+    y: footerY + 14,
+    size: 8, font: regularFont, color: midGray,
+  })
+  const copy = `© ${new Date().getFullYear()} Doce25 · Todos los derechos reservados`
+  page.drawText(copy, {
+    x: centerText(copy, regularFont, 8, W),
     y: footerY,
-    size: 9,
-    font: regularFont,
-    color: lightGrayFooter,
+    size: 8, font: regularFont, color: border,
   })
-  
-  const copyrightText = `© ${new Date().getFullYear()} Doce25. Todos los derechos reservados.`
-  const copyrightWidth = regularFont.widthOfTextAtSize(copyrightText, 8)
-  page.drawText(copyrightText, {
-    x: (595.28 - copyrightWidth) / 2,
-    y: footerY - 15,
-    size: 8,
-    font: regularFont,
-    color: lightGrayFooter,
-  })
-  
-  // Dashed border
-  page.drawRectangle({
-    x: ticketLeft,
-    y: ticketTop - ticketHeight,
-    width: ticketWidth,
-    height: ticketHeight,
-    borderColor: borderColor,
-    borderWidth: 2,
-    borderDashArray: [5, 3],
-  })
-  
-  // Save and return
+
+  // ── OUTER CARD BORDER ─────────────────────────────────────────
+  page.drawRectangle({ x: cardX, y: cardY, width: cardW, height: cardH, borderColor: border, borderWidth: 1 })
+
   const pdfBytes = await pdfDoc.save()
   return Buffer.from(pdfBytes)
 }
