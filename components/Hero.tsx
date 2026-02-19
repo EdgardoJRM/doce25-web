@@ -5,11 +5,14 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 // Imágenes del hero - puedes agregar más fotos del club aquí
+// Solo agrega más rutas al array cuando subas más fotos
 const heroImages = [
   '/hero/hero-1.jpg',
   '/hero/hero-2.jpg',
   '/hero/hero-3.jpg',
-  // Agregar más imágenes según necesites
+  '/hero/hero-4.jpg', // Opcional
+  '/hero/hero-5.jpg', // Opcional
+  // Agregar más imágenes según necesites: hero-6.jpg, hero-7.jpg, etc.
 ]
 
 export function Hero() {
@@ -54,7 +57,7 @@ export function Hero() {
               quality={90}
               className="object-cover scale-105"
               sizes="100vw"
-            />
+        />
           </div>
         ))}
         
