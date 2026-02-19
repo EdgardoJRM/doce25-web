@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { checkIn } from '@/lib/api'
 
 export default function CheckInPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const token = params.token as string
+  const fromScanner = searchParams.get('from') === 'scanner'
   const [status, setStatus] = useState<'loading' | 'valid' | 'invalid' | 'already-checked'>('loading')
   const [attendeeInfo, setAttendeeInfo] = useState<any>(null)
+  const [countdown, setCountdown] = useState<number | null>(null)
 
   useEffect(() => {
     async function performCheckIn() {
@@ -32,6 +36,25 @@ export default function CheckInPage() {
     
     performCheckIn()
   }, [token])
+
+  // Auto-redirect al scanner después de 3 segundos si viene del scanner
+  useEffect(() => {
+    if (fromScanner && status !== 'loading' && status !== 'invalid') {
+      setCountdown(3)
+      const interval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            clearInterval(interval)
+            router.push('/admin/scanner')
+            return null
+          }
+          return prev - 1
+        })
+      }, 1000)
+
+      return () => clearInterval(interval)
+    }
+  }, [fromScanner, status, router])
 
   if (status === 'loading') {
     return (
@@ -77,9 +100,24 @@ export default function CheckInPage() {
               )}
             </div>
           )}
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             Este código ya fue utilizado para el check-in anteriormente.
           </p>
+          {fromScanner && (
+            <div className="mt-4">
+              {countdown !== null ? (
+                <p className="text-sm text-gray-500 mb-3">
+                  Regresando al scanner en {countdown} segundo{countdown !== 1 ? 's' : ''}...
+                </p>
+              ) : null}
+              <button
+                onClick={() => router.push('/admin/scanner')}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Volver al Scanner
+              </button>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -111,9 +149,24 @@ export default function CheckInPage() {
             </p>
           </div>
         )}
-        <p className="text-gray-600 text-lg">
+        <p className="text-gray-600 text-lg mb-4">
           ¡Bienvenido al evento! Disfruta de la experiencia 🎉
         </p>
+        {fromScanner && (
+          <div className="mt-4">
+            {countdown !== null ? (
+              <p className="text-sm text-gray-500 mb-3">
+                Regresando al scanner en {countdown} segundo{countdown !== 1 ? 's' : ''}...
+              </p>
+            ) : null}
+            <button
+              onClick={() => router.push('/admin/scanner')}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Volver al Scanner
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

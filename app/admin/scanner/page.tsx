@@ -52,7 +52,7 @@ export default function ScannerPage() {
                   }
                 }
                 
-                router.push(`/checkin/${token}`)
+                router.push(`/checkin/${token}?from=scanner`)
               }
             } catch {
               // Si no es un URL válido, asumir que es el token directamente
@@ -69,7 +69,7 @@ export default function ScannerPage() {
                   }
                 }
                 
-                router.push(`/checkin/${decodedText}`)
+                router.push(`/checkin/${decodedText}?from=scanner`)
               }
             }
           },
