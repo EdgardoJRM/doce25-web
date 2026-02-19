@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react'
 // Imágenes del hero - puedes agregar más fotos del club aquí
 // Solo agrega más rutas al array cuando subas más fotos
 const heroImages = [
+  '/images/doce25-hero-main.jpg', // Imagen principal del club
   '/hero/hero-1.jpg',
   '/hero/hero-2.jpg',
   '/hero/hero-3.jpg',
-  '/hero/hero-4.jpg', // Opcional
-  '/hero/hero-5.jpg', // Opcional
+  '/hero/hero-4.jpg',
+  '/hero/hero-5.jpg',
   // Agregar más imágenes según necesites: hero-6.jpg, hero-7.jpg, etc.
 ]
 
