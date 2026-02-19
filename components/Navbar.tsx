@@ -226,31 +226,31 @@ export function Navbar() {
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-gray-200">
             <div className="space-y-1">
-              <Link href="/nosotros" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/nosotros" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Sobre Nosotros
               </Link>
-              <Link href="/impacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/impacto" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Nuestro Impacto
               </Link>
-              <Link href="/proyectos/playas-urbanas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/proyectos/playas-urbanas" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Playas Urbanas
               </Link>
-              <Link href="/proyectos/playas-remotas" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/proyectos/playas-remotas" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Playas Remotas
               </Link>
-              <Link href="/auspiciadores" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/auspiciadores" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Auspiciadores
               </Link>
-              <Link href="/voluntarios-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/voluntarios-staff" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Voluntario Staff
               </Link>
-              <Link href="/eventos" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/eventos" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Eventos
               </Link>
-              <Link href="/galeria" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/galeria" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Galería
               </Link>
-              <Link href="/contacto" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
+              <Link href="/contacto" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors">
                 Contacto
               </Link>
               
@@ -259,12 +259,14 @@ export function Navbar() {
                   href="https://www.paypal.com/donate/?hosted_button_id=A8X4ZTZDF8F5N"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => setIsOpen(false)}
                   className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-full font-semibold text-center hover:shadow-lg transition-all text-sm"
                 >
                   Donar Ahora
                 </a>
                 <Link
                   href="/eventos"
+                  onClick={() => setIsOpen(false)}
                   className="block w-full bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-6 py-3 rounded-full font-semibold text-center hover:shadow-lg transition-all text-sm"
                 >
                   Tomar Acción
@@ -272,11 +274,11 @@ export function Navbar() {
                 
                 {user ? (
                   <>
-                    <Link href="/perfil" className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm">
+                    <Link href="/perfil" onClick={() => setIsOpen(false)} className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm">
                       Mi Perfil
                     </Link>
                     <button
-                      onClick={logout}
+                      onClick={() => { logout(); setIsOpen(false) }}
                       className="block w-full border-2 border-red-300 text-red-600 px-6 py-3 rounded-full font-semibold text-center hover:bg-red-50 transition-all text-sm"
                     >
                       Cerrar Sesión
@@ -285,6 +287,7 @@ export function Navbar() {
                 ) : (
                   <Link
                     href="/login"
+                    onClick={() => setIsOpen(false)}
                     className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm"
                   >
                     Iniciar Sesión
