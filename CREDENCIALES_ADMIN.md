@@ -17,15 +17,21 @@
 
 ## 👤 Usuario Administrador Creado
 
-### **Credenciales:**
+### **Credenciales Actuales:**
 ```
-Email: admin@dosce25.org
-Password: Dosce25Admin2026!
+Email: admin@doce23.org
+Password: Doce25Admin2026!@
 ```
 
 ### **URL de Login:**
 ```
-https://d10lzd121ayedb.amplifyapp.com/admin/login
+https://main.d10lzd121ayedb.amplifyapp.com/admin/login
+```
+
+### **Usuario Anterior (deprecado):**
+```
+Email: admin@dosce25.org
+Password: Dosce25Admin2026!
 ```
 
 ---
@@ -33,10 +39,10 @@ https://d10lzd121ayedb.amplifyapp.com/admin/login
 ## 🚀 Cómo Usar el Panel Admin
 
 ### **Paso 1: Acceder**
-1. Ve a: https://d10lzd121ayedb.amplifyapp.com/admin/login
+1. Ve a: https://main.d10lzd121ayedb.amplifyapp.com/admin/login
 2. Ingresa las credenciales:
-   - Email: `admin@dosce25.org`
-   - Password: `Dosce25Admin2026!`
+   - Email: `admin@doce23.org`
+   - Password: `Doce25Admin2026!@`
 3. Click en "Iniciar Sesión"
 
 ### **Paso 2: Funcionalidades Disponibles**
@@ -88,8 +94,8 @@ Ya está configurado ✅
 ```bash
 aws cognito-idp admin-create-user \
   --user-pool-id "us-east-1_jK2m3C6w6" \
-  --username "nuevo-admin@dosce25.org" \
-  --user-attributes Name=email,Value=nuevo-admin@dosce25.org Name=email_verified,Value=true \
+  --username "nuevo-admin@doce25.org" \
+  --user-attributes Name=email,Value=nuevo-admin@doce25.org Name=email_verified,Value=true \
   --temporary-password "TempPassword123!" \
   --message-action SUPPRESS \
   --region us-east-1
@@ -97,7 +103,7 @@ aws cognito-idp admin-create-user \
 # Establecer contraseña permanente
 aws cognito-idp admin-set-user-password \
   --user-pool-id "us-east-1_jK2m3C6w6" \
-  --username "nuevo-admin@dosce25.org" \
+  --username "nuevo-admin@doce25.org" \
   --password "NuevaPassword123!" \
   --permanent \
   --region us-east-1
@@ -139,7 +145,7 @@ aws cognito-idp admin-set-user-password \
 ```bash
 aws cognito-idp admin-delete-user \
   --user-pool-id "us-east-1_jK2m3C6w6" \
-  --username "email@dosce25.org" \
+  --username "email@doce25.org" \
   --region us-east-1
 ```
 
@@ -163,8 +169,8 @@ aws cognito-idp list-users \
 
 ### **Error: "Incorrect username or password"**
 - Verifica las credenciales
-- Usa exactamente: `admin@dosce25.org`
-- Password: `Dosce25Admin2026!`
+- Usa exactamente: `admin@doce23.org`
+- Password: `Doce25Admin2026!@`
 
 ### **No puedo acceder al admin**
 1. Verifica que el build de Amplify haya terminado
@@ -181,9 +187,9 @@ aws cognito-idp list-users \
 ## 📱 URLs Importantes
 
 ### **Producción (Amplify):**
-- Admin Login: https://d10lzd121ayedb.amplifyapp.com/admin/login
-- Eventos: https://d10lzd121ayedb.amplifyapp.com/admin/eventos
-- Escáner: https://d10lzd121ayedb.amplifyapp.com/admin/scanner
+- Admin Login: https://main.d10lzd121ayedb.amplifyapp.com/admin/login
+- Eventos: https://main.d10lzd121ayedb.amplifyapp.com/admin/eventos
+- Escáner: https://main.d10lzd121ayedb.amplifyapp.com/admin/scanner
 
 ### **Local (Development):**
 - Admin Login: http://localhost:3000/admin/login
