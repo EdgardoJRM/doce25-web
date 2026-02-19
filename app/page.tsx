@@ -1,24 +1,24 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { EventList } from '@/components/EventList'
 import { ImpactCounter } from '@/components/ImpactCounter'
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section with Video Background */}
+      {/* Hero Section with Image Background */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Video Background */}
+        {/* Image Background */}
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src="/videos/hero-beach.mp4" type="video/mp4" />
-          </video>
-          {/* Video Overlay */}
+          <Image
+            src="/images/doce25-hero-main.jpg"
+            alt="Doce25 - Limpieza de playas"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+          {/* Image Overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
         </div>
 
@@ -106,13 +106,13 @@ export default function Home() {
 
             <div className="relative">
               <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl">
-                <video
-                  controls
-                  className="w-full h-full object-cover"
-                  poster="/images/video-poster.jpg"
-                >
-                  <source src="/videos/beach-cleanup.mp4" type="video/mp4" />
-                </video>
+                <Image
+                  src="/images/doce25-featured.jpg"
+                  alt="Doce25 - Impacto comunitario"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
               </div>
               {/* Decorative element */}
               <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-3xl -z-10 blur-2xl opacity-30"></div>
@@ -137,7 +137,13 @@ export default function Home() {
             {/* Work Card 1 - Beach Cleanups */}
             <Link href="/proyectos/playas-urbanas" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-500">
-                <div className="absolute inset-0 bg-[url('/images/beach-cleanup-1.jpg')] bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"></div>
+                <Image
+                  src="/hero/hero-1.jpg"
+                  alt="Limpiezas de playas"
+                  fill
+                  className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
               <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform group-hover:-translate-y-2 transition-transform duration-300">
@@ -160,7 +166,13 @@ export default function Home() {
             {/* Work Card 2 - Conservation */}
             <Link href="/proyectos/playas-remotas" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-green-500">
-                <div className="absolute inset-0 bg-[url('/images/marine-life.jpg')] bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"></div>
+                <Image
+                  src="/hero/hero-2.jpg"
+                  alt="Conservación marina"
+                  fill
+                  className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
               <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform group-hover:-translate-y-2 transition-transform duration-300">
@@ -183,7 +195,13 @@ export default function Home() {
             {/* Work Card 3 - Education */}
             <Link href="/impacto" className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-xl hover:shadow-2xl transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500">
-                <div className="absolute inset-0 bg-[url('/images/education.jpg')] bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"></div>
+                <Image
+                  src="/hero/hero-3.jpg"
+                  alt="Educación ambiental"
+                  fill
+                  className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
               <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform group-hover:-translate-y-2 transition-transform duration-300">
@@ -208,7 +226,7 @@ export default function Home() {
 
       {/* Spotlight Section */}
       <section className="py-24 bg-gradient-to-br from-slate-900 via-blue-900 to-cyan-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/ocean-pattern.svg')] opacity-5"></div>
+        {/* Pattern overlay removed - using gradient instead */}
         
         <div className="container mx-auto px-4 relative z-10">
           <h2 className="text-5xl md:text-6xl font-bold text-center mb-20">
@@ -293,7 +311,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-32 bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/wave-pattern.svg')] opacity-10"></div>
+        {/* Wave pattern removed - using gradient instead */}
         <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-5xl md:text-7xl font-bold mb-8">
             ¿Amas el Océano?
