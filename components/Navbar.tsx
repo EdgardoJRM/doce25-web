@@ -298,37 +298,3 @@ export function Navbar() {
     </nav>
   )
 }
-
-                ) : (
-                  <Link
-                    href="/login"
-                    className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm"
-                  >
-                    Iniciar Sesión
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  )
-}
-
-                ) : (
-                  <Link
-                    href="/login"
-                    className="block w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold text-center hover:border-cyan-500 transition-all text-sm"
-                  >
-                    Iniciar Sesión
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  )
-}

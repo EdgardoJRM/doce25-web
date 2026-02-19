@@ -121,16 +121,3 @@ export function Hero() {
     </section>
   )
 }
-
-
-      </div>
-    </section>
-  )
-}
-
-
-      </div>
-    </section>
-  )
-}
-
