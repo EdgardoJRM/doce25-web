@@ -14,8 +14,6 @@ interface Event {
   location: string
   description: string
   slug: string
-  shortId?: string
-  shortCode?: string
   imageUrl?: string
   image?: string
   capacity?: number
@@ -51,20 +49,9 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
   }, [eventSlug])
 
   const getShareUrl = () => {
-    // Usar el dominio de producción o el origin actual si estamos en desarrollo
-    const baseUrl = typeof window !== 'undefined' 
-      ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? window.location.origin
-          : 'https://doce25.precotracks.org')
+    const baseUrl = typeof window !== 'undefined'
+      ? window.location.origin
       : 'https://doce25.precotracks.org'
-    
-    // Priorizar shortCode, luego shortId, finalmente slug
-    if (event?.shortCode) {
-      return `${baseUrl}/e/${event.shortCode}`
-    }
-    if (event?.shortId) {
-      return `${baseUrl}/e/${event.shortId}`
-    }
     return `${baseUrl}/eventos/${event?.slug}`
   }
 
@@ -94,7 +81,6 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
     const text = `¡Únete a este evento! ${event?.name}`
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
   }
-
 
   if (loading) {
     return (
@@ -209,33 +195,28 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
             {/* Share Section */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h3 className="text-xl font-bold mb-4 text-gray-900">Comparte este Evento</h3>
-              
-              {/* Short Link Display */}
-              {(event.shortCode || event.shortId) && (
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Link Corto
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={getShareUrl()}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm"
-                    />
-                    <button
-                      onClick={copyToClipboard}
-                      className={`px-6 py-2 rounded-lg font-semibold transition-all ${
-                        linkCopied
-                          ? 'bg-green-500 text-white'
-                          : 'bg-cyan-600 text-white hover:bg-cyan-700'
-                      }`}
-                    >
-                      {linkCopied ? '✓ Copiado' : 'Copiar'}
-                    </button>
-                  </div>
+
+              {/* Link Display */}
+              <div className="mb-6">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={getShareUrl()}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                  />
+                  <button
+                    onClick={copyToClipboard}
+                    className={`px-6 py-2 rounded-lg font-semibold transition-all ${
+                      linkCopied
+                        ? 'bg-green-500 text-white'
+                        : 'bg-cyan-600 text-white hover:bg-cyan-700'
+                    }`}
+                  >
+                    {linkCopied ? '✓ Copiado' : 'Copiar'}
+                  </button>
                 </div>
-              )}
+              </div>
 
               {/* Social Share Buttons */}
               <div className="flex flex-wrap gap-3">
@@ -316,7 +297,6 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
               eventId={event.eventId} 
               onSuccess={(email) => {
                 setShowForm(false)
-                // Redirigir a página de confirmación
                 router.push(`/registro-exitoso?event=${encodeURIComponent(event.name)}&email=${encodeURIComponent(email)}`)
               }} 
             />
@@ -326,4 +306,3 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
     </div>
   )
 }
-

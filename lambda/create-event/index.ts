@@ -1,56 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { v4 as uuidv4 } from 'uuid'
-import * as crypto from 'crypto'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
-
-// Generar shortId único de 6 caracteres
-function generateShortId(): string {
-  return crypto.randomBytes(3).toString('base64url').substring(0, 6)
-}
-
-// Verificar si el shortId ya existe
-async function isShortIdUnique(shortId: string): Promise<boolean> {
-  try {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        TableName: EVENTS_TABLE,
-        IndexName: 'ShortIdIndex',
-        KeyConditionExpression: 'shortId = :shortId',
-        ExpressionAttributeValues: {
-          ':shortId': shortId,
-        },
-        Limit: 1,
-      })
-    )
-    return !result.Items || result.Items.length === 0
-  } catch (error: any) {
-    // Si el índice no existe, fallback a scan (temporal)
-    console.warn('ShortIdIndex not found, shortId will not be validated:', error.message)
-    return true
-  }
-}
-
-// Generar un shortId único con reintentos
-async function generateUniqueShortId(): Promise<string> {
-  let attempts = 0
-  const maxAttempts = 5
-  
-  while (attempts < maxAttempts) {
-    const shortId = generateShortId()
-    if (await isShortIdUnique(shortId)) {
-      return shortId
-    }
-    attempts++
-  }
-  
-  // Fallback a un shortId más largo si hay colisiones
-  return crypto.randomBytes(4).toString('base64url').substring(0, 8)
-}
 
 interface CreateEventBody {
   name: string
@@ -94,14 +49,12 @@ export const handler = async (
     }
 
     const eventId = uuidv4()
-    const shortId = await generateUniqueShortId()
 
     await dynamoClient.send(
       new PutCommand({
         TableName: EVENTS_TABLE,
         Item: {
           eventId,
-          shortId,
           name,
           slug,
           description,
@@ -123,7 +76,6 @@ export const handler = async (
       body: JSON.stringify({
         message: 'Event created successfully',
         eventId,
-        shortId,
       }),
     }
   } catch (error: any) {
@@ -138,4 +90,3 @@ export const handler = async (
     }
   }
 }
-
