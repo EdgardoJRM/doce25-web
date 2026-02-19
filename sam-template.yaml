@@ -332,6 +332,12 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /checkin/{token}
             Method: post
+        ManualCheckIn:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /checkin/manual
+            Method: post
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref RegistrationsTable

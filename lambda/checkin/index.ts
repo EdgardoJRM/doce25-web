@@ -30,39 +30,67 @@ export const handler = async (
 
   try {
     const token = event.pathParameters?.token
+    const body = event.body ? JSON.parse(event.body) : {}
+    const registrationId = body.registrationId
 
-    if (!token) {
+    // Permitir check-in por token (QR code) o por registrationId (manual)
+    let registration
+
+    if (registrationId) {
+      // Check-in manual por registrationId
+      const getResult = await dynamoClient.send(
+        new GetCommand({
+          TableName: TABLES.REGISTRATIONS,
+          Key: {
+            registrationId,
+          },
+        })
+      )
+
+      if (!getResult.Item) {
+        return {
+          statusCode: 404,
+          headers,
+          body: JSON.stringify({ 
+            status: 'invalid',
+            message: 'Registration not found' 
+          }),
+        }
+      }
+
+      registration = getResult.Item
+    } else if (token) {
+      // Check-in por QR token (método original)
+      const queryResult = await dynamoClient.send(
+        new QueryCommand({
+          TableName: TABLES.REGISTRATIONS,
+          IndexName: 'QRTokenIndex',
+          KeyConditionExpression: 'qrToken = :token',
+          ExpressionAttributeValues: {
+            ':token': token,
+          },
+        })
+      )
+
+      if (!queryResult.Items || queryResult.Items.length === 0) {
+        return {
+          statusCode: 404,
+          headers,
+          body: JSON.stringify({ 
+            status: 'invalid',
+            message: 'Token not found or invalid' 
+          }),
+        }
+      }
+
+      registration = queryResult.Items[0]
+    } else {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ message: 'Token is required' }),
+        body: JSON.stringify({ message: 'Token or registrationId is required' }),
       }
     }
-
-    // Buscar registro por token usando GSI
-    const queryResult = await dynamoClient.send(
-      new QueryCommand({
-        TableName: TABLES.REGISTRATIONS,
-        IndexName: 'QRTokenIndex',
-        KeyConditionExpression: 'qrToken = :token',
-        ExpressionAttributeValues: {
-          ':token': token,
-        },
-      })
-    )
-
-    if (!queryResult.Items || queryResult.Items.length === 0) {
-      return {
-        statusCode: 404,
-        headers,
-        body: JSON.stringify({ 
-          status: 'invalid',
-          message: 'Token not found or invalid' 
-        }),
-      }
-    }
-
-    const registration = queryResult.Items[0]
 
     // Verificar si ya hizo check-in
     if (registration.checkedIn) {

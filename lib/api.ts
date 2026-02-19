@@ -132,6 +132,23 @@ export async function checkIn(token: string) {
   return response.json()
 }
 
+export async function manualCheckIn(registrationId: string) {
+  const response = await fetch(`${API_ENDPOINT}/checkin/manual`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ registrationId }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error en check-in' }))
+    throw new Error(error.message || 'Error en check-in')
+  }
+
+  return response.json()
+}
+
 export async function createEvent(data: CreateEventData) {
   const response = await fetch(`${API_ENDPOINT}/events`, {
     method: 'POST',

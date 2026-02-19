@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { getRegistrations } from '@/lib/api'
+import { getRegistrations, manualCheckIn } from '@/lib/api'
 
 interface Attendee {
   registrationId: string
@@ -27,6 +27,8 @@ export default function AdminAsistentesPage() {
   const [stats, setStats] = useState<Stats>({ total: 0, checkedIn: 0, pending: 0 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [checkingIn, setCheckingIn] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string>('')
 
   useEffect(() => {
     async function fetchRegistrations() {
@@ -44,6 +46,50 @@ export default function AdminAsistentesPage() {
     
     fetchRegistrations()
   }, [eventId])
+
+  const handleCheckIn = async (registrationId: string, attendeeName: string) => {
+    if (checkingIn) return // Prevenir clicks múltiples
+
+    setCheckingIn(registrationId)
+    setError('')
+    setSuccessMessage('')
+
+    try {
+      await manualCheckIn(registrationId)
+
+      // Actualizar el estado local
+      setAttendees((prev) =>
+        prev.map((a) =>
+          a.registrationId === registrationId
+            ? { ...a, checkedIn: true, checkedInAt: new Date().toISOString() }
+            : a
+        )
+      )
+
+      // Actualizar stats
+      setStats((prev) => ({
+        ...prev,
+        checkedIn: prev.checkedIn + 1,
+        pending: prev.pending - 1,
+      }))
+
+      setSuccessMessage(`✓ Check-in exitoso para ${attendeeName}`)
+      
+      // Limpiar mensaje después de 3 segundos
+      setTimeout(() => {
+        setSuccessMessage('')
+      }, 3000)
+    } catch (err: any) {
+      setError(err.message || 'Error al hacer check-in')
+      
+      // Limpiar error después de 5 segundos
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+    } finally {
+      setCheckingIn(null)
+    }
+  }
 
   const exportCSV = () => {
     const csv = [
@@ -70,16 +116,6 @@ export default function AdminAsistentesPage() {
     return <div className="container mx-auto px-4 py-8">Cargando...</div>
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="container mx-auto px-4 py-4 lg:py-8">
       {/* Stats Cards - Responsive */}
@@ -97,6 +133,25 @@ export default function AdminAsistentesPage() {
           <div className="mt-1 lg:mt-2 text-2xl lg:text-3xl font-bold text-gray-600">{stats.pending}</div>
         </div>
       </div>
+
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <span>{successMessage}</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8">
         <h2 className="text-xl lg:text-3xl font-bold text-gray-900">Asistentes del Evento</h2>
@@ -140,12 +195,23 @@ export default function AdminAsistentesPage() {
                   📅 Registrado: {new Date(attendee.createdAt).toLocaleDateString('es-PR')}
                 </div>
 
-                <a
-                  href={`/admin/asistentes/${eventId}/editar/${attendee.registrationId}`}
-                  className="block w-full text-center bg-blue-50 text-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition"
-                >
-                  ✏️ Editar
-                </a>
+                <div className="flex gap-2">
+                  {!attendee.checkedIn && (
+                    <button
+                      onClick={() => handleCheckIn(attendee.registrationId, attendee.name)}
+                      disabled={checkingIn === attendee.registrationId}
+                      className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {checkingIn === attendee.registrationId ? '⏳ Procesando...' : '✓ Hacer Check-in'}
+                    </button>
+                  )}
+                  <a
+                    href={`/admin/asistentes/${eventId}/editar/${attendee.registrationId}`}
+                    className={`${!attendee.checkedIn ? 'flex-1' : 'w-full'} block text-center bg-blue-50 text-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition`}
+                  >
+                    ✏️ Editar
+                  </a>
+                </div>
               </div>
             ))}
           </div>
@@ -195,7 +261,16 @@ export default function AdminAsistentesPage() {
                     {attendee.checkedIn ? 'Sí' : 'No'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                  {!attendee.checkedIn && (
+                    <button
+                      onClick={() => handleCheckIn(attendee.registrationId, attendee.name)}
+                      disabled={checkingIn === attendee.registrationId}
+                      className="text-green-600 hover:text-green-900 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {checkingIn === attendee.registrationId ? '⏳ Procesando...' : '✓ Check-in'}
+                    </button>
+                  )}
                   <a
                     href={`/admin/asistentes/${eventId}/editar/${attendee.registrationId}`}
                     className="text-blue-600 hover:text-blue-900"
