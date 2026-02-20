@@ -58,6 +58,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/impacto" className="hover:text-white transition">
+                  Nuestro Impacto
+                </Link>
+              </li>
+              <li>
                 <Link href="/eventos" className="hover:text-white transition">
                   Eventos
                 </Link>
