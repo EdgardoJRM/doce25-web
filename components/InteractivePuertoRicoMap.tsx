@@ -19,11 +19,12 @@ export interface TownData {
 
 // Datos REALES de impacto de Doce25
 // Total: 53,130 libras | 16 limpiezas | 10 municipios
+// Coordenadas verificadas geográficamente
 const TOWNS_DATA: TownData[] = [
-  // REGIÓN NORTE
+  // REGIÓN NORTE (Costa Norte)
   {
     name: 'Manatí',
-    coordinates: [18.4294, -66.4806],
+    coordinates: [18.4294, -66.4806], // Costa norte, oeste de Barceloneta
     cleanups: 2,
     volunteers: 110,
     wasteColl: 8500,
@@ -33,7 +34,7 @@ const TOWNS_DATA: TownData[] = [
   },
   {
     name: 'Toa Baja',
-    coordinates: [18.4447, -66.2540],
+    coordinates: [18.4447, -66.2540], // Costa norte, área metropolitana oeste
     cleanups: 1,
     volunteers: 45,
     wasteColl: 2800,
@@ -42,10 +43,10 @@ const TOWNS_DATA: TownData[] = [
     description: 'Limpieza en Punta Salinas, protegiendo el ecosistema costero del norte',
   },
   
-  // REGIÓN ESTE
+  // REGIÓN ESTE (Costa Este y Noreste)
   {
     name: 'Loíza',
-    coordinates: [18.4308, -65.8803],
+    coordinates: [18.4308, -65.8803], // Costa noreste, este de San Juan
     cleanups: 3,
     volunteers: 140,
     wasteColl: 12500,
@@ -55,7 +56,7 @@ const TOWNS_DATA: TownData[] = [
   },
   {
     name: 'Luquillo',
-    coordinates: [18.3725, -65.7169],
+    coordinates: [18.3725, -65.7169], // Costa noreste, Balneario famoso
     cleanups: 1,
     volunteers: 55,
     wasteColl: 4200,
@@ -65,7 +66,7 @@ const TOWNS_DATA: TownData[] = [
   },
   {
     name: 'Humacao',
-    coordinates: [18.1497, -65.8272],
+    coordinates: [18.1497, -65.8272], // Costa este
     cleanups: 1,
     volunteers: 50,
     wasteColl: 3800,
@@ -75,7 +76,7 @@ const TOWNS_DATA: TownData[] = [
   },
   {
     name: 'Yabucoa',
-    coordinates: [18.0503, -65.8792],
+    coordinates: [18.0503, -65.8792], // Costa sureste
     cleanups: 1,
     volunteers: 48,
     wasteColl: 3600,
@@ -84,10 +85,10 @@ const TOWNS_DATA: TownData[] = [
     description: 'Limpieza en Playa Lucía, costa sureste',
   },
   
-  // REGIÓN SUR
+  // REGIÓN SUR (Costa Sur)
   {
     name: 'Maunabo',
-    coordinates: [18.0072, -65.8992],
+    coordinates: [18.0072, -65.8992], // Extremo sureste
     cleanups: 1,
     volunteers: 42,
     wasteColl: 3200,
@@ -97,7 +98,7 @@ const TOWNS_DATA: TownData[] = [
   },
   {
     name: 'Arroyo',
-    coordinates: [17.9658, -66.0614],
+    coordinates: [17.9658, -66.0614], // Costa sur centro
     cleanups: 2,
     volunteers: 85,
     wasteColl: 6500,
@@ -107,7 +108,7 @@ const TOWNS_DATA: TownData[] = [
   },
   {
     name: 'Guayama',
-    coordinates: [17.9844, -66.1139],
+    coordinates: [17.9844, -66.1139], // Costa sur centro
     cleanups: 1,
     volunteers: 40,
     wasteColl: 3030,
@@ -117,7 +118,7 @@ const TOWNS_DATA: TownData[] = [
   },
   {
     name: 'Salinas',
-    coordinates: [17.9792, -66.2980],
+    coordinates: [17.9792, -66.2980], // Costa sur, más al oeste
     cleanups: 3,
     volunteers: 125,
     wasteColl: 5000,
