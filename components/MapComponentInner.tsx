@@ -93,13 +93,32 @@ export default function MapComponentInner({
           }}
         >
           <Popup>
-            <div className="p-2 min-w-[250px]">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
-                📍 {town.name}
-              </h3>
+            <div className="p-2 min-w-[280px]">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-lg text-gray-900">
+                  📍 {town.name}
+                </h3>
+                <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                  town.region === 'Norte' ? 'bg-cyan-100 text-cyan-700' :
+                  town.region === 'Este' ? 'bg-teal-100 text-teal-700' :
+                  'bg-blue-100 text-blue-700'
+                }`}>
+                  {town.region}
+                </span>
+              </div>
+              
               {town.description && (
                 <p className="text-sm text-gray-600 mb-3">{town.description}</p>
               )}
+              
+              {/* Playas */}
+              <div className="bg-gray-50 rounded-lg p-2 mb-3">
+                <div className="text-xs font-semibold text-gray-700 mb-1">🏖️ Playas:</div>
+                {town.beaches.map((beach, idx) => (
+                  <div key={idx} className="text-xs text-gray-600">• {beach}</div>
+                ))}
+              </div>
+              
               <div className="space-y-2">
                 <div className="flex items-center text-sm">
                   <span className="font-semibold mr-2">🧹 Limpiezas:</span>
@@ -114,14 +133,6 @@ export default function MapComponentInner({
                   <span className="text-green-600 font-bold">
                     {town.wasteColl.toLocaleString()} lbs
                   </span>
-                </div>
-                <div className="flex items-center text-sm text-gray-500 pt-2 border-t">
-                  <span className="mr-2">📅</span>
-                  {new Date(town.date).toLocaleDateString('es-PR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
                 </div>
               </div>
               <button
