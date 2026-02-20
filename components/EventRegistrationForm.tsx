@@ -25,17 +25,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
     otherOrganization: '',
     signature: '',
     signatureDate: new Date().toISOString().split('T')[0],
-    activityDescriptionAccepted: false,
-    conditionsAccepted: false,
-    equipmentAccepted: false,
-    commitmentsAccepted: false,
-    healthStatusAccepted: false,
-    rightsReservedAccepted: false,
-    waiverAccepted: false,
-    mediaAuthorizationAccepted: false,
-    conductCommitmentAccepted: false,
-    alcoholConsentAccepted: false,
-    declarationsAccepted: false,
+    allTermsAccepted: false,
   })
 
   useEffect(() => {
@@ -87,23 +77,8 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
     }
 
     if (step === 3) {
-      const requiredAcceptances = [
-        'activityDescriptionAccepted',
-        'conditionsAccepted',
-        'equipmentAccepted',
-        'commitmentsAccepted',
-        'healthStatusAccepted',
-        'rightsReservedAccepted',
-        'waiverAccepted',
-        'mediaAuthorizationAccepted',
-        'conductCommitmentAccepted',
-        'alcoholConsentAccepted',
-        'declarationsAccepted',
-      ]
-
-      const allAccepted = requiredAcceptances.every(field => formData[field as keyof typeof formData])
-      if (!allAccepted) {
-        setError('Debes aceptar todos los términos y condiciones para continuar')
+      if (!formData.allTermsAccepted) {
+        setError('Debes leer y aceptar todos los términos y condiciones para continuar')
         return false
       }
 
@@ -334,157 +309,75 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
           </div>
         )}
 
-        {/* Step 3: Legal Terms - COMPACT VERSION */}
+        {/* Step 3: Legal Terms */}
         {currentStep === 3 && (
-          <div className="space-y-3 animate-slide-in max-h-[60vh] overflow-y-auto pr-2">
-            <h3 className="text-base font-semibold text-gray-900 mb-3">Relevo de Responsabilidad</h3>
+          <div className="space-y-4 animate-slide-in">
+            <h3 className="text-base font-semibold text-gray-900">Relevo de Responsabilidad</h3>
 
-            <div className="space-y-2">
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="activityDescriptionAccepted"
-                  checked={formData.activityDescriptionAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Descripción de la Actividad:</strong> Consiento participar como voluntario(a) en el Beach Cleanup Event, incluyendo recoger y transportar escombros y clasificar artículos para su eliminación adecuada.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="conditionsAccepted"
-                  checked={formData.conditionsAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Condiciones y Precauciones:</strong> Acepto que las actividades se llevarán a cabo al aire libre, pueden estar presentes insectos o animales. No está permitido nadar.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="equipmentAccepted"
-                  checked={formData.equipmentAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Equipo y Suministros:</strong> Acepto que Doce25 proporcionará equipo de protección personal y suministros adecuados. Se recomienda el uso de zapatos cerrados.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="commitmentsAccepted"
-                  checked={formData.commitmentsAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Compromisos del Participante:</strong> Acepto seguir las instrucciones del personal de Doce25 en todo momento y entiendo el funcionamiento correcto del equipo proporcionado.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="healthStatusAccepted"
-                  checked={formData.healthStatusAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Estado de Salud:</strong> Declaro gozar de buena salud y no tener conocimiento de ningún problema físico que limite mi participación.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="rightsReservedAccepted"
-                  checked={formData.rightsReservedAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Reserva de Derechos:</strong> Acepto que Tortuga Club PR, Inc. dba Doce25, se reserva el Derecho de Admisión.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="waiverAccepted"
-                  checked={formData.waiverAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Renuncia y Liberación de Responsabilidad:</strong> Renuncio y relevo a Doce25 y sus oficiales de toda responsabilidad por cualquier reclamación o daño que resulte de mi participación.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="mediaAuthorizationAccepted"
-                  checked={formData.mediaAuthorizationAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Autorización de Medios:</strong> Otorgo permiso a Doce25 para tomar fotografías y grabaciones de video de mi persona y utilizarlas para los fines de la organización.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="conductCommitmentAccepted"
-                  checked={formData.conductCommitmentAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Compromiso de Conducta:</strong> Me comprometo a cumplir con las medidas de seguridad y normas de conducta informadas.
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="alcoholConsentAccepted"
-                  checked={formData.alcoholConsentAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Uso de Bebidas Alcohólicas:</strong> Confirmo que tengo la mayoría de edad para consumir bebidas alcohólicas según las leyes de Puerto Rico (18 años o más).
-                </span>
-              </label>
-
-              <label className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="declarationsAccepted"
-                  checked={formData.declarationsAccepted}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                />
-                <span className="text-xs text-gray-700">
-                  <strong>Declaraciones y Afirmaciones:</strong> Declaro que he leído y comprendido completamente este formulario antes de proporcionar mi consentimiento y firma electrónica.
-                </span>
-              </label>
+            {/* Scrollable terms document */}
+            <div className="h-64 overflow-y-auto border border-gray-200 rounded-lg bg-gray-50 p-4 space-y-3 text-xs text-gray-700 leading-relaxed">
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">1. Descripción de la Actividad</p>
+                <p>Consiento participar como voluntario(a) en el Beach Cleanup Event, incluyendo recoger y transportar escombros y clasificar artículos para su eliminación adecuada.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">2. Condiciones y Precauciones</p>
+                <p>Las actividades se llevarán a cabo al aire libre. Pueden estar presentes insectos o animales. No está permitido nadar durante el evento.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">3. Equipo y Suministros</p>
+                <p>Doce25 proporcionará equipo de protección personal y suministros adecuados. Se recomienda el uso de zapatos cerrados.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">4. Compromisos del Participante</p>
+                <p>Me comprometo a seguir las instrucciones del personal de Doce25 en todo momento y entiendo el funcionamiento correcto del equipo proporcionado.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">5. Estado de Salud</p>
+                <p>Declaro gozar de buena salud y no tener conocimiento de ningún problema físico que limite mi participación en las actividades del evento.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">6. Reserva de Derechos</p>
+                <p>Tortuga Club PR, Inc. dba Doce25 se reserva el Derecho de Admisión.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">7. Renuncia y Liberación de Responsabilidad</p>
+                <p>Renuncio y relevo a Doce25 y sus oficiales, directores, empleados y voluntarios de toda responsabilidad por cualquier reclamación, lesión, pérdida o daño que resulte de mi participación en el evento.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">8. Autorización de Medios</p>
+                <p>Otorgo permiso a Doce25 para tomar fotografías y grabaciones de video de mi persona durante el evento y utilizarlas con fines promocionales, educativos o informativos de la organización.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">9. Compromiso de Conducta</p>
+                <p>Me comprometo a cumplir con todas las medidas de seguridad y normas de conducta informadas por el equipo organizador.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">10. Uso de Bebidas Alcohólicas</p>
+                <p>Confirmo que tengo la mayoría de edad para consumir bebidas alcohólicas según las leyes de Puerto Rico (18 años o más).</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">11. Declaraciones y Afirmaciones</p>
+                <p>Declaro que he leído y comprendido completamente este formulario antes de proporcionar mi consentimiento y firma electrónica, y que toda la información que he proporcionado es verídica y correcta.</p>
+              </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            {/* Single acceptance checkbox */}
+            <label className="flex items-start gap-3 p-3 border border-cyan-200 rounded-lg bg-cyan-50 cursor-pointer hover:bg-cyan-100 transition-colors">
+              <input
+                type="checkbox"
+                name="allTermsAccepted"
+                checked={formData.allTermsAccepted}
+                onChange={handleChange}
+                className="mt-0.5 h-5 w-5 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500 flex-shrink-0"
+              />
+              <span className="text-sm text-gray-800">
+                He leído, entendido y acepto en su totalidad todos los términos, condiciones y el relevo de responsabilidad establecidos anteriormente. Entiendo que mi participación en el evento es voluntaria y que estoy sujeto(a) a las normas descritas.
+              </span>
+            </label>
+
+            {/* Signature fields */}
+            <div className="pt-2 border-t border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -500,7 +393,6 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
                     placeholder="Nombre Completo"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Fecha <span className="text-red-500">*</span>
