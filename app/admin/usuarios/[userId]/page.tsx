@@ -42,36 +42,40 @@ export default function AdminUserDetailPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (token) {
+    if (token && userId) {
       loadUserData()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, token])
 
   const loadUserData = async () => {
+    if (!token) return
+    
+    setLoading(true)
     try {
       // Get all users to find this one
-      const usersData = await getAllUsers()
+      const usersData = await getAllUsers(token)
       const foundUser = usersData.users.find((u: User) => u.userId === userId)
       
       if (!foundUser) {
         setError('Usuario no encontrado')
+        setLoading(false)
         return
       }
 
       setUser(foundUser)
 
-      // Get user registrations with admin token
-      if (token) {
-        try {
-          const regsData = await getUserRegistrations(token, userId)
-          setRegistrations(regsData.registrations || [])
-        } catch (regError) {
-          console.error('Error loading registrations:', regError)
-          // No mostrar error, solo dejar registrations vacío
-        }
+      // Get user registrations
+      try {
+        const regsData = await getUserRegistrations(token, userId)
+        setRegistrations(regsData.registrations || [])
+      } catch (regError) {
+        console.error('Error loading registrations:', regError)
+        // No mostrar error, solo dejar registrations vacío
       }
     } catch (err: any) {
-      setError(err.message)
+      console.error('Error loading user data:', err)
+      setError(err.message || 'Error al cargar datos del usuario')
     } finally {
       setLoading(false)
     }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getAllUsers } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface User {
   userId: string
@@ -19,18 +20,23 @@ interface User {
 }
 
 export default function AdminUsersPage() {
+  const { token } = useAuth()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    loadUsers()
-  }, [])
+    if (token) {
+      loadUsers()
+    }
+  }, [token])
 
   const loadUsers = async () => {
+    if (!token) return
+    
     try {
-      const data = await getAllUsers()
+      const data = await getAllUsers(token)
       setUsers(data.users || [])
     } catch (err: any) {
       setError(err.message)

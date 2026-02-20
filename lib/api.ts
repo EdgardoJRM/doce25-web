@@ -463,11 +463,12 @@ export async function getUserRegistrations(token: string, userId: string) {
 
 // ==================== ADMIN API ====================
 
-export async function getAllUsers() {
+export async function getAllUsers(token: string) {
   const response = await fetch(`${API_ENDPOINT}/admin/users`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
     },
   })
 
