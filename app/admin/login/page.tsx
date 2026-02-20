@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
 
     try {
       await signIn(email, password)
-      router.push('/admin/eventos')
+      router.push('/admin/dashboard')
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión')
     } finally {
