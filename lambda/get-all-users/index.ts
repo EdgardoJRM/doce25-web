@@ -8,7 +8,7 @@ const USERS_TABLE = process.env.USERS_TABLE || '';
 
 export const handler = async (event: any) => {
   const headers = {
-    'Access-Control-Allow-Origin': 'https://doce25.precotracks.org',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
     'Access-Control-Allow-Methods': 'GET,OPTIONS',
     'Content-Type': 'application/json',
@@ -19,6 +19,8 @@ export const handler = async (event: any) => {
   }
 
   try {
+    console.log('Fetching all users from table:', USERS_TABLE);
+    
     // Scan all users (for admin panel)
     const command = new ScanCommand({
       TableName: USERS_TABLE,
@@ -29,6 +31,7 @@ export const handler = async (event: any) => {
     });
 
     const result = await docClient.send(command);
+    console.log('Found users:', result.Items?.length || 0);
 
     // Sort by createdAt (newest first)
     const users = (result.Items || []).sort((a, b) => {

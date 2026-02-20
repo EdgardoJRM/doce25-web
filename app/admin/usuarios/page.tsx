@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getAllUsers } from '@/lib/api'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth'
 
 interface User {
   userId: string
@@ -20,25 +20,27 @@ interface User {
 }
 
 export default function AdminUsersPage() {
-  const { token } = useAuth()
+  const { token, loading: authLoading } = useAuth()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    if (token) {
+    // Esperar a que termine de cargar la autenticación
+    if (!authLoading) {
       loadUsers()
     }
-  }, [token])
+  }, [authLoading])
 
   const loadUsers = async () => {
-    if (!token) return
-    
     try {
-      const data = await getAllUsers(token)
+      console.log('Loading users, token available:', !!token)
+      const data = await getAllUsers(token || '')
       setUsers(data.users || [])
+      setError('')
     } catch (err: any) {
+      console.error('Error loading users:', err)
       setError(err.message)
     } finally {
       setLoading(false)

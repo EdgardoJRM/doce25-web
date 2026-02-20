@@ -445,13 +445,18 @@ export async function updateUserProfile(token: string, data: UpdateUserProfileDa
   return response.json()
 }
 
-export async function getUserRegistrations(token: string, userId: string) {
+export async function getUserRegistrations(token: string | undefined, userId: string) {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  
   const response = await fetch(`${API_ENDPOINT}/users/${userId}/registrations`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers,
   })
 
   if (!response.ok) {
@@ -463,13 +468,18 @@ export async function getUserRegistrations(token: string, userId: string) {
 
 // ==================== ADMIN API ====================
 
-export async function getAllUsers(token: string) {
+export async function getAllUsers(token?: string) {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  
   const response = await fetch(`${API_ENDPOINT}/admin/users`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers,
   })
 
   if (!response.ok) {

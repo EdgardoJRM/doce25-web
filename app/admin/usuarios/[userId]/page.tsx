@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getAllUsers, getUserRegistrations } from '@/lib/api'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth'
 
 interface User {
   userId: string
@@ -34,7 +34,7 @@ export default function AdminUserDetailPage() {
   const params = useParams()
   const router = useRouter()
   const userId = params.userId as string
-  const { token } = useAuth()
+  const { token, loading: authLoading } = useAuth()
 
   const [user, setUser] = useState<User | null>(null)
   const [registrations, setRegistrations] = useState<Registration[]>([])
@@ -42,19 +42,17 @@ export default function AdminUserDetailPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (token && userId) {
+    if (!authLoading && userId) {
       loadUserData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, token])
+  }, [userId, authLoading])
 
   const loadUserData = async () => {
-    if (!token) return
-    
     setLoading(true)
     try {
       // Get all users to find this one
-      const usersData = await getAllUsers(token)
+      const usersData = await getAllUsers(token || undefined)
       const foundUser = usersData.users.find((u: User) => u.userId === userId)
       
       if (!foundUser) {
@@ -67,7 +65,7 @@ export default function AdminUserDetailPage() {
 
       // Get user registrations
       try {
-        const regsData = await getUserRegistrations(token, userId)
+        const regsData = await getUserRegistrations(token || undefined, userId)
         setRegistrations(regsData.registrations || [])
       } catch (regError) {
         console.error('Error loading registrations:', regError)
