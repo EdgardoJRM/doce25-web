@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { EventList } from '@/components/EventList'
 import { ImpactCounter } from '@/components/ImpactCounter'
+import { InteractivePuertoRicoMap } from '@/components/InteractivePuertoRicoMap'
 
 export default function Home() {
   return (
@@ -61,6 +62,21 @@ export default function Home() {
 
       {/* Impact Counter - Interactive */}
       <ImpactCounter />
+
+      {/* Interactive Puerto Rico Map */}
+      <section className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Nuestro Impacto en Puerto Rico
+            </h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+              Explora las comunidades y playas donde hemos realizado limpiezas
+            </p>
+          </div>
+          <InteractivePuertoRicoMap />
+        </div>
+      </section>
 
       {/* Mission Statement with Video */}
       <section className="py-24 bg-gradient-to-br from-cyan-900 via-blue-900 to-ocean-900 text-white relative overflow-hidden">
