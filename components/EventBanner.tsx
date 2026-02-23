@@ -42,16 +42,6 @@ export function EventBanner() {
 
       if (upcomingEvents.length > 0) {
         const nextEvent = upcomingEvents[0]
-        
-        // Verificar si el banner fue cerrado recientemente
-        const dismissedUntil = localStorage.getItem(`event-banner-dismissed-${nextEvent.eventId}`)
-        if (dismissedUntil) {
-          const dismissedDate = new Date(dismissedUntil)
-          if (dismissedDate > now) {
-            return // No mostrar si fue cerrado recientemente
-          }
-        }
-        
         setEvent(nextEvent)
         // Mostrar el banner después de un pequeño delay para animación
         setTimeout(() => setIsVisible(true), 500)
@@ -64,13 +54,8 @@ export function EventBanner() {
   const handleClose = () => {
     setIsClosing(true)
     
-    // Guardar que el usuario cerró este banner (no mostrar por 24 horas)
-    if (event) {
-      const dismissUntil = new Date()
-      dismissUntil.setHours(dismissUntil.getHours() + 24)
-      localStorage.setItem(`event-banner-dismissed-${event.eventId}`, dismissUntil.toISOString())
-    }
-    
+    // Solo ocultar temporalmente en esta sesión
+    // El banner volverá a aparecer cuando el usuario recargue la página
     setTimeout(() => {
       setIsVisible(false)
       setIsClosing(false)
