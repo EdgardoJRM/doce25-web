@@ -169,13 +169,13 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
         {/* Step 1: Personal Information */}
         {currentStep === 1 && (
-          <div className="space-y-4 animate-slide-in">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3 md:space-y-4 animate-slide-in">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                   Email <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -190,7 +190,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                   Nombre Completo <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -205,7 +205,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                   Rango de Edad <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -227,7 +227,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                   Género <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -246,7 +246,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                   Ciudad/Pueblo de Origen <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -268,12 +268,12 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
 
         {/* Step 2: Organization */}
         {currentStep === 2 && (
-          <div className="space-y-4 animate-slide-in">
+          <div className="space-y-3 md:space-y-4 animate-slide-in">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                 Organización a la que Perteneces <span className="text-red-500">*</span>
               </label>
-              <p className="text-xs text-gray-600 mb-3">
+              <p className="text-xs text-gray-600 mb-2 md:mb-3">
                 Si vienes por tu cuenta, marca &quot;Doce25&quot;. Si vienes con tu empresa, escoge &quot;N/A, vengo con mi compañía&quot;.
               </p>
               <select
@@ -292,7 +292,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
 
             {formData.organization === 'Otra' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                   Especifica tu Organización <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -311,11 +311,11 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
 
         {/* Step 3: Legal Terms */}
         {currentStep === 3 && (
-          <div className="space-y-4 animate-slide-in">
-            <h3 className="text-base font-semibold text-gray-900">Relevo de Responsabilidad</h3>
+          <div className="space-y-3 md:space-y-4 animate-slide-in">
+            <h3 className="text-sm md:text-base font-semibold text-gray-900">Relevo de Responsabilidad</h3>
 
             {/* Scrollable terms document */}
-            <div className="h-64 overflow-y-auto border border-gray-200 rounded-lg bg-gray-50 p-4 space-y-3 text-xs text-gray-700 leading-relaxed">
+            <div className="h-48 md:h-64 overflow-y-auto border border-gray-200 rounded-lg bg-gray-50 p-3 md:p-4 space-y-2 md:space-y-3 text-xs text-gray-700 leading-relaxed">
               <div>
                 <p className="font-semibold text-gray-900 mb-1">1. Descripción de la Actividad</p>
                 <p>Consiento participar como voluntario(a) en el Beach Cleanup Event, incluyendo recoger y transportar escombros y clasificar artículos para su eliminación adecuada.</p>
@@ -363,15 +363,15 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
             </div>
 
             {/* Single acceptance checkbox */}
-            <label className="flex items-start gap-3 p-3 border border-cyan-200 rounded-lg bg-cyan-50 cursor-pointer hover:bg-cyan-100 transition-colors">
+            <label className="flex items-start gap-2 md:gap-3 p-2.5 md:p-3 border border-cyan-200 rounded-lg bg-cyan-50 cursor-pointer hover:bg-cyan-100 transition-colors">
               <input
                 type="checkbox"
                 name="allTermsAccepted"
                 checked={formData.allTermsAccepted}
                 onChange={handleChange}
-                className="mt-0.5 h-5 w-5 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500 flex-shrink-0"
+                className="mt-0.5 h-4 w-4 md:h-5 md:w-5 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500 flex-shrink-0"
               />
-              <span className="text-sm text-gray-800">
+              <span className="text-xs md:text-sm text-gray-800">
                 He leído, entendido y acepto en su totalidad todos los términos, condiciones y el relevo de responsabilidad establecidos anteriormente. Entiendo que mi participación en el evento es voluntaria y que estoy sujeto(a) a las normas descritas.
               </span>
             </label>
@@ -380,7 +380,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
             <div className="pt-2 border-t border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                     Firma del Participante <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -394,7 +394,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                     Fecha <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -419,12 +419,12 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+        <div className="flex justify-between items-center pt-3 md:pt-4 border-t border-gray-200">
           {currentStep > 1 ? (
             <button
               type="button"
               onClick={prevStep}
-              className="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 md:px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Anterior
             </button>
@@ -436,7 +436,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
             <button
               type="button"
               onClick={nextStep}
-              className="px-5 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 transition-colors"
+              className="px-4 md:px-5 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 transition-colors"
             >
               Siguiente
             </button>
@@ -444,7 +444,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-cyan-600 to-teal-600 rounded-lg hover:from-cyan-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 md:px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-cyan-600 to-teal-600 rounded-lg hover:from-cyan-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {loading ? 'Registrando...' : 'Completar Registro'}
             </button>

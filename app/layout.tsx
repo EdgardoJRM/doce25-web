@@ -198,7 +198,7 @@ export default function RootLayout({
         <CognitoAuthProvider>
           <AuthProvider>
             <Navbar />
-            <main className="min-h-screen pt-16 pb-24">
+            <main className="min-h-screen pt-16">
               {children}
             </main>
             <Footer />

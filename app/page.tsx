@@ -5,7 +5,7 @@ import { ImpactCounter } from '@/components/ImpactCounter'
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-24 md:pb-32">
       {/* Hero Section with Image Background */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden py-16 md:py-24">
         {/* Image Background */}

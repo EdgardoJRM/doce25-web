@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { getEvents } from '@/lib/api'
 
@@ -15,13 +16,19 @@ interface Event {
 }
 
 export function EventBanner() {
+  const pathname = usePathname()
   const [event, setEvent] = useState<Event | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
 
+  // Solo mostrar en la página de inicio
+  const isHomePage = pathname === '/'
+
   useEffect(() => {
-    loadUpcomingEvent()
-  }, [])
+    if (isHomePage) {
+      loadUpcomingEvent()
+    }
+  }, [isHomePage])
 
   const loadUpcomingEvent = async () => {
     try {
@@ -62,7 +69,7 @@ export function EventBanner() {
     }, 300)
   }
 
-  if (!event || !isVisible) return null
+  if (!event || !isVisible || !isHomePage) return null
 
   // Calcular días hasta el evento
   const eventDate = new Date(event.date)
