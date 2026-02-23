@@ -1,29 +1,30 @@
 import { MetadataRoute } from 'next'
+import { getEvents } from '@/lib/api'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://doce25.org'
   
-  // Páginas estáticas principales
+  // Páginas estáticas principales con prioridades optimizadas
   const staticPages = [
-    '',
-    '/nosotros',
-    '/eventos',
-    '/proyectos/playas-urbanas',
-    '/proyectos/playas-remotas',
-    '/impacto',
-    '/galeria',
-    '/auspiciadores',
-    '/voluntarios-staff',
-    '/contacto',
-    '/donar',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
+    { route: '', priority: 1.0, changeFrequency: 'daily' as const },
+    { route: '/nosotros', priority: 0.9, changeFrequency: 'weekly' as const },
+    { route: '/impacto', priority: 0.9, changeFrequency: 'weekly' as const },
+    { route: '/eventos', priority: 0.95, changeFrequency: 'daily' as const },
+    { route: '/proyectos/playas-urbanas', priority: 0.7, changeFrequency: 'monthly' as const },
+    { route: '/proyectos/playas-remotas', priority: 0.7, changeFrequency: 'monthly' as const },
+    { route: '/galeria', priority: 0.6, changeFrequency: 'weekly' as const },
+    { route: '/auspiciadores', priority: 0.7, changeFrequency: 'monthly' as const },
+    { route: '/voluntarios-staff', priority: 0.8, changeFrequency: 'monthly' as const },
+    { route: '/contacto', priority: 0.8, changeFrequency: 'monthly' as const },
+    { route: '/donar', priority: 0.9, changeFrequency: 'monthly' as const },
+  ].map((page) => ({
+    url: `${baseUrl}${page.route}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: route === '' ? 1 : 0.8,
+    changeFrequency: page.changeFrequency,
+    priority: page.priority,
   }))
 
-  // Páginas legales
+  // Páginas legales (menor prioridad)
   const legalPages = [
     '/terminos',
     '/privacidad',
@@ -31,18 +32,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
+    changeFrequency: 'yearly' as const,
     priority: 0.3,
   }))
 
-  // TODO: Cuando tengamos la API funcionando, agregar eventos dinámicos
-  // const events = await getEvents()
-  // const eventPages = events.map((event) => ({
-  //   url: `${baseUrl}/eventos/${event.slug}`,
-  //   lastModified: new Date(event.updatedAt),
-  //   changeFrequency: 'daily' as const,
-  //   priority: 0.7,
-  // }))
+  // Eventos dinámicos (alta prioridad para indexación)
+  let eventPages: MetadataRoute.Sitemap = []
+  try {
+    const eventsData = await getEvents()
+    eventPages = eventsData.events
+      .filter((event: any) => event.status === 'published')
+      .map((event: any) => ({
+        url: `${baseUrl}/eventos/${event.slug}`,
+        lastModified: new Date(event.updatedAt || event.createdAt),
+        changeFrequency: 'daily' as const,
+        priority: 0.85,
+      }))
+  } catch (error) {
+    console.error('Error loading events for sitemap:', error)
+  }
 
-  return [...staticPages, ...legalPages]
+  return [...staticPages, ...eventPages, ...legalPages]
 }

@@ -1,0 +1,35 @@
+User-agent: *
+Allow: /
+
+# Páginas privadas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /perfil/
+Disallow: /login
+Disallow: /registro
+Disallow: /checkin/
+
+# Archivos especiales
+Allow: /sitemap.xml
+Allow: /robots.txt
+
+# Optimización para crawlers importantes
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Crawl-delay: 0
+
+# Sitemap
+Sitemap: https://doce25.precotracks.org/sitemap.xml
+Sitemap: https://doce25.org/sitemap.xml
+
+# Host
+Host: https://doce25.precotracks.org
+

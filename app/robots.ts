@@ -8,9 +8,33 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/'],
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/perfil/',
+          '/perfil/editar',
+          '/login',
+          '/registro',
+          '/checkin/',
+        ],
+        crawlDelay: 0,
+      },
+      // Optimización específica para Google
+      {
+        userAgent: 'Googlebot',
+        allow: '/',
+        disallow: ['/admin/', '/api/', '/perfil/', '/login', '/registro', '/checkin/'],
+        crawlDelay: 0,
+      },
+      // Optimización para Bing
+      {
+        userAgent: 'Bingbot',
+        allow: '/',
+        disallow: ['/admin/', '/api/', '/perfil/', '/login', '/registro', '/checkin/'],
+        crawlDelay: 0,
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   }
 }

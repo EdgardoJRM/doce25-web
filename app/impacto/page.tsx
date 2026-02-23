@@ -1,6 +1,42 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import InteractivePuertoRicoMap from '@/components/InteractivePuertoRicoMap'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Nuestro Impacto en Puerto Rico | Mapa Interactivo de Limpiezas',
+  description: 'Descubre el impacto real de Doce25 en Puerto Rico: 53,130 libras de basura removidas, 16 limpiezas en 10 municipios. Mapa interactivo con datos verificados de nuestras limpiezas de playas en las regiones Norte, Este y Sur de la isla.',
+  keywords: [
+    'impacto ambiental puerto rico',
+    'limpiezas playas puerto rico',
+    'mapa limpiezas doce25',
+    'conservación costera',
+    'municipios impactados',
+    'basura removida puerto rico',
+    'voluntariado ambiental',
+    'playas limpias puerto rico',
+    'manatí limpieza',
+    'loíza playas',
+    'luquillo conservación',
+  ],
+  openGraph: {
+    title: 'Impacto de Doce25 en Puerto Rico - 53,130 libras removidas',
+    description: '10 municipios, 16 limpiezas, 53,130 libras de basura removidas. Mapa interactivo con datos reales de nuestro impacto en las costas de Puerto Rico.',
+    type: 'website',
+    url: 'https://doce25.precotracks.org/impacto',
+    images: [
+      {
+        url: '/doce25-logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Mapa de impacto Doce25 en Puerto Rico',
+      },
+    ],
+  },
+  alternates: {
+    canonical: 'https://doce25.precotracks.org/impacto',
+  },
+}
 
 export default function ImpactoPage() {
   return (
