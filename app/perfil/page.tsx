@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserRegistrations } from '@/lib/api'
 import QRCode from 'qrcode'
@@ -308,9 +309,11 @@ export default function ProfilePage() {
                 {/* QR Code */}
                 <div className="bg-white p-6 rounded-xl border-4 border-cyan-500 mb-6 inline-block">
                   {qrDataUrl && (
-                    <img 
+                    <Image 
                       src={qrDataUrl} 
                       alt="Código QR de Entrada" 
+                      width={256}
+                      height={256}
                       className="w-64 h-64 mx-auto"
                     />
                   )}

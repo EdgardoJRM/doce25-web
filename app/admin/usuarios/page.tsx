@@ -26,12 +26,26 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
 
+  const loadUsers = async () => {
+    try {
+      console.log('Loading users, token available:', !!token)
+      const data = await getAllUsers(token || '')
+      setUsers(data.users || [])
+      setError('')
+    } catch (err: any) {
+      console.error('Error loading users:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     // Esperar a que termine de cargar la autenticación
     if (!authLoading) {
       loadUsers()
     }
-  }, [authLoading])
+  }, [authLoading, token])
 
   const loadUsers = async () => {
     try {

@@ -28,7 +28,6 @@ function AnimatedCounter({ end, duration = 2000, suffix = '', prefix = '', decim
             const now = Date.now()
             const progress = Math.min((now - startTime) / duration, 1)
             
-            // Easing function for smooth animation
             const easeOutQuart = 1 - Math.pow(1 - progress, 4)
             const currentCount = startCount + (end - startCount) * easeOutQuart
 
@@ -47,13 +46,14 @@ function AnimatedCounter({ end, duration = 2000, suffix = '', prefix = '', decim
       { threshold: 0.3 }
     )
 
-    if (counterRef.current) {
-      observer.observe(counterRef.current)
+    const currentRef = counterRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
     }
 
     return () => {
-      if (counterRef.current) {
-        observer.unobserve(counterRef.current)
+      if (currentRef) {
+        observer.unobserve(currentRef)
       }
     }
   }, [end, duration, hasAnimated])

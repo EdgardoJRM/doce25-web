@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 
 export function ProjectsSection() {
   return (
@@ -27,10 +28,12 @@ export function ProjectsSection() {
             <div className="group relative bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 card-hover border border-gray-100">
               <div className="relative h-72 md:h-96 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10"></div>
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?q=80&w=2070"
                   alt="Limpieza de playas urbanas"
+                  fill
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
                 <div className="absolute top-6 left-6 z-20">
                   <span className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-900">
@@ -65,10 +68,12 @@ export function ProjectsSection() {
             <div className="group relative bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 card-hover border border-gray-100">
               <div className="relative h-72 md:h-96 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10"></div>
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073"
                   alt="Limpieza de playas remotas"
+                  fill
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
                 <div className="absolute top-6 left-6 z-20">
                   <span className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-900">

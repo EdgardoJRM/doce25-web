@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export function Projects() {
   return (
@@ -7,10 +8,12 @@ export function Projects() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-100">
             <div className="h-48 relative">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073"
                 alt="Limpieza de playas"
+                fill
                 className="w-full h-full object-cover"
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
             <div className="p-6">
@@ -29,10 +32,12 @@ export function Projects() {
           </div>
           <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-100">
             <div className="h-48 relative">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=2032"
                 alt="Limpiezas corporativas"
+                fill
                 className="w-full h-full object-cover"
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
             <div className="p-6">
@@ -51,10 +56,12 @@ export function Projects() {
           </div>
           <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-100">
             <div className="h-48 relative">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022"
                 alt="Educación en playas"
+                fill
                 className="w-full h-full object-cover"
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
             <div className="p-6">

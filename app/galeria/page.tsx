@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 export default function GaleriaPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -36,10 +37,12 @@ export default function GaleriaPage() {
                 className="relative aspect-square overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition duration-300"
                 onClick={() => setSelectedImage(photo)}
               >
-                <img
+                <Image
                   src={photo}
                   alt={`Galería Doce25 ${index + 1}`}
+                  fill
                   className="w-full h-full object-cover"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
               </div>
             ))}
@@ -58,9 +61,11 @@ export default function GaleriaPage() {
                 >
                   ×
                 </button>
-                <img
+                <Image
                   src={selectedImage}
                   alt="Imagen ampliada"
+                  width={1200}
+                  height={800}
                   className="max-w-full max-h-[90vh] object-contain"
                 />
               </div>
