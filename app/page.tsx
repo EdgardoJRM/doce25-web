@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { EventList } from '@/components/EventList'
 import { ImpactCounter } from '@/components/ImpactCounter'
-import { InteractivePuertoRicoMap } from '@/components/InteractivePuertoRicoMap'
+import InteractivePuertoRicoMap from '@/components/InteractivePuertoRicoMap'
 
 export default function Home() {
   return (
