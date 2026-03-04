@@ -143,7 +143,7 @@ const MapComponent = dynamic(() => import('./MapComponentInner'), {
 
 export default function InteractivePuertoRicoMap() {
   const [selectedTown, setSelectedTown] = useState<TownData | null>(null)
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState<boolean>(false)
 
   useEffect(() => {
     setMounted(true)
