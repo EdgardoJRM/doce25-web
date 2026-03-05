@@ -791,6 +791,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref RegistrationsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref WeightRecordsTable
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
