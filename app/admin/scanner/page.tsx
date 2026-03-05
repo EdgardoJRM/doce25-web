@@ -110,6 +110,7 @@ export default function ScannerPage() {
         })
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, mode])
 
   // Detener scanner cuando cambiamos de modo

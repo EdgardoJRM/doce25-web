@@ -23,6 +23,7 @@ export default function CheckInPage() {
 
   useEffect(() => {
     performCheckIn()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
   // Auto-redirect from scanner
@@ -30,6 +31,7 @@ export default function CheckInPage() {
     if (fromScanner && countdown === null && (viewMode === 'success' || viewMode === 'already-checked')) {
       setCountdown(3)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromScanner, viewMode])
 
   useEffect(() => {
@@ -149,7 +151,7 @@ export default function CheckInPage() {
                   <strong>Organización en registro:</strong> {attendeeInfo.organization}
                 </p>
                 <p className="text-blue-700 text-xs mt-1">
-                  ¿Vienes con tu organización hoy? Selecciona "Organización" abajo
+                  ¿Vienes con tu organización hoy? Selecciona &quot;Organización&quot; abajo
                 </p>
               </div>
             )}

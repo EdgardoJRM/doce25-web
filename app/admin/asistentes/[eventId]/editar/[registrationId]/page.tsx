@@ -32,6 +32,7 @@ export default function EditarAsistentePage() {
 
   useEffect(() => {
     fetchRegistration()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registrationId])
 
   const fetchRegistration = async () => {

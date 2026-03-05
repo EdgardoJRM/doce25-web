@@ -45,6 +45,7 @@ export default function AdminUsersPage() {
     if (!authLoading) {
       loadUsers()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, token])
 
   const filteredUsers = users.filter(user =>

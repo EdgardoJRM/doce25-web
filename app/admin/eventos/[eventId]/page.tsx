@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { getRegistrations, deleteWeight, updateWeight, RegisterWeightData } from '@/lib/api'
+import { getRegistrations, deleteWeight, updateWeight, RegisterWeightData, getWeightHistory, WeightHistory } from '@/lib/api'
 
 type Tab = 'edit' | 'registrations'
+type WeightViewMode = 'individual' | 'groups'
 
 interface Registration {
   registrationId: string
@@ -18,6 +19,24 @@ interface Registration {
   trashType?: string
   trashBreakdown?: Record<string, number>
   checkOutTime?: string
+  notes?: string
+  participationType?: 'individual' | 'duo' | 'group' | 'organization'
+  groupId?: string
+  eventOrganization?: string
+  groupMembers?: string[]
+}
+
+interface WeightRecord {
+  weightRecordId: string
+  registrationId?: string
+  groupId?: string
+  eventId: string
+  weightCollected: number
+  trashType: string
+  trashBreakdown?: Record<string, number>
+  timestamp: string
+  registeredBy?: string
+  registeredByName?: string
   notes?: string
 }
 
@@ -49,15 +68,20 @@ export default function EditarEventoPage() {
   const [loadingRegistrations, setLoadingRegistrations] = useState(false)
   const [filter, setFilter] = useState<'all' | 'with-weight' | 'without-weight'>('all')
   const [editingWeight, setEditingWeight] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<WeightViewMode>('individual')
+  const [weightHistories, setWeightHistories] = useState<Record<string, WeightHistory>>({})
+  const [expandedHistory, setExpandedHistory] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEvent()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId])
 
   useEffect(() => {
     if (activeTab === 'registrations') {
       fetchRegistrations()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab])
 
   const fetchRegistrations = async () => {
@@ -65,6 +89,22 @@ export default function EditarEventoPage() {
       setLoadingRegistrations(true)
       const data = await getRegistrations(eventId)
       setRegistrations(data.registrations || [])
+      
+      for (const reg of data.registrations || []) {
+        if (reg.checkedIn) {
+          try {
+            const historyType = reg.groupId ? 'group' : 'registration'
+            const historyId = reg.groupId || reg.registrationId
+            const history = await getWeightHistory(historyId, historyType)
+            setWeightHistories(prev => ({
+              ...prev,
+              [reg.registrationId]: history
+            }))
+          } catch (err) {
+            console.error(`Error loading weight history for ${reg.registrationId}:`, err)
+          }
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'Error al cargar registros')
     } finally {
@@ -89,6 +129,47 @@ export default function EditarEventoPage() {
     if (filter === 'without-weight') return r.checkedIn && !r.checkedOut
     return true
   })
+
+  const getGroupedData = () => {
+    const groups = new Map<string, {
+      groupId: string
+      participationType: string
+      eventOrganization?: string
+      members: Registration[]
+      history?: WeightHistory
+    }>()
+
+    filteredRegistrations.forEach(reg => {
+      if (reg.groupId) {
+        if (!groups.has(reg.groupId)) {
+          groups.set(reg.groupId, {
+            groupId: reg.groupId,
+            participationType: reg.participationType || 'group',
+            eventOrganization: reg.eventOrganization,
+            members: [],
+            history: weightHistories[reg.registrationId]
+          })
+        }
+        groups.get(reg.groupId)!.members.push(reg)
+      }
+    })
+
+    return Array.from(groups.values())
+  }
+
+  const getIndividualRegistrations = () => {
+    return filteredRegistrations.filter(r => !r.groupId || r.participationType === 'individual')
+  }
+
+  const toggleHistoryExpanded = (id: string) => {
+    setExpandedHistory(expandedHistory === id ? null : id)
+  }
+
+  const getTotalStats = () => {
+    const totalWeight = Object.values(weightHistories).reduce((sum, h) => sum + (h.totalWeight || 0), 0)
+    const totalTrips = Object.values(weightHistories).reduce((sum, h) => sum + (h.tripCount || 0), 0)
+    return { totalWeight, totalTrips }
+  }
 
   const fetchEvent = async () => {
     try {
@@ -374,43 +455,97 @@ export default function EditarEventoPage() {
       ) : (
         // Registrations Tab
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-6">
+            {/* Stats Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-lg p-4 border border-cyan-200">
+                <div className="text-3xl font-bold text-cyan-600">
+                  {getTotalStats().totalTrips}
+                </div>
+                <div className="text-sm text-gray-600 font-semibold">
+                  Total de Viajes
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-4 border border-green-200">
+                <div className="text-3xl font-bold text-green-600">
+                  {getTotalStats().totalWeight.toFixed(1)} kg
+                </div>
+                <div className="text-sm text-gray-600 font-semibold">
+                  Peso Total Recolectado
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+                <div className="text-3xl font-bold text-purple-600">
+                  {getGroupedData().length}
+                </div>
+                <div className="text-sm text-gray-600 font-semibold">
+                  Grupos/Organizaciones
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 Registros de Peso
               </h2>
 
-              {/* Filters */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setFilter('all')}
-                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                    filter === 'all'
-                      ? 'bg-cyan-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Todos ({registrations.length})
-                </button>
-                <button
-                  onClick={() => setFilter('with-weight')}
-                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                    filter === 'with-weight'
-                      ? 'bg-cyan-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Con Peso ({registrations.filter(r => r.weightCollected).length})
-                </button>
-                <button
-                  onClick={() => setFilter('without-weight')}
-                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                    filter === 'without-weight'
-                      ? 'bg-cyan-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Sin Peso ({registrations.filter(r => r.checkedIn && !r.checkedOut).length})
-                </button>
+              <div className="flex flex-wrap gap-2">
+                {/* View Mode Toggle */}
+                <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+                  <button
+                    onClick={() => setViewMode('individual')}
+                    className={`px-3 py-1 rounded-md text-sm font-semibold transition ${
+                      viewMode === 'individual'
+                        ? 'bg-white text-cyan-600 shadow'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    👤 Individual
+                  </button>
+                  <button
+                    onClick={() => setViewMode('groups')}
+                    className={`px-3 py-1 rounded-md text-sm font-semibold transition ${
+                      viewMode === 'groups'
+                        ? 'bg-white text-cyan-600 shadow'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    👥 Grupos
+                  </button>
+                </div>
+
+                {/* Filters */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setFilter('all')}
+                    className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                      filter === 'all'
+                        ? 'bg-cyan-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Todos ({registrations.length})
+                  </button>
+                  <button
+                    onClick={() => setFilter('with-weight')}
+                    className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                      filter === 'with-weight'
+                        ? 'bg-cyan-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Con Peso ({registrations.filter(r => r.weightCollected).length})
+                  </button>
+                  <button
+                    onClick={() => setFilter('without-weight')}
+                    className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                      filter === 'without-weight'
+                        ? 'bg-cyan-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Sin Peso ({registrations.filter(r => r.checkedIn && !r.checkedOut).length})
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -423,80 +558,258 @@ export default function EditarEventoPage() {
               <div className="text-center py-12 text-gray-500">
                 No hay registros para mostrar
               </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <th className="text-left p-4 font-semibold text-gray-700">Participante</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Organización</th>
-                      <th className="text-center p-4 font-semibold text-gray-700">Check-in</th>
-                      <th className="text-center p-4 font-semibold text-gray-700">Peso (kg)</th>
-                      <th className="text-center p-4 font-semibold text-gray-700">Tipo</th>
-                      <th className="text-center p-4 font-semibold text-gray-700">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredRegistrations.map((reg) => (
-                      <tr key={reg.registrationId} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="p-4">
-                          <div className="font-semibold text-gray-900">
-                            {reg.fullName || reg.name}
+            ) : viewMode === 'groups' ? (
+              // Groups View
+              <div className="space-y-4">
+                {getGroupedData().map((group) => {
+                  const isExpanded = expandedHistory === group.groupId
+                  const history = group.history
+
+                  return (
+                    <div key={group.groupId} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="bg-gray-50 p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-bold text-gray-900">
+                                {group.participationType === 'duo' && '👥 Duo'}
+                                {group.participationType === 'group' && '👨‍👩‍👧‍👦 Grupo'}
+                                {group.participationType === 'organization' && `🏢 ${group.eventOrganization}`}
+                              </h3>
+                              <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">
+                                {group.members.length} miembros
+                              </span>
+                              {history && history.tripCount > 0 && (
+                                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                                  {history.tripCount} viajes · {history.totalWeight.toFixed(1)} kg
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              <strong>Miembros:</strong> {group.members.map(m => m.fullName || m.name).join(', ')}
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-600">{reg.email}</div>
-                        </td>
-                        <td className="p-4 text-gray-600">
-                          {reg.organization || '-'}
-                        </td>
-                        <td className="p-4 text-center">
-                          {reg.checkedIn ? (
-                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                              ✓
-                            </span>
-                          ) : (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
-                              -
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          {reg.weightCollected ? (
-                            <span className="font-bold text-cyan-600">
-                              {reg.weightCollected.toFixed(1)} kg
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          {reg.trashType ? (
-                            <span className="text-sm text-gray-600 capitalize">
-                              {reg.trashType === 'plastic' && '🥤'}
-                              {reg.trashType === 'metal' && '🔩'}
-                              {reg.trashType === 'glass' && '🍾'}
-                              {reg.trashType === 'organic' && '🌱'}
-                              {reg.trashType === 'mixed' && '♻️'}
-                              {reg.trashType === 'other' && '📦'}
-                              {' ' + reg.trashType}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          {reg.weightCollected && (
+                          {history && history.tripCount > 0 && (
                             <button
-                              onClick={() => handleDeleteWeight(reg.registrationId)}
-                              className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition-colors"
+                              onClick={() => toggleHistoryExpanded(group.groupId)}
+                              className="ml-4 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-semibold hover:bg-cyan-700 transition"
                             >
-                              Eliminar
+                              {isExpanded ? 'Ocultar Historial' : 'Ver Historial'}
                             </button>
                           )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+
+                      {/* Group Members Details */}
+                      <div className="p-4">
+                        <div className="space-y-2">
+                          {group.members.map((member) => (
+                            <div key={member.registrationId} className="flex items-center justify-between py-2 border-b border-gray-100">
+                              <div>
+                                <div className="font-semibold text-gray-900">{member.fullName || member.name}</div>
+                                <div className="text-sm text-gray-600">{member.email}</div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {member.checkedIn && (
+                                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                                    ✓ Check-in
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* History Section */}
+                      {isExpanded && history && history.records && history.records.length > 0 && (
+                        <div className="bg-blue-50 border-t border-gray-200 p-4">
+                          <h4 className="font-bold text-gray-900 mb-3">📊 Historial de Recolección</h4>
+                          <div className="space-y-3">
+                            {history.records.map((record: WeightRecord, index: number) => (
+                              <div key={record.weightRecordId} className="bg-white rounded-lg p-4 border border-gray-200">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 rounded-full text-xs font-bold">
+                                        Viaje #{history.tripCount - index}
+                                      </span>
+                                      <span className="text-sm text-gray-600">
+                                        {new Date(record.timestamp).toLocaleString('es-PR', {
+                                          dateStyle: 'medium',
+                                          timeStyle: 'short'
+                                        })}
+                                      </span>
+                                    </div>
+                                    
+                                    {record.registeredByName && (
+                                      <p className="text-sm text-gray-600 mb-2">
+                                        👤 Registrado por: <span className="font-semibold">{record.registeredByName}</span>
+                                      </p>
+                                    )}
+
+                                    <div className="flex items-center gap-4">
+                                      <div>
+                                        <span className="text-2xl font-bold text-green-600">
+                                          {record.weightCollected.toFixed(1)} kg
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-gray-600">
+                                          {record.trashType === 'plastic' && '🥤 Plástico'}
+                                          {record.trashType === 'metal' && '🔩 Metal'}
+                                          {record.trashType === 'glass' && '🍾 Vidrio'}
+                                          {record.trashType === 'organic' && '🌱 Orgánico'}
+                                          {record.trashType === 'mixed' && '♻️ Mixto'}
+                                          {record.trashType === 'other' && '📦 Otro'}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {record.notes && (
+                                      <p className="text-sm text-gray-600 mt-2 italic">
+                                        💬 {record.notes}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-4 pt-4 border-t border-gray-300">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-gray-900">Total Recolectado:</span>
+                              <span className="text-2xl font-bold text-green-600">
+                                {history.totalWeight.toFixed(1)} kg
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+
+                {getGroupedData().length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    No hay grupos formados en este evento
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Individual View
+              <div className="space-y-4">
+                {getIndividualRegistrations().map((reg) => {
+                  const history = weightHistories[reg.registrationId]
+                  const hasHistory = history && history.records && history.records.length > 0
+                  const isExpanded = expandedHistory === reg.registrationId
+
+                  return (
+                    <div key={reg.registrationId} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-bold text-gray-900">
+                                {reg.fullName || reg.name}
+                              </h3>
+                              <div className="flex gap-2 flex-wrap">
+                                {reg.checkedIn && (
+                                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                                    ✓ Check-in
+                                  </span>
+                                )}
+                                {hasHistory && history.tripCount > 0 && (
+                                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                                    ♻️ {history.tripCount} viajes · {history.totalWeight.toFixed(1)} kg
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              <div>{reg.email}</div>
+                              {reg.organization && <div>🏢 {reg.organization}</div>}
+                            </div>
+                          </div>
+                          {hasHistory && history.tripCount > 0 && (
+                            <button
+                              onClick={() => toggleHistoryExpanded(reg.registrationId)}
+                              className="ml-4 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-semibold hover:bg-cyan-700 transition"
+                            >
+                              {isExpanded ? 'Ocultar' : 'Ver Historial'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* History Section */}
+                      {isExpanded && hasHistory && (
+                        <div className="bg-blue-50 border-t border-gray-200 p-4">
+                          <h4 className="font-bold text-gray-900 mb-3">📊 Historial de Recolección</h4>
+                          <div className="space-y-3">
+                            {history.records.map((record: WeightRecord, index: number) => (
+                              <div key={record.weightRecordId} className="bg-white rounded-lg p-4 border border-gray-200">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 rounded-full text-xs font-bold">
+                                        Viaje #{history.tripCount - index}
+                                      </span>
+                                      <span className="text-sm text-gray-600">
+                                        {new Date(record.timestamp).toLocaleString('es-PR', {
+                                          dateStyle: 'medium',
+                                          timeStyle: 'short'
+                                        })}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-4">
+                                      <div>
+                                        <span className="text-2xl font-bold text-green-600">
+                                          {record.weightCollected.toFixed(1)} kg
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-gray-600">
+                                          {record.trashType === 'plastic' && '🥤 Plástico'}
+                                          {record.trashType === 'metal' && '🔩 Metal'}
+                                          {record.trashType === 'glass' && '🍾 Vidrio'}
+                                          {record.trashType === 'organic' && '🌱 Orgánico'}
+                                          {record.trashType === 'mixed' && '♻️ Mixto'}
+                                          {record.trashType === 'other' && '📦 Otro'}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {record.notes && (
+                                      <p className="text-sm text-gray-600 mt-2 italic">
+                                        💬 {record.notes}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-4 pt-4 border-t border-gray-300">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-gray-900">Total Recolectado:</span>
+                              <span className="text-2xl font-bold text-green-600">
+                                {history.totalWeight.toFixed(1)} kg
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+
+                {getIndividualRegistrations().length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    No hay participantes individuales
+                  </div>
+                )}
               </div>
             )}
           </div>
