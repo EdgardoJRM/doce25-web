@@ -491,7 +491,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   // CORS headers
   const headers = {
-    'Access-Control-Allow-Origin': 'https://doce25.precotracks.org',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json',
