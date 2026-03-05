@@ -1,6 +1,7 @@
 {
   "name": "get-event-by-slug",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to get event by slug",
   "main": "index.ts",
   "scripts": {

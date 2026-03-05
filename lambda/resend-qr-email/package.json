@@ -1,6 +1,7 @@
 {
   "name": "resend-qr-email",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda to resend QR code email",
   "main": "index.ts",
   "scripts": {

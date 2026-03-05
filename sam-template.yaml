@@ -220,6 +220,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -244,6 +245,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -268,6 +270,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -292,6 +295,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -316,6 +320,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -340,6 +345,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -364,6 +370,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -388,6 +395,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -420,6 +428,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -444,6 +453,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -468,6 +478,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -492,6 +503,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -528,6 +540,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -556,6 +569,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -602,6 +616,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -627,6 +642,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -651,6 +667,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -675,6 +692,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -699,6 +717,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -727,6 +746,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -751,6 +771,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -776,6 +797,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -800,6 +822,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -824,6 +847,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -848,6 +872,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -872,6 +897,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -897,6 +923,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -923,6 +950,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 
@@ -953,6 +981,7 @@ Resources:
         Minify: false
         Target: "es2020"
         Sourcemap: true
+        Format: cjs
         EntryPoints:
           - index.ts
 

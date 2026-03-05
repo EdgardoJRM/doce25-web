@@ -1,6 +1,7 @@
 {
   "name": "get-group-info",
   "version": "1.0.0",
+  "type": "module",
   "description": "Get group information and members",
   "main": "index.ts",
   "dependencies": {

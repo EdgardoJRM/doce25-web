@@ -1,6 +1,7 @@
 {
   "name": "get-weight-history",
   "version": "1.0.0",
+  "type": "module",
   "description": "Get weight registration history",
   "main": "index.ts",
   "dependencies": {

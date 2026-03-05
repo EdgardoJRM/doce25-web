@@ -1,6 +1,7 @@
 {
   "name": "update-user-profile",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to update user profile",
   "main": "index.ts",
   "dependencies": {

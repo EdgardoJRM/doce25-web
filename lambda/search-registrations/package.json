@@ -1,6 +1,7 @@
 {
   "name": "search-registrations",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to search registrations by name/organization",
   "main": "index.js",
   "scripts": {

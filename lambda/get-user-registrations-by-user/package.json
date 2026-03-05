@@ -1,6 +1,7 @@
 {
   "name": "get-user-registrations-by-user",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to get user registrations",
   "main": "index.ts",
   "dependencies": {

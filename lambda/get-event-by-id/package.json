@@ -1,6 +1,7 @@
 {
   "name": "get-event-by-id",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda to get event by ID",
   "main": "index.ts",
   "scripts": {

@@ -1,6 +1,7 @@
 {
   "name": "register-user",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to register new users",
   "main": "index.ts",
   "dependencies": {

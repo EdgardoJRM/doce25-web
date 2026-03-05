@@ -1,6 +1,7 @@
 {
   "name": "register-event",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to register users for events and send QR codes",
   "main": "index.ts",
   "scripts": {

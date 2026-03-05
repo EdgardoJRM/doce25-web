@@ -1,6 +1,7 @@
 {
   "name": "register-weight",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to register participant weight",
   "main": "index.js",
   "scripts": {

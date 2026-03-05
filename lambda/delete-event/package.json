@@ -1,6 +1,7 @@
 {
   "name": "delete-event",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda to delete event",
   "main": "index.ts",
   "scripts": {

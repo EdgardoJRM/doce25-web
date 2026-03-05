@@ -1,6 +1,7 @@
 {
   "name": "update-registration",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda to update registration",
   "main": "index.ts",
   "scripts": {

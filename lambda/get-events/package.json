@@ -1,6 +1,7 @@
 {
   "name": "get-events",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda function to get list of published events",
   "main": "index.ts",
   "scripts": {

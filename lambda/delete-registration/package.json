@@ -1,6 +1,7 @@
 {
   "name": "delete-registration",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda to delete registration",
   "main": "index.ts",
   "scripts": {

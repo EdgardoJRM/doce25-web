@@ -1,6 +1,7 @@
 {
   "name": "get-registrations",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda to get event registrations",
   "main": "index.ts",
   "scripts": {

@@ -1,6 +1,7 @@
 {
   "name": "checkin",
   "version": "1.0.0",
+  "type": "module",
   "description": "Lambda for event check-in",
   "main": "index.ts",
   "scripts": {
