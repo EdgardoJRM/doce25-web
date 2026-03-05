@@ -1,0 +1,17 @@
+{
+  "name": "delete-weight",
+  "version": "1.0.0",
+  "description": "Lambda function to delete participant weight (admin only)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.511.0",
+    "@aws-sdk/lib-dynamodb": "^3.511.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.131",
+    "@types/node": "^20.11.5"
+  }
+}

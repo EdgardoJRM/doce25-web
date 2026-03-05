@@ -28,7 +28,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://doce25.org'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://doce25.precotracks.org'),
   title: {
     default: 'Doce25 | Organización Sin Fines de Lucro - Limpieza de Playas Puerto Rico',
     template: '%s | Doce25'
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'es_PR',
-    url: 'https://doce25.org',
+    url: 'https://doce25.precotracks.org',
     title: 'Doce25 | Limpieza de Playas y Conservación Marina en Puerto Rico',
     description: 'Organización 501(c)(3) sin fines de lucro dedicada a la limpieza de playas y conservación de océanos en Puerto Rico. Más de 69,000 libras removidas desde 2020. ¡Únete como voluntario!',
     siteName: 'Doce25',
@@ -106,8 +106,8 @@ export default function RootLayout({
     '@type': 'NGO',
     name: 'Doce25',
     alternateName: 'Fundación Tortuga Club PR, Inc.',
-    url: 'https://doce25.org',
-    logo: 'https://doce25.org/doce25-logo.png',
+    url: 'https://doce25.precotracks.org',
+    logo: 'https://doce25.precotracks.org/doce25-logo.png',
     description: 'Organización 501(c)(3) sin fines de lucro dedicada a la limpieza de playas y conservación marina en Puerto Rico.',
     email: 'info@doce25.org',
     foundingDate: '2020',

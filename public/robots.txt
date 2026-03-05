@@ -28,7 +28,6 @@ Crawl-delay: 0
 
 # Sitemap
 Sitemap: https://doce25.precotracks.org/sitemap.xml
-Sitemap: https://doce25.org/sitemap.xml
 
 # Host
 Host: https://doce25.precotracks.org

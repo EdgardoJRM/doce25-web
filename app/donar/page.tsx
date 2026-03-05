@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Dona a Doce25 - Limpieza de Playas PR',
     description: 'Tu donación a Doce25, una organización 501(c)(3), apoya directamente la limpieza de playas y la conservación marina en Puerto Rico. ¡Cada contribución cuenta!',
-    url: 'https://doce25.org/donar',
+    url: 'https://doce25.precotracks.org/donar',
     type: 'website',
   },
 }

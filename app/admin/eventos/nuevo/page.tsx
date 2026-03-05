@@ -110,7 +110,7 @@ export default function NuevoEventoPage() {
                 placeholder="navidad-con-los-ninos-2026"
               />
               <p className="mt-1 text-sm text-gray-500">
-                URL: https://doce25.org/eventos/{formData.slug || 'slug-del-evento'}
+                URL: https://doce25.precotracks.org/eventos/{formData.slug || 'slug-del-evento'}
               </p>
             </div>
 

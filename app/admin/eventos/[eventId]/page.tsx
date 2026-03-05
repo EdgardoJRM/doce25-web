@@ -2,15 +2,36 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { getRegistrations, deleteWeight, updateWeight, RegisterWeightData } from '@/lib/api'
+
+type Tab = 'edit' | 'registrations'
+
+interface Registration {
+  registrationId: string
+  fullName?: string
+  name?: string
+  email: string
+  organization?: string
+  checkedIn: boolean
+  checkedOut?: boolean
+  weightCollected?: number
+  trashType?: string
+  trashBreakdown?: Record<string, number>
+  checkOutTime?: string
+  notes?: string
+}
 
 export default function EditarEventoPage() {
   const params = useParams()
   const router = useRouter()
   const eventId = params.eventId as string
   
+  const [activeTab, setActiveTab] = useState<Tab>('edit')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  
+  // Event data
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -23,9 +44,51 @@ export default function EditarEventoPage() {
     status: 'draft' as 'draft' | 'published',
   })
 
+  // Registrations data
+  const [registrations, setRegistrations] = useState<Registration[]>([])
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false)
+  const [filter, setFilter] = useState<'all' | 'with-weight' | 'without-weight'>('all')
+  const [editingWeight, setEditingWeight] = useState<string | null>(null)
+
   useEffect(() => {
     fetchEvent()
   }, [eventId])
+
+  useEffect(() => {
+    if (activeTab === 'registrations') {
+      fetchRegistrations()
+    }
+  }, [activeTab])
+
+  const fetchRegistrations = async () => {
+    try {
+      setLoadingRegistrations(true)
+      const data = await getRegistrations(eventId)
+      setRegistrations(data.registrations || [])
+    } catch (err: any) {
+      setError(err.message || 'Error al cargar registros')
+    } finally {
+      setLoadingRegistrations(false)
+    }
+  }
+
+  const handleDeleteWeight = async (registrationId: string) => {
+    if (!confirm('¿Estás seguro de eliminar este registro de peso?')) return
+
+    try {
+      await deleteWeight(registrationId)
+      await fetchRegistrations()
+      alert('Peso eliminado correctamente')
+    } catch (err: any) {
+      alert(err.message || 'Error al eliminar peso')
+    }
+  }
+
+  const filteredRegistrations = registrations.filter(r => {
+    if (filter === 'with-weight') return r.checkedOut && r.weightCollected
+    if (filter === 'without-weight') return r.checkedIn && !r.checkedOut
+    return true
+  })
 
   const fetchEvent = async () => {
     try {
@@ -104,13 +167,40 @@ export default function EditarEventoPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Editar Evento</h1>
           <p className="text-gray-600">Actualiza la información del evento</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        {/* Tabs Navigation */}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('edit')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+                activeTab === 'edit'
+                  ? 'border-cyan-600 text-cyan-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Editar Evento
+            </button>
+            <button
+              onClick={() => setActiveTab('registrations')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+                activeTab === 'registrations'
+                  ? 'border-cyan-600 text-cyan-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Registros de Peso ({registrations.filter(r => r.weightCollected).length})
+            </button>
+          </nav>
+        </div>
+
+        {activeTab === 'edit' ? (
+          <div className="bg-white rounded-lg shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Nombre del Evento */}
             <div>
@@ -141,7 +231,7 @@ export default function EditarEventoPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="mt-1 text-sm text-gray-500">
-                URL: https://doce25.org/eventos/{formData.slug}
+                URL: https://doce25.precotracks.org/eventos/{formData.slug}
               </p>
             </div>
 
@@ -281,6 +371,136 @@ export default function EditarEventoPage() {
             </div>
           </form>
         </div>
+      ) : (
+        // Registrations Tab
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Registros de Peso
+              </h2>
+
+              {/* Filters */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setFilter('all')}
+                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                    filter === 'all'
+                      ? 'bg-cyan-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Todos ({registrations.length})
+                </button>
+                <button
+                  onClick={() => setFilter('with-weight')}
+                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                    filter === 'with-weight'
+                      ? 'bg-cyan-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Con Peso ({registrations.filter(r => r.weightCollected).length})
+                </button>
+                <button
+                  onClick={() => setFilter('without-weight')}
+                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                    filter === 'without-weight'
+                      ? 'bg-cyan-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Sin Peso ({registrations.filter(r => r.checkedIn && !r.checkedOut).length})
+                </button>
+              </div>
+            </div>
+
+            {loadingRegistrations ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto mb-4"></div>
+                <p>Cargando registros...</p>
+              </div>
+            ) : filteredRegistrations.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                No hay registros para mostrar
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="text-left p-4 font-semibold text-gray-700">Participante</th>
+                      <th className="text-left p-4 font-semibold text-gray-700">Organización</th>
+                      <th className="text-center p-4 font-semibold text-gray-700">Check-in</th>
+                      <th className="text-center p-4 font-semibold text-gray-700">Peso (kg)</th>
+                      <th className="text-center p-4 font-semibold text-gray-700">Tipo</th>
+                      <th className="text-center p-4 font-semibold text-gray-700">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRegistrations.map((reg) => (
+                      <tr key={reg.registrationId} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="p-4">
+                          <div className="font-semibold text-gray-900">
+                            {reg.fullName || reg.name}
+                          </div>
+                          <div className="text-sm text-gray-600">{reg.email}</div>
+                        </td>
+                        <td className="p-4 text-gray-600">
+                          {reg.organization || '-'}
+                        </td>
+                        <td className="p-4 text-center">
+                          {reg.checkedIn ? (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                              ✓
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
+                              -
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 text-center">
+                          {reg.weightCollected ? (
+                            <span className="font-bold text-cyan-600">
+                              {reg.weightCollected.toFixed(1)} kg
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-center">
+                          {reg.trashType ? (
+                            <span className="text-sm text-gray-600 capitalize">
+                              {reg.trashType === 'plastic' && '🥤'}
+                              {reg.trashType === 'metal' && '🔩'}
+                              {reg.trashType === 'glass' && '🍾'}
+                              {reg.trashType === 'organic' && '🌱'}
+                              {reg.trashType === 'mixed' && '♻️'}
+                              {reg.trashType === 'other' && '📦'}
+                              {' ' + reg.trashType}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-center">
+                          {reg.weightCollected && (
+                            <button
+                              onClick={() => handleDeleteWeight(reg.registrationId)}
+                              className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition-colors"
+                            >
+                              Eliminar
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

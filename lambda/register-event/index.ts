@@ -18,13 +18,15 @@ const TABLES = {
   REGISTRATIONS: 'Dosce25-Registrations',
 }
 
-const ADMIN_NOTIFICATION_EMAILS = [
-  'r.tirado@doce25.org',
-  'info@doce25.org',
-  'edgardoehernandezjr@gmail.com',
-  'a.delvalle@doce25.org',
-]
+// NOTIFICACIONES DESHABILITADAS - Lista de emails comentada
+// const ADMIN_NOTIFICATION_EMAILS = [
+//   'r.tirado@doce25.org',
+//   'info@doce25.org',
+//   'edgardoehernandezjr@gmail.com',
+//   'a.delvalle@doce25.org',
+// ]
 
+/* FUNCIÓN DESHABILITADA - Notificaciones de admin comentadas
 async function sendAdminNotification(data: {
   name: string
   fullName: string
@@ -124,6 +126,7 @@ async function sendAdminNotification(data: {
     RawMessage: { Data: Buffer.from(rawEmail) },
   }))
 }
+*/
 
 // Generar código alternativo de 8 caracteres
 function generateAlternativeCode(registrationId: string): string {
@@ -959,26 +962,10 @@ Comprometidos con el cambio y el desarrollo comunitario
       logoBuffer
     )
 
-    // Notificación interna al equipo de Doce25
-    try {
-      await sendAdminNotification({
-        name,
-        fullName: fullName || name,
-        email: normalizedEmail,
-        phone,
-        eventName: eventInfo.name || 'Evento Doce25',
-        eventDate: eventInfo.date || '',
-        eventLocation: eventInfo.location || '',
-        organization: organization || '',
-        city: city || '',
-        ageRange: ageRange || '',
-        gender: gender || '',
-        registrationId,
-      })
-    } catch (notifErr) {
-      // No bloquear el registro si falla la notificación interna
-      console.error('Error sending admin notification:', notifErr)
-    }
+    // NOTIFICACIONES INTERNAS DESHABILITADAS
+    // Las notificaciones por email a administradores están desactivadas
+    // para reducir el volumen de emails y costos de SES.
+    // Los administradores pueden revisar los registros en el panel de admin.
 
     return {
       statusCode: 200,

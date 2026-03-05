@@ -488,3 +488,165 @@ export async function getAllUsers(token?: string) {
 
   return response.json()
 }
+
+// ==================== WEIGHT REGISTRATION API ====================
+
+export interface TrashBreakdown {
+  plastic?: number
+  metal?: number
+  glass?: number
+  organic?: number
+  other?: number
+}
+
+export interface RegisterWeightData {
+  weightCollected: number
+  trashType: 'plastic' | 'metal' | 'glass' | 'organic' | 'mixed' | 'other'
+  trashBreakdown?: TrashBreakdown
+  notes?: string
+  registeredBy?: string
+}
+
+export interface EventStats {
+  eventId: string
+  totalWeight: number
+  participantsCount: number
+  totalRegistrations: number
+  participationRate: number
+  breakdown: TrashBreakdown
+  topParticipants: Array<{
+    rank: number
+    name: string
+    weight: number
+    organization: string
+    trashType: string
+  }>
+  trashTypeCounts: Record<string, number>
+  lastUpdated: string
+}
+
+export interface SearchResult {
+  registrationId: string
+  name: string
+  email: string
+  organization: string
+  checkedIn: boolean
+  checkedOut: boolean
+  weightCollected: number | null
+  phone: string
+}
+
+// Registrar peso de un participante
+export async function registerWeight(
+  registrationId: string,
+  data: RegisterWeightData
+) {
+  const response = await fetch(
+    `${API_ENDPOINT}/registrations/${registrationId}/register-weight`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error registrando peso' }))
+    throw new Error(error.message || 'Error registrando peso')
+  }
+
+  return response.json()
+}
+
+// Buscar registros por nombre/organización
+export async function searchRegistrations(
+  eventId: string,
+  query: string
+): Promise<{ results: SearchResult[]; total: number; showing: number; query: string }> {
+  const response = await fetch(
+    `${API_ENDPOINT}/events/${eventId}/search?q=${encodeURIComponent(query)}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error buscando registros' }))
+    throw new Error(error.message || 'Error buscando registros')
+  }
+
+  return response.json()
+}
+
+// Obtener estadísticas del evento
+export async function getEventStats(eventId: string): Promise<EventStats> {
+  const response = await fetch(`${API_ENDPOINT}/events/${eventId}/stats`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error obteniendo estadísticas' }))
+    throw new Error(error.message || 'Error obteniendo estadísticas')
+  }
+
+  return response.json()
+}
+
+// Actualizar peso (admin only)
+export async function updateWeight(
+  registrationId: string,
+  data: RegisterWeightData,
+  token?: string
+) {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const response = await fetch(
+    `${API_ENDPOINT}/registrations/${registrationId}/weight`,
+    {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(data),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error actualizando peso' }))
+    throw new Error(error.message || 'Error actualizando peso')
+  }
+
+  return response.json()
+}
+
+// Eliminar peso (admin only)
+export async function deleteWeight(registrationId: string, token?: string) {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const response = await fetch(
+    `${API_ENDPOINT}/registrations/${registrationId}/weight`,
+    {
+      method: 'DELETE',
+      headers,
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error eliminando peso' }))
+    throw new Error(error.message || 'Error eliminando peso')
+  }
+
+  return response.json()
+}

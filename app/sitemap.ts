@@ -1,8 +1,18 @@
 import { MetadataRoute } from 'next'
 import { getEvents } from '@/lib/api'
 
+// Blog posts (mismo array que en la página)
+const blogSlugs = [
+  'como-reducir-plastico-en-casa',
+  'impacto-plastico-oceanos',
+  'limpieza-mar-chiquita-febrero-2026',
+  'tortugas-marinas-puerto-rico',
+  'voluntariado-beneficios-salud-mental',
+  'microplasticos-que-son',
+]
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://doce25.org'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://doce25.precotracks.org'
   
   // Páginas estáticas principales con prioridades optimizadas
   const staticPages = [
@@ -10,6 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { route: '/nosotros', priority: 0.9, changeFrequency: 'weekly' as const },
     { route: '/impacto', priority: 0.9, changeFrequency: 'weekly' as const },
     { route: '/eventos', priority: 0.95, changeFrequency: 'daily' as const },
+    { route: '/blog', priority: 0.9, changeFrequency: 'daily' as const },
     { route: '/proyectos/playas-urbanas', priority: 0.7, changeFrequency: 'monthly' as const },
     { route: '/proyectos/playas-remotas', priority: 0.7, changeFrequency: 'monthly' as const },
     { route: '/galeria', priority: 0.6, changeFrequency: 'weekly' as const },
@@ -22,6 +33,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: page.changeFrequency,
     priority: page.priority,
+  }))
+
+  // Blog posts
+  const blogPages = blogSlugs.map((slug) => ({
+    url: `${baseUrl}/blog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
   }))
 
   // Páginas legales (menor prioridad)
@@ -52,5 +71,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error loading events for sitemap:', error)
   }
 
-  return [...staticPages, ...eventPages, ...legalPages]
+  return [...staticPages, ...blogPages, ...eventPages, ...legalPages]
 }

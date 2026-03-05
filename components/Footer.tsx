@@ -72,6 +72,11 @@ export function Footer() {
                   Galería
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="hover:text-white transition">
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
           

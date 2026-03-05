@@ -18,6 +18,17 @@ interface Registration {
   checkedIn: boolean
   registeredAt: string
   qrToken?: string
+  weightCollected?: number
+  trashType?: string
+  trashBreakdown?: {
+    plastic?: number
+    metal?: number
+    glass?: number
+    organic?: number
+    other?: number
+  }
+  checkedOut?: boolean
+  checkOutTime?: string
 }
 
 export default function ProfilePage() {
@@ -146,7 +157,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-cyan-500">
             <div className="text-4xl font-bold text-cyan-600 mb-2">
               {registrations.length}
@@ -163,15 +174,72 @@ export default function ProfilePage() {
               Eventos Asistidos
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-orange-500">
-            <div className="text-4xl font-bold text-orange-600 mb-2">
-              {user.status === 'active' ? '✓' : '○'}
+          <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-green-500">
+            <div className="text-4xl font-bold text-green-600 mb-2">
+              {registrations.filter(r => r.weightCollected && r.weightCollected > 0).length}
             </div>
             <div className="text-gray-600 font-semibold">
-              Estado: {user.status === 'active' ? 'Activo' : 'Inactivo'}
+              Registros de Peso
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-orange-500">
+            <div className="text-4xl font-bold text-orange-600 mb-2">
+              {registrations.reduce((sum, r) => sum + (r.weightCollected || 0), 0).toFixed(1)}
+            </div>
+            <div className="text-gray-600 font-semibold">
+              kg Total Recogidos
             </div>
           </div>
         </div>
+
+        {/* Impacto Ambiental Card */}
+        {registrations.some(r => r.weightCollected && r.weightCollected > 0) && (
+          <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl shadow-xl p-8 mb-8 border-2 border-green-200">
+            <div className="flex items-start gap-4">
+              <div className="text-6xl">🌊</div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  ¡Tu Impacto Ambiental!
+                </h2>
+                <p className="text-lg text-gray-700 mb-4">
+                  Has salvado <span className="font-bold text-green-600 text-2xl">
+                    {registrations.reduce((sum, r) => sum + (r.weightCollected || 0), 0).toFixed(1)} kg
+                  </span> de basura del océano
+                </p>
+
+                {/* Desglose si hay datos */}
+                {registrations.some(r => r.trashBreakdown) && (
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
+                    {[
+                      { key: 'plastic', label: '🥤 Plástico', color: 'text-blue-600' },
+                      { key: 'metal', label: '🔩 Metal', color: 'text-gray-600' },
+                      { key: 'glass', label: '🍾 Vidrio', color: 'text-green-600' },
+                      { key: 'organic', label: '🌱 Orgánico', color: 'text-green-700' },
+                      { key: 'other', label: '📦 Otro', color: 'text-purple-600' },
+                    ].map(({ key, label, color }) => {
+                      const total = registrations.reduce((sum, r) => {
+                        return sum + (r.trashBreakdown?.[key as keyof typeof r.trashBreakdown] || 0)
+                      }, 0)
+
+                      if (total === 0) return null
+
+                      return (
+                        <div key={key} className="bg-white rounded-lg p-3 text-center">
+                          <div className={`text-xl font-bold ${color}`}>
+                            {total.toFixed(1)} kg
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {label}
+                          </div>
+                        </div>
+                      )
+                    }).filter(Boolean)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Registrations Section */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -219,17 +287,24 @@ export default function ProfilePage() {
                   key={registration.registrationId}
                   className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all"
                 >
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-bold text-gray-900">
                           {registration.eventName}
                         </h3>
-                        {registration.checkedIn && (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                            ✓ Asistido
-                          </span>
-                        )}
+                        <div className="flex gap-2">
+                          {registration.checkedIn && (
+                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                              ✓ Asistido
+                            </span>
+                          )}
+                          {registration.checkedOut && registration.weightCollected && (
+                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                              ♻️ {registration.weightCollected} kg
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="space-y-1 text-gray-600">
                         <p className="flex items-center gap-2">

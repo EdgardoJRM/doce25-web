@@ -17,7 +17,7 @@ export default function TerminosPage() {
                   1. Aceptación de los Términos
                 </h2>
                 <p className="text-gray-700">
-                  Al acceder y utilizar el sitio web de la Fundación Doce25 (doce25.org), usted
+                  Al acceder y utilizar el sitio web de la Fundación Doce25 (doce25.precotracks.org), usted
                   acepta cumplir y estar sujeto a los siguientes términos y condiciones de uso.
                   Si no está de acuerdo con alguno de estos términos, por favor no utilice nuestro sitio.
                 </p>
