@@ -1,11 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { v4 as uuidv4 } from 'uuid'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const TABLES = {
-  REGISTRATIONS: 'Dosce25-Registrations',
+  REGISTRATIONS: process.env.REGISTRATIONS_TABLE || 'Dosce25-Registrations',
+  WEIGHT_RECORDS: process.env.WEIGHT_RECORDS_TABLE || 'Dosce25-WeightRecords',
 }
 
 interface TrashBreakdown {
@@ -124,24 +126,32 @@ export const handler = async (
       }
     }
 
-    // Actualizar registro con peso
-    const updateResult = await dynamoClient.send(
-      new UpdateCommand({
-        TableName: TABLES.REGISTRATIONS,
-        Key: { registrationId },
-        UpdateExpression:
-          'SET weightCollected = :weight, trashType = :type, trashBreakdown = :breakdown, notes = :notes, checkedOut = :true, checkOutTime = :time, registeredBy = :by, updatedAt = :updated',
-        ExpressionAttributeValues: {
-          ':weight': weightCollected,
-          ':type': trashType,
-          ':breakdown': trashBreakdown || {},
-          ':notes': notes || '',
-          ':true': true,
-          ':time': new Date().toISOString(),
-          ':by': registeredBy || 'staff',
-          ':updated': new Date().toISOString(),
-        },
-        ReturnValues: 'ALL_NEW',
+    const registration = getResult.Item
+    const isGroupParticipant = !!registration.groupId
+    const registeredByName = registration.fullName || registration.name
+
+    // Crear registro en WeightRecords
+    const weightRecordId = uuidv4()
+    const timestamp = new Date().toISOString()
+
+    const weightRecord = {
+      weightRecordId,
+      registrationId: isGroupParticipant ? null : registrationId,
+      groupId: registration.groupId || null,
+      eventId: registration.eventId,
+      weightCollected,
+      trashType,
+      trashBreakdown: trashBreakdown || {},
+      timestamp,
+      registeredBy: registrationId,
+      registeredByName,
+      notes: notes || '',
+    }
+
+    await dynamoClient.send(
+      new PutCommand({
+        TableName: TABLES.WEIGHT_RECORDS,
+        Item: weightRecord,
       })
     )
 
@@ -151,7 +161,8 @@ export const handler = async (
       body: JSON.stringify({
         success: true,
         message: 'Peso registrado correctamente',
-        registration: updateResult.Attributes,
+        weightRecord,
+        isGroupWeight: isGroupParticipant,
       }),
     }
   } catch (error: any) {

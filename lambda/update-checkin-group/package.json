@@ -1,0 +1,16 @@
+{
+  "name": "update-checkin-group",
+  "version": "1.0.0",
+  "description": "Update check-in group information",
+  "main": "index.ts",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.621.0",
+    "@aws-sdk/lib-dynamodb": "^3.621.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.138",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0"
+  }
+}

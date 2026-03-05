@@ -8,6 +8,9 @@ interface WeightRegistrationFormProps {
   participantName: string
   onSuccess: () => void
   onCancel: () => void
+  isGroupWeight?: boolean
+  groupMembers?: Array<{ name: string; registrationId: string }>
+  currentMemberName?: string
 }
 
 const TRASH_TYPES = [
@@ -24,6 +27,9 @@ export default function WeightRegistrationForm({
   participantName,
   onSuccess,
   onCancel,
+  isGroupWeight = false,
+  groupMembers = [],
+  currentMemberName,
 }: WeightRegistrationFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -109,11 +115,32 @@ export default function WeightRegistrationForm({
     <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Registrar Peso de Basura
+          {isGroupWeight ? '⚖️ Registro de Peso Grupal' : '⚖️ Registrar Peso de Basura'}
         </h2>
-        <p className="text-gray-600">
-          Participante: <span className="font-semibold text-gray-900">{participantName}</span>
-        </p>
+        {isGroupWeight ? (
+          <div>
+            <p className="text-gray-600 mb-3">
+              <strong>{currentMemberName || participantName}</strong> está registrando peso para
+              todo el grupo
+            </p>
+            {groupMembers.length > 0 && (
+              <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+                <div className="font-semibold text-cyan-900 mb-2">
+                  Integrantes del grupo ({groupMembers.length}):
+                </div>
+                <div className="text-sm text-cyan-800 space-y-1">
+                  {groupMembers.map((member) => (
+                    <div key={member.registrationId}>• {member.name}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="text-gray-600">
+            Participante: <span className="font-semibold text-gray-900">{participantName}</span>
+          </p>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

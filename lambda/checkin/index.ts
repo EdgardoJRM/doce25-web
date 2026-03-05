@@ -94,6 +94,7 @@ export const handler = async (
 
     // Verificar si ya hizo check-in
     if (registration.checkedIn) {
+      // Return extended info including group data
       return {
         statusCode: 200,
         headers,
@@ -101,9 +102,15 @@ export const handler = async (
           status: 'already-checked',
           message: 'Already checked in',
           registration: {
-            name: registration.name,
+            registrationId: registration.registrationId,
+            name: registration.fullName || registration.name,
             email: registration.email,
+            organization: registration.organization,
             checkedInAt: registration.checkedInAt,
+            participationType: registration.participationType || 'individual',
+            groupId: registration.groupId || null,
+            groupMembers: registration.groupMembers || null,
+            eventOrganization: registration.eventOrganization || null,
           },
         }),
       }
@@ -144,11 +151,18 @@ export const handler = async (
         status: 'valid',
         message: 'Check-in successful',
         attendee: {
-          name: registration.name,
+          registrationId: registration.registrationId,
+          name: registration.fullName || registration.name,
           email: registration.email,
+          organization: registration.organization,
           eventName: eventInfo?.name || 'Evento',
           eventDate: eventInfo?.date,
+          eventId: registration.eventId,
           checkedInAt: now,
+          participationType: registration.participationType || 'individual',
+          groupId: registration.groupId || null,
+          groupMembers: registration.groupMembers || null,
+          eventOrganization: registration.eventOrganization || null,
         },
       }),
     }

@@ -650,3 +650,95 @@ export async function deleteWeight(registrationId: string, token?: string) {
 
   return response.json()
 }
+
+// Group Management Functions
+
+export interface UpdateGroupData {
+  participationType: 'individual' | 'duo' | 'group' | 'organization'
+  eventOrganization?: string
+  groupMembers?: string[]
+  groupId?: string
+}
+
+export interface GroupInfo {
+  groupId: string
+  participationType: string
+  eventOrganization?: string
+  members: Array<{
+    registrationId: string
+    name: string
+    email: string
+    checkedIn: boolean
+  }>
+  weightHistory: any[]
+  totalWeight: number
+  tripCount: number
+}
+
+export interface WeightHistory {
+  records: any[]
+  totalWeight: number
+  tripCount: number
+  summary: {
+    byType: Record<string, number>
+  }
+}
+
+// Actualizar información del grupo
+export async function updateCheckInGroup(
+  registrationId: string,
+  data: UpdateGroupData
+) {
+  const response = await fetch(
+    `${API_ENDPOINT}/registrations/${registrationId}/group`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error actualizando grupo' }))
+    throw new Error(error.message || 'Error actualizando grupo')
+  }
+
+  return response.json()
+}
+
+// Obtener información del grupo
+export async function getGroupInfo(groupId: string): Promise<GroupInfo> {
+  const response = await fetch(`${API_ENDPOINT}/groups/${groupId}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error obteniendo info del grupo' }))
+    throw new Error(error.message || 'Error obteniendo info del grupo')
+  }
+
+  return response.json()
+}
+
+// Obtener historial de peso
+export async function getWeightHistory(
+  id: string,
+  type: 'registration' | 'group' = 'registration'
+): Promise<WeightHistory> {
+  const endpoint = type === 'group'
+    ? `${API_ENDPOINT}/groups/${id}/weight-history`
+    : `${API_ENDPOINT}/registrations/${id}/weight-history`
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error obteniendo historial' }))
+    throw new Error(error.message || 'Error obteniendo historial')
+  }
+
+  return response.json()
+}
