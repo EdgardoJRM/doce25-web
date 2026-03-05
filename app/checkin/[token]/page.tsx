@@ -26,9 +26,9 @@ export default function CheckInPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
-  // Auto-redirect from scanner
+  // Auto-redirect from scanner (only on success, not when going to weight form)
   useEffect(() => {
-    if (fromScanner && countdown === null && (viewMode === 'success' || viewMode === 'already-checked')) {
+    if (fromScanner && countdown === null && viewMode === 'success') {
       setCountdown(3)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,7 +53,8 @@ export default function CheckInPage() {
         setViewMode('check-in-form')
       } else if (response.status === 'already-checked') {
         setAttendeeInfo(response.registration)
-        setViewMode('already-checked')
+        // Go directly to weight form instead of showing options
+        setViewMode('weight-form')
       } else {
         setViewMode('invalid')
       }
@@ -262,21 +263,23 @@ export default function CheckInPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => setViewMode('already-checked')}
-            className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Volver
-          </button>
+          {fromScanner && (
+            <button
+              onClick={() => router.push('/admin/scanner')}
+              className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Volver al Scanner
+            </button>
+          )}
 
           <WeightRegistrationForm
             registrationId={attendeeInfo.registrationId}
             participantName={attendeeInfo.name}
             onSuccess={handleWeightSuccess}
-            onCancel={() => setViewMode('already-checked')}
+            onCancel={() => fromScanner ? router.push('/admin/scanner') : router.push('/')}
             isGroupWeight={isGroupWeight}
             groupMembers={groupMembers.map((id: string) => ({ registrationId: id, name: 'Miembro' }))}
             currentMemberName={attendeeInfo.name}
