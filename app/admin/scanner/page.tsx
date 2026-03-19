@@ -241,7 +241,7 @@ export default function ScannerPage() {
               📱 Escanear QR
             </button>
             <button
-              onClick={() => setMode('search')}
+              onClick={() => router.push('/admin/eventos')}
               className="px-4 py-2 bg-cyan-600 text-white rounded-lg font-semibold"
             >
               🔍 Búsqueda Manual
