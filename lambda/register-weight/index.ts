@@ -172,12 +172,28 @@ export const handler = async (
     }
   } catch (error: any) {
     console.error('Error registrando peso:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error name:', error.name)
+    console.error('Error code:', error.code)
+    
+    // Proporcionar más detalles del error
+    let errorMessage = error.message || 'Error desconocido'
+    if (error.code === 'ValidationException') {
+      errorMessage = 'Error de validación en DynamoDB: ' + error.message
+    } else if (error.code === 'ResourceNotFoundException') {
+      errorMessage = 'Tabla no encontrada: ' + error.message
+    } else if (error.code === 'AccessDeniedException') {
+      errorMessage = 'Permiso denegado: ' + error.message
+    }
+    
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         error: 'Error interno del servidor',
-        message: error.message,
+        message: errorMessage,
+        code: error.code,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       }),
     }
   }
