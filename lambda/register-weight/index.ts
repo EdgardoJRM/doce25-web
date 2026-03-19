@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { v4 as uuidv4 } from 'uuid'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
@@ -169,6 +169,32 @@ export const handler = async (
         Item: weightRecord,
       })
     )
+
+    // También actualizar el registro individual con el peso
+    const updateParams: any = {
+      TableName: TABLES.REGISTRATIONS,
+      Key: { registrationId },
+      UpdateExpression: 'SET weightCollected = :weight, trashType = :type, weightRecordedAt = :timestamp',
+      ExpressionAttributeValues: {
+        ':weight': weightCollected,
+        ':type': trashType,
+        ':timestamp': timestamp,
+      },
+    }
+
+    // Agregar trashBreakdown si existe
+    if (trashBreakdown && Object.keys(trashBreakdown).length > 0) {
+      updateParams.UpdateExpression += ', trashBreakdown = :breakdown'
+      updateParams.ExpressionAttributeValues[':breakdown'] = trashBreakdown
+    }
+
+    // Agregar notas si existen
+    if (notes && notes.trim()) {
+      updateParams.UpdateExpression += ', notes = :notes'
+      updateParams.ExpressionAttributeValues[':notes'] = notes.trim()
+    }
+
+    await dynamoClient.send(new UpdateCommand(updateParams))
 
     return {
       statusCode: 200,
