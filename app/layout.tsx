@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { EventBanner } from '@/components/EventBanner'
+import { MainContent } from '@/components/MainContent'
 import { AuthProvider as CognitoAuthProvider } from '@/lib/auth'
 import { AuthProvider } from '@/contexts/AuthContext'
 
@@ -198,9 +199,9 @@ export default function RootLayout({
         <CognitoAuthProvider>
           <AuthProvider>
             <Navbar />
-            <main className="min-h-screen pt-16">
+            <MainContent>
               {children}
-            </main>
+            </MainContent>
             <Footer />
             <EventBanner />
           </AuthProvider>

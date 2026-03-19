@@ -50,13 +50,13 @@ export default function GroupFormation({
   const startScanning = async () => {
     if (isRunningRef.current) return
 
-    const scanner = new Html5Qrcode('group-qr-reader')
-    scannerRef.current = scanner
-
     try {
       setIsScanning(true)
       setScanError('')
       isRunningRef.current = true
+
+      const scanner = new Html5Qrcode('group-qr-reader')
+      scannerRef.current = scanner
 
       await scanner.start(
         { facingMode: 'environment' },
@@ -74,7 +74,12 @@ export default function GroupFormation({
         () => {}
       )
     } catch (err: any) {
-      setScanError('Error al iniciar cámara. Verifica los permisos.')
+      console.error('Scanner error:', err)
+      setScanError(
+        err.message?.includes('Permission denied')
+          ? 'Permiso de cámara denegado. Verifica los permisos del navegador.'
+          : 'Error al iniciar cámara. Verifica los permisos.'
+      )
       setIsScanning(false)
       isRunningRef.current = false
     }
@@ -301,7 +306,7 @@ export default function GroupFormation({
 
           {isScanning ? (
             <div className="mb-6">
-              <div id="group-qr-reader" className="w-full rounded-lg overflow-hidden mb-4"></div>
+              <div id="group-qr-reader" className="w-full h-80 rounded-lg overflow-hidden mb-4 bg-black"></div>
               <button
                 onClick={stopScanning}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700"

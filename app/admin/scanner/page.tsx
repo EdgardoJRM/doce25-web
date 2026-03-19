@@ -385,7 +385,7 @@ export default function ScannerPage() {
         )}
 
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div id="qr-reader" className="w-full"></div>
+          <div id="qr-reader" className="w-full h-96 bg-black"></div>
           
           <div className="p-6">
             <div className="flex items-center justify-center space-x-2">

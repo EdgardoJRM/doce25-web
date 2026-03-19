@@ -21,8 +21,8 @@ export function EventBanner() {
   const [isVisible, setIsVisible] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
 
-  // Solo mostrar en la página de inicio
-  const isHomePage = pathname === '/'
+  // Solo mostrar en la página de inicio, no en admin
+  const isHomePage = pathname === '/' && !pathname.startsWith('/admin')
 
   useEffect(() => {
     if (isHomePage) {

@@ -1,7 +1,17 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
 export function Footer() {
+  const pathname = usePathname()
+
+  // Hide footer on admin pages
+  if (pathname.startsWith('/admin')) {
+    return null
+  }
+
   return (
     <footer className="bg-gray-900 text-white mt-20">
       <div className="container mx-auto px-4 py-16">

@@ -1,16 +1,23 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 
 export function Navbar() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
   const { user, logout } = useAuth()
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Hide navbar on admin pages
+  if (pathname.startsWith('/admin')) {
+    return null
+  }
 
   useEffect(() => {
     const handleScroll = () => {
