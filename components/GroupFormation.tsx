@@ -40,11 +40,17 @@ export default function GroupFormation({
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const isRunningRef = useRef(false)
 
+  const lastScannedRef = useRef<string>('')
+  const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   useEffect(() => {
     return () => {
       if (scannerRef.current && isRunningRef.current) {
         isRunningRef.current = false
         scannerRef.current.stop().catch(() => {})
+      }
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current)
       }
     }
   }, [])
@@ -128,6 +134,34 @@ export default function GroupFormation({
   }
 
   const handleQRScanned = async (token: string) => {
+    // Evitar procesar el mismo QR múltiples veces en corto tiempo
+    if (lastScannedRef.current === token) {
+      return
+    }
+
+    // Validar límite según tipo de participación
+    const maxMembers = selectedType === 'duo' ? 1 : selectedType === 'group' ? 2 : 0
+    if (selectedType && (selectedType === 'duo' || selectedType === 'group') && scannedMembers.length >= maxMembers) {
+      setScanError(
+        selectedType === 'duo'
+          ? 'Ya has agregado 1 persona. Un duo solo puede tener 2 personas (tú + 1)'
+          : 'Ya has agregado 2 personas. Un grupo puede tener máximo 3 personas (tú + 2)'
+      )
+      return
+    }
+
+    lastScannedRef.current = token
+
+    // Limpiar el timeout anterior si existe
+    if (scanTimeoutRef.current) {
+      clearTimeout(scanTimeoutRef.current)
+    }
+
+    // Resetear el último escaneo después de 1 segundo para permitir escanear el mismo QR de nuevo
+    scanTimeoutRef.current = setTimeout(() => {
+      lastScannedRef.current = ''
+    }, 1000)
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_ENDPOINT}/checkin/${token}`,
