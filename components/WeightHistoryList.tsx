@@ -49,7 +49,7 @@ export default function WeightHistoryList({
         <h3 className="text-xl font-bold mb-4">Resumen Total</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-3xl font-bold">{totalWeight.toFixed(1)} kg</div>
+            <div className="text-3xl font-bold">{totalWeight.toFixed(1)} lb</div>
             <div className="text-cyan-100">Peso Total</div>
           </div>
           <div>
@@ -79,7 +79,7 @@ export default function WeightHistoryList({
                   </div>
                   <div>
                     <div className="font-bold text-xl text-cyan-600">
-                      {record.weightCollected.toFixed(1)} kg
+                      {record.weightCollected.toFixed(1)} lb
                     </div>
                     <div className="text-sm text-gray-600 capitalize">
                       {record.trashType === 'mixed' ? 'Mixto' : record.trashType}
@@ -114,7 +114,7 @@ export default function WeightHistoryList({
                           <span>{TRASH_TYPE_EMOJI[type] || '📦'}</span>
                           <span className="text-gray-700 capitalize">{type}:</span>
                           <span className="font-semibold text-gray-900">
-                            {weight.toFixed(1)} kg
+                            {weight.toFixed(1)} lb
                           </span>
                         </div>
                       )

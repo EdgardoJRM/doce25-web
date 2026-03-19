@@ -348,7 +348,7 @@ export default function ScannerPage() {
 
                           {participant.checkedOut ? (
                             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                              ✓ Peso: {participant.weightCollected} kg
+                              ✓ Peso: {participant.weightCollected} lb
                             </span>
                           ) : (
                             <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">

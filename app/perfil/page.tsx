@@ -236,7 +236,7 @@ export default function ProfilePage() {
               {getTotalWeight().toFixed(1)}
             </div>
             <div className="text-gray-600 font-semibold">
-              kg Total Recogidos
+              lb Total Recogidos
             </div>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function ProfilePage() {
                 </h2>
                 <p className="text-lg text-gray-700 mb-4">
                   Has salvado <span className="font-bold text-green-600 text-2xl">
-                    {getTotalWeight().toFixed(1)} kg
+                    {getTotalWeight().toFixed(1)} lb
                   </span> de basura del océano en <span className="font-bold text-blue-600">{getTotalTrips()} viajes</span>
                 </p>
 
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                       return (
                         <div key={key} className="bg-white rounded-lg p-3 text-center">
                           <div className={`text-xl font-bold ${color}`}>
-                            {total.toFixed(1)} kg
+                            {total.toFixed(1)} lb
                           </div>
                           <div className="text-xs text-gray-600">
                             {label}
@@ -363,7 +363,7 @@ export default function ProfilePage() {
                               )}
                               {hasHistory && (
                                 <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
-                                  ♻️ {history.tripCount} {history.tripCount === 1 ? 'viaje' : 'viajes'} · {history.totalWeight.toFixed(1)} kg
+                                  ♻️ {history.tripCount} {history.tripCount === 1 ? 'viaje' : 'viajes'} · {history.totalWeight.toFixed(1)} lb
                                 </span>
                               )}
                             </div>
@@ -467,7 +467,7 @@ export default function ProfilePage() {
                                   <div className="flex items-center gap-4">
                                     <div>
                                       <span className="text-2xl font-bold text-green-600">
-                                        {record.weightCollected.toFixed(1)} kg
+                                        {record.weightCollected.toFixed(1)} lb
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-2">

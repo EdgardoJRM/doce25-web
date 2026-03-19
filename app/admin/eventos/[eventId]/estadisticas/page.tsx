@@ -147,7 +147,7 @@ export default function EstadisticasPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="text-gray-600 text-sm font-semibold mb-2">Peso Total</div>
-            <div className="text-3xl font-bold text-cyan-600">{stats.totalWeight} kg</div>
+            <div className="text-3xl font-bold text-cyan-600">{stats.totalWeight} lb</div>
             <div className="text-xs text-gray-500 mt-2">
               {stats.participantsCount} participantes
             </div>
@@ -198,7 +198,7 @@ export default function EstadisticasPage() {
                     {typeInfo.label}
                   </h2>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{totalByType.toFixed(2)} kg</div>
+                    <div className="text-2xl font-bold text-gray-900">{totalByType.toFixed(2)} lb</div>
                     <div className="text-xs text-gray-500">
                       {countByType} participantes
                     </div>
@@ -229,7 +229,7 @@ export default function EstadisticasPage() {
                         </div>
                         <div className="text-right ml-2">
                           <div className="text-lg font-bold text-gray-900">
-                            {participant.weight} kg
+                            {participant.weight} lb
                           </div>
                         </div>
                       </div>
@@ -266,7 +266,7 @@ export default function EstadisticasPage() {
                       {percentage}%
                     </span>
                   </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-1">{totalByType.toFixed(2)} kg</div>
+                  <div className="text-2xl font-bold text-gray-900 mb-1">{totalByType.toFixed(2)} lb</div>
                   <div className="text-xs text-gray-500 mb-3">{countByType} participantes</div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div

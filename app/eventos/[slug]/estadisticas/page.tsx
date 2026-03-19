@@ -141,7 +141,7 @@ export default function EventStatsPage() {
                 <div className="text-5xl font-bold mb-2">
                   {stats.totalWeight.toLocaleString('es-PR', { maximumFractionDigits: 1 })}
                 </div>
-                <div className="text-xl font-semibold">kilogramos</div>
+                <div className="text-xl font-semibold">libras</div>
               </div>
 
               {/* Participantes */}
@@ -159,7 +159,7 @@ export default function EventStatsPage() {
               <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-green-500">
                 <div className="text-sm font-semibold text-gray-600 mb-2">Impacto Ambiental</div>
                 <div className="text-3xl font-bold text-green-600 mb-2">
-                  🌊 {stats.totalWeight.toFixed(0)} kg
+                  🌊 {stats.totalWeight.toFixed(0)} lb
                 </div>
                 <div className="text-sm text-gray-600">
                   salvados del océano
@@ -187,7 +187,7 @@ export default function EventStatsPage() {
                       <div className="flex justify-between mb-2">
                         <span className="text-sm font-semibold text-gray-700">{label}</span>
                         <span className="text-sm font-bold text-gray-900">
-                          {weight.toFixed(1)} kg ({percentage.toFixed(1)}%)
+                          {weight.toFixed(1)} lb ({percentage.toFixed(1)}%)
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
@@ -244,7 +244,7 @@ export default function EventStatsPage() {
                         <div className="text-2xl font-bold text-cyan-600">
                           {participant.weight.toFixed(1)}
                         </div>
-                        <div className="text-xs text-gray-600">kg</div>
+                        <div className="text-xs text-gray-600">lb</div>
                       </div>
                     </div>
                   ))}

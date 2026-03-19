@@ -171,7 +171,7 @@ export default function AdminAsistentesPage() {
         a.email,
         new Date(a.createdAt).toLocaleDateString('es-MX'),
         a.checkedIn ? 'Sí' : 'No',
-        a.weightCollected ? `${a.weightCollected} kg` : 'No',
+        a.weightCollected ? `${a.weightCollected} lb` : 'No',
       ]),
     ]
       .map((row) => row.join(','))

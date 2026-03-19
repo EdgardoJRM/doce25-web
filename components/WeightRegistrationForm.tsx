@@ -56,12 +56,12 @@ export default function WeightRegistrationForm({
 
     // Validaciones
     if (!weight || weight <= 0) {
-      setError('El peso debe ser mayor a 0 kg')
+      setError('El peso debe ser mayor a 0 lb')
       return
     }
 
     if (weight > 500) {
-      setError('El peso no puede exceder 500 kg')
+      setError('El peso no puede exceder 500 lb')
       return
     }
 
@@ -77,7 +77,7 @@ export default function WeightRegistrationForm({
       const maxAllowed = weight * 1.1 // 10% de margen
 
       if (breakdownSum > maxAllowed) {
-        setError(`La suma del desglose (${breakdownSum.toFixed(2)} kg) no puede exceder el peso total + 10% (${maxAllowed.toFixed(2)} kg)`)
+        setError(`La suma del desglose (${breakdownSum.toFixed(2)} lb) no puede exceder el peso total + 10% (${maxAllowed.toFixed(2)} lb)`)
         return
       }
     }
@@ -169,7 +169,7 @@ export default function WeightRegistrationForm({
         {/* Peso Total */}
         <div>
           <label htmlFor="weight" className="block text-sm font-semibold text-gray-700 mb-2">
-            Peso Total (kg) <span className="text-red-500">*</span>
+            Peso Total (lb) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -184,7 +184,7 @@ export default function WeightRegistrationForm({
             required
           />
           <p className="text-xs text-gray-500 mt-1">
-            Rango permitido: 0.1 - 500 kg
+            Rango permitido: 0.1 - 500 lb
           </p>
         </div>
 
@@ -237,7 +237,7 @@ export default function WeightRegistrationForm({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  🥤 Plástico (kg)
+                  🥤 Plástico (lb)
                 </label>
                 <input
                   type="number"
@@ -252,7 +252,7 @@ export default function WeightRegistrationForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  🔩 Metal (kg)
+                  🔩 Metal (lb)
                 </label>
                 <input
                   type="number"
@@ -267,7 +267,7 @@ export default function WeightRegistrationForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  🍾 Vidrio (kg)
+                  🍾 Vidrio (lb)
                 </label>
                 <input
                   type="number"
@@ -282,7 +282,7 @@ export default function WeightRegistrationForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  🌱 Orgánico (kg)
+                  🌱 Orgánico (lb)
                 </label>
                 <input
                   type="number"
@@ -297,7 +297,7 @@ export default function WeightRegistrationForm({
 
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  📦 Otro (kg)
+                  📦 Otro (lb)
                 </label>
                 <input
                   type="number"
@@ -323,12 +323,12 @@ export default function WeightRegistrationForm({
                       (parseFloat(glass) || 0) +
                       (parseFloat(organic) || 0) +
                       (parseFloat(other) || 0)
-                    ).toFixed(2)} kg
+                    ).toFixed(2)} lb
                   </span>
                 </div>
                 <div className="flex justify-between text-sm mt-1">
                   <span className="text-gray-600">Peso total ingresado:</span>
-                  <span className="font-semibold">{parseFloat(weightCollected).toFixed(2)} kg</span>
+                  <span className="font-semibold">{parseFloat(weightCollected).toFixed(2)} lb</span>
                 </div>
               </div>
             )}

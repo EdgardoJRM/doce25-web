@@ -467,7 +467,7 @@ export default function EditarEventoPage() {
               </div>
               <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-4 border border-green-200">
                 <div className="text-3xl font-bold text-green-600">
-                  {getTotalStats().totalWeight.toFixed(1)} kg
+                  {getTotalStats().totalWeight.toFixed(1)} lb
                 </div>
                 <div className="text-sm text-gray-600 font-semibold">
                   Peso Total Recolectado
@@ -581,7 +581,7 @@ export default function EditarEventoPage() {
                               </span>
                               {history && history.tripCount > 0 && (
                                 <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                                  {history.tripCount} viajes · {history.totalWeight.toFixed(1)} kg
+                                  {history.tripCount} viajes · {history.totalWeight.toFixed(1)} lb
                                 </span>
                               )}
                             </div>
@@ -651,7 +651,7 @@ export default function EditarEventoPage() {
                                     <div className="flex items-center gap-4">
                                       <div>
                                         <span className="text-2xl font-bold text-green-600">
-                                          {record.weightCollected.toFixed(1)} kg
+                                          {record.weightCollected.toFixed(1)} lb
                                         </span>
                                       </div>
                                       <div className="flex items-center gap-2">
@@ -680,7 +680,7 @@ export default function EditarEventoPage() {
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-gray-900">Total Recolectado:</span>
                               <span className="text-2xl font-bold text-green-600">
-                                {history.totalWeight.toFixed(1)} kg
+                                {history.totalWeight.toFixed(1)} lb
                               </span>
                             </div>
                           </div>
@@ -721,7 +721,7 @@ export default function EditarEventoPage() {
                                 )}
                                 {hasHistory && history.tripCount > 0 && (
                                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                                    ♻️ {history.tripCount} viajes · {history.totalWeight.toFixed(1)} kg
+                                    ♻️ {history.tripCount} viajes · {history.totalWeight.toFixed(1)} lb
                                   </span>
                                 )}
                               </div>
@@ -766,7 +766,7 @@ export default function EditarEventoPage() {
                                     <div className="flex items-center gap-4">
                                       <div>
                                         <span className="text-2xl font-bold text-green-600">
-                                          {record.weightCollected.toFixed(1)} kg
+                                          {record.weightCollected.toFixed(1)} lb
                                         </span>
                                       </div>
                                       <div className="flex items-center gap-2">
@@ -795,7 +795,7 @@ export default function EditarEventoPage() {
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-gray-900">Total Recolectado:</span>
                               <span className="text-2xl font-bold text-green-600">
-                                {history.totalWeight.toFixed(1)} kg
+                                {history.totalWeight.toFixed(1)} lb
                               </span>
                             </div>
                           </div>
