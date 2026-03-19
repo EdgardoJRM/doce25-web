@@ -134,10 +134,8 @@ export const handler = async (
     const weightRecordId = uuidv4()
     const timestamp = new Date().toISOString()
 
-    const weightRecord = {
+    const weightRecord: any = {
       weightRecordId,
-      registrationId: isGroupParticipant ? null : registrationId,
-      groupId: registration.groupId || null,
       eventId: registration.eventId,
       weightCollected,
       trashType,
@@ -146,6 +144,13 @@ export const handler = async (
       registeredBy: registrationId,
       registeredByName,
       notes: notes || '',
+    }
+
+    // Solo incluir registrationId o groupId, no ambos como null
+    if (isGroupParticipant) {
+      weightRecord.groupId = registration.groupId
+    } else {
+      weightRecord.registrationId = registrationId
     }
 
     await dynamoClient.send(
