@@ -134,24 +134,34 @@ export const handler = async (
     const weightRecordId = uuidv4()
     const timestamp = new Date().toISOString()
 
+    // Construir el objeto de peso de forma segura, sin incluir atributos null
     const weightRecord: any = {
       weightRecordId,
       eventId: registration.eventId,
       weightCollected,
       trashType,
-      trashBreakdown: trashBreakdown || {},
       timestamp,
       registeredBy: registrationId,
       registeredByName,
-      notes: notes || '',
     }
 
-    // Solo incluir registrationId o groupId, no ambos como null
+    // Solo incluir registrationId o groupId, nunca ambos
     if (isGroupParticipant) {
       weightRecord.groupId = registration.groupId
     } else {
       weightRecord.registrationId = registrationId
     }
+
+    // Agregar campos opcionales solo si tienen valor
+    if (trashBreakdown && Object.keys(trashBreakdown).length > 0) {
+      weightRecord.trashBreakdown = trashBreakdown
+    }
+    
+    if (notes && notes.trim()) {
+      weightRecord.notes = notes.trim()
+    }
+
+    console.log('Creando weight record:', JSON.stringify(weightRecord, null, 2))
 
     await dynamoClient.send(
       new PutCommand({
