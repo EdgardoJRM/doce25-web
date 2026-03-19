@@ -63,6 +63,15 @@ export default function GroupFormation({
       setScanError('')
       isRunningRef.current = true
 
+      // Esperar a que el elemento se renderice en el DOM
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Verificar que el elemento existe
+      const element = document.getElementById('group-qr-reader')
+      if (!element) {
+        throw new Error('El elemento del scanner no se encontró en el DOM')
+      }
+
       const scanner = new Html5Qrcode('group-qr-reader')
       scannerRef.current = scanner
 
@@ -95,8 +104,10 @@ export default function GroupFormation({
         setScanError('No se encontró ningún dispositivo de cámara en este dispositivo.')
       } else if (err.name === 'NotReadableError') {
         setScanError('La cámara está siendo utilizada por otra aplicación.')
+      } else if (err.message?.includes('no se encontró')) {
+        setScanError('Error: El elemento del scanner no se pudo inicializar. Intenta de nuevo.')
       } else {
-        setScanError('Error al iniciar cámara. Verifica los permisos.')
+        setScanError(`Error al iniciar cámara: ${err.message || 'Verifica los permisos.'}`)
       }
       
       setIsScanning(false)
