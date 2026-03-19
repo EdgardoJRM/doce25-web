@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
+import { useCameraPermission } from '@/hooks/useCameraPermission'
 
 interface GroupFormationProps {
   currentRegistrationId: string
@@ -28,6 +29,7 @@ export default function GroupFormation({
   onComplete,
   onCancel,
 }: GroupFormationProps) {
+  const { permissionStatus, cachePermissionGranted, cachePermissionDenied } = useCameraPermission()
   const [selectedType, setSelectedType] = useState<
     'individual' | 'duo' | 'group' | 'organization' | null
   >(null)
@@ -49,6 +51,12 @@ export default function GroupFormation({
 
   const startScanning = async () => {
     if (isRunningRef.current) return
+
+    // Si el permiso fue denegado previamente, no intentar de nuevo
+    if (permissionStatus === 'denied') {
+      setScanError('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración del navegador.')
+      return
+    }
 
     try {
       setIsScanning(true)
@@ -73,13 +81,24 @@ export default function GroupFormation({
         },
         () => {}
       )
+      
+      // Cache successful permission grant
+      cachePermissionGranted()
     } catch (err: any) {
       console.error('Scanner error:', err)
-      setScanError(
-        err.message?.includes('Permission denied')
-          ? 'Permiso de cámara denegado. Verifica los permisos del navegador.'
-          : 'Error al iniciar cámara. Verifica los permisos.'
-      )
+      
+      // Detect permission denied error
+      if (err.name === 'NotAllowedError' || err.message?.includes('Permission denied')) {
+        cachePermissionDenied()
+        setScanError('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración del navegador.')
+      } else if (err.name === 'NotFoundError') {
+        setScanError('No se encontró ningún dispositivo de cámara en este dispositivo.')
+      } else if (err.name === 'NotReadableError') {
+        setScanError('La cámara está siendo utilizada por otra aplicación.')
+      } else {
+        setScanError('Error al iniciar cámara. Verifica los permisos.')
+      }
+      
       setIsScanning(false)
       isRunningRef.current = false
     }

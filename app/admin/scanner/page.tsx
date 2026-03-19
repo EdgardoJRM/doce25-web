@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import { Html5Qrcode } from 'html5-qrcode'
 import { searchRegistrations, SearchResult } from '@/lib/api'
 import WeightRegistrationForm from '@/components/WeightRegistrationForm'
+import { useCameraPermission } from '@/hooks/useCameraPermission'
 
 type Mode = 'scanner' | 'search' | 'weight'
 
 export default function ScannerPage() {
   const router = useRouter()
+  const { permissionStatus, cachePermissionGranted, cachePermissionDenied } = useCameraPermission()
   const [mode, setMode] = useState<Mode>('scanner')
   const [isScanning, setIsScanning] = useState(false)
   const [error, setError] = useState('')
@@ -31,6 +33,12 @@ export default function ScannerPage() {
     const startScanner = async () => {
       // Evitar iniciar si ya está corriendo
       if (isRunningRef.current) return
+      
+      // Si el permiso fue denegado previamente, no intentar de nuevo
+      if (permissionStatus === 'denied') {
+        setError('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración del navegador.')
+        return
+      }
       
       try {
         setIsScanning(true)
@@ -89,9 +97,24 @@ export default function ScannerPage() {
             // Ignorar errores de escaneo (son normales cuando no hay QR visible)
           }
         )
+        
+        // Cache successful permission grant
+        cachePermissionGranted()
       } catch (err: any) {
         console.error('Scanner error:', err)
-        setError('Error al iniciar la cámara. Asegúrate de haber dado permisos.')
+        
+        // Detect permission denied error
+        if (err.name === 'NotAllowedError' || err.message?.includes('Permission denied')) {
+          cachePermissionDenied()
+          setError('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración del navegador.')
+        } else if (err.name === 'NotFoundError') {
+          setError('No se encontró ningún dispositivo de cámara en este dispositivo.')
+        } else if (err.name === 'NotReadableError') {
+          setError('La cámara está siendo utilizada por otra aplicación.')
+        } else {
+          setError('Error al iniciar la cámara. Asegúrate de haber dado permisos.')
+        }
+        
         setIsScanning(false)
         isRunningRef.current = false
       }
