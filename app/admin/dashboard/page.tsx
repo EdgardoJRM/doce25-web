@@ -142,26 +142,33 @@ export default function DashboardPage() {
             <p className="text-gray-500 text-center py-8">No hay datos de eventos aún</p>
           ) : (
             eventStats.map((event) => (
-              <div key={event.eventId} className="border border-gray-200 rounded-lg p-3">
-                <h3 className="font-bold text-gray-900 mb-2">{event.name}</h3>
-                <p className="text-xs text-gray-500 mb-3">
+              <Link
+                key={event.eventId}
+                href={`/admin/eventos/${event.eventId}/manage`}
+                className="block border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-cyan-400 transition-all active:bg-cyan-50"
+              >
+                <h3 className="font-bold text-gray-900 mb-2 text-lg">{event.name}</h3>
+                <p className="text-xs text-gray-500 mb-4">
                   📅 {new Date(event.date).toLocaleDateString('es-PR')}
                 </p>
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div>
+                  <div className="bg-blue-50 rounded-lg py-2">
                     <div className="text-lg font-bold text-blue-600">{event.totalRegistrations}</div>
                     <div className="text-xs text-gray-500">Registros</div>
                   </div>
-                  <div>
+                  <div className="bg-green-50 rounded-lg py-2">
                     <div className="text-lg font-bold text-green-600">{event.checkedIn}</div>
                     <div className="text-xs text-gray-500">Check-ins</div>
                   </div>
-                  <div>
+                  <div className="bg-orange-50 rounded-lg py-2">
                     <div className="text-lg font-bold text-orange-600">{event.pending}</div>
                     <div className="text-xs text-gray-500">Pendientes</div>
                   </div>
                 </div>
-              </div>
+                <div className="mt-4 text-center text-cyan-600 font-semibold text-sm">
+                  Gestionar Evento →
+                </div>
+              </Link>
             ))
           )}
         </div>
