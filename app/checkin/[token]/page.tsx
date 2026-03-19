@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
-import { checkIn, updateCheckInGroup } from '@/lib/api'
+import { checkIn, updateCheckInGroup, getGroupInfo } from '@/lib/api'
 import GroupFormation from '@/components/GroupFormation'
 import WeightRegistrationForm from '@/components/WeightRegistrationForm'
 
@@ -17,6 +17,7 @@ export default function CheckInPage() {
 
   const [viewMode, setViewMode] = useState<ViewMode>('loading')
   const [attendeeInfo, setAttendeeInfo] = useState<any>(null)
+  const [groupInfo, setGroupInfo] = useState<any>(null)
   const [countdown, setCountdown] = useState<number | null>(null)
   const [error, setError] = useState('')
   const [processing, setProcessing] = useState(false)
@@ -53,6 +54,17 @@ export default function CheckInPage() {
         setViewMode('check-in-form')
       } else if (response.status === 'already-checked') {
         setAttendeeInfo(response.registration)
+        
+        // Si es un participante de grupo, obtener información del grupo
+        if (response.registration.groupId) {
+          try {
+            const group = await getGroupInfo(response.registration.groupId)
+            setGroupInfo(group)
+          } catch (err) {
+            console.error('Error obteniendo info del grupo:', err)
+          }
+        }
+        
         // Go directly to weight form instead of showing options
         setViewMode('weight-form')
       } else {
@@ -258,7 +270,7 @@ export default function CheckInPage() {
   // Weight registration form
   if (viewMode === 'weight-form' && attendeeInfo) {
     const isGroupWeight = !!attendeeInfo.groupId
-    const groupMembers = attendeeInfo.groupMembers || []
+    const groupMembers = groupInfo?.members || attendeeInfo.groupMembers || []
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
@@ -281,7 +293,10 @@ export default function CheckInPage() {
             onSuccess={handleWeightSuccess}
             onCancel={() => fromScanner ? router.push('/admin/scanner') : router.push('/')}
             isGroupWeight={isGroupWeight}
-            groupMembers={groupMembers.map((id: string) => ({ registrationId: id, name: 'Miembro' }))}
+            groupMembers={groupMembers.map((member: any) => ({ 
+              registrationId: member.registrationId || member, 
+              name: member.name || 'Miembro' 
+            }))}
             currentMemberName={attendeeInfo.name}
           />
         </div>

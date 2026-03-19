@@ -15,6 +15,8 @@ interface Attendee {
   checkedInAt?: string
   participationType?: string
   weightCollected?: number
+  groupId?: string
+  groupMembers?: Array<{ registrationId: string; name: string }>
 }
 
 interface Stats {
@@ -206,6 +208,9 @@ export default function AdminAsistentesPage() {
           participantName={selectedAttendee.name}
           onSuccess={handleWeightSuccess}
           onCancel={handleWeightCancel}
+          isGroupWeight={!!selectedAttendee.groupId}
+          groupMembers={selectedAttendee.groupMembers || []}
+          currentMemberName={selectedAttendee.name}
         />
       </div>
     )
