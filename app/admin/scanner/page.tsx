@@ -9,6 +9,8 @@ import { useCameraPermission } from '@/hooks/useCameraPermission'
 
 type Mode = 'scanner' | 'search' | 'weight'
 
+const DEFAULT_EVENT_ID = 'ea44d757-de19-4a13-aa9f-afbf0da433f2'
+
 export default function ScannerPage() {
   const router = useRouter()
   const { permissionStatus, cachePermissionGranted, cachePermissionDenied } = useCameraPermission()
@@ -20,7 +22,7 @@ export default function ScannerPage() {
   const isRunningRef = useRef(false)
 
   // Search mode states
-  const [eventId, setEventId] = useState('')
+  const [eventId, setEventId] = useState(DEFAULT_EVENT_ID)
   const [searchQuery, setSearchQuery] = useState('')
   const [searching, setSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -241,7 +243,7 @@ export default function ScannerPage() {
               📱 Escanear QR
             </button>
             <button
-              onClick={() => router.push('/admin/eventos')}
+              onClick={() => router.push(`/admin/asistentes/${DEFAULT_EVENT_ID}`)}
               className="px-4 py-2 bg-cyan-600 text-white rounded-lg font-semibold"
             >
               👥 Ver Participantes
@@ -387,7 +389,7 @@ export default function ScannerPage() {
             📱 Escanear QR
           </button>
           <button
-            onClick={() => router.push('/admin/eventos')}
+            onClick={() => router.push(`/admin/asistentes/${DEFAULT_EVENT_ID}`)}
             className="px-4 py-2 border-2 border-cyan-600 text-cyan-600 rounded-lg font-semibold hover:bg-cyan-50 transition-colors"
           >
             👥 Ver Participantes
