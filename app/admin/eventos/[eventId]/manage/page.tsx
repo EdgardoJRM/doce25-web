@@ -164,12 +164,27 @@ export default function EventManagePage() {
           </div>
         </Link>
 
+        {/* Estadísticas de Peso */}
+        <Link
+          href={`/admin/eventos/${eventId}/estadisticas`}
+          className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-amber-500"
+        >
+          <div className="text-4xl mb-3">📊</div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Estadísticas de Peso</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Visualiza el top 3 de participantes por categoría de basura
+          </p>
+          <div className="text-amber-600 font-semibold text-sm">
+            Ver estadísticas →
+          </div>
+        </Link>
+
         {/* Datos del Evento */}
         <Link
           href={`/admin/eventos/${eventId}`}
           className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-purple-500"
         >
-          <div className="text-4xl mb-3">📊</div>
+          <div className="text-4xl mb-3">📈</div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">Datos del Evento</h3>
           <p className="text-sm text-gray-600 mb-4">
             Visualiza estadísticas, registros de peso y detalles del evento
