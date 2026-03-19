@@ -244,7 +244,7 @@ export default function ScannerPage() {
               onClick={() => router.push('/admin/eventos')}
               className="px-4 py-2 bg-cyan-600 text-white rounded-lg font-semibold"
             >
-              🔍 Búsqueda Manual
+              👥 Ver Participantes
             </button>
           </div>
 
@@ -387,10 +387,10 @@ export default function ScannerPage() {
             📱 Escanear QR
           </button>
           <button
-            onClick={() => setMode('search')}
+            onClick={() => router.push('/admin/eventos')}
             className="px-4 py-2 border-2 border-cyan-600 text-cyan-600 rounded-lg font-semibold hover:bg-cyan-50 transition-colors"
           >
-            🔍 Búsqueda Manual
+            👥 Ver Participantes
           </button>
         </div>
 
