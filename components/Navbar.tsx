@@ -14,11 +14,6 @@ export function Navbar() {
   const { user, logout } = useAuth()
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Hide navbar on admin pages
-  if (pathname.startsWith('/admin')) {
-    return null
-  }
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
@@ -26,6 +21,11 @@ export function Navbar() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Hide navbar on admin pages
+  if (pathname.startsWith('/admin')) {
+    return null
+  }
 
   const handleMouseEnter = (dropdown: string) => {
     if (closeTimeoutRef.current) {
