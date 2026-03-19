@@ -853,6 +853,31 @@ Resources:
         EntryPoints:
           - index.ts
 
+  GetOrganizationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-organizations/
+      Handler: index.handler
+      Events:
+        GetOrganizations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}/organizations
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref RegistrationsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
   UpdateWeightFunction:
     Type: AWS::Serverless::Function
     Properties:

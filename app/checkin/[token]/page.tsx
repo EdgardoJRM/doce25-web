@@ -185,6 +185,7 @@ export default function CheckInPage() {
             <GroupFormation
               currentRegistrationId={attendeeInfo.registrationId}
               currentName={attendeeInfo.name}
+              currentOrganization={attendeeInfo.organization}
               eventId={attendeeInfo.eventId}
               onComplete={handleGroupFormationComplete}
             />

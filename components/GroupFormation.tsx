@@ -7,6 +7,7 @@ import { useCameraPermission } from '@/hooks/useCameraPermission'
 interface GroupFormationProps {
   currentRegistrationId: string
   currentName: string
+  currentOrganization?: string
   eventId: string
   onComplete: (data: {
     participationType: 'individual' | 'duo' | 'group' | 'organization'
@@ -25,6 +26,7 @@ interface ScannedMember {
 export default function GroupFormation({
   currentRegistrationId,
   currentName,
+  currentOrganization,
   eventId,
   onComplete,
   onCancel,
@@ -36,12 +38,66 @@ export default function GroupFormation({
   const [scannedMembers, setScannedMembers] = useState<ScannedMember[]>([])
   const [isScanning, setIsScanning] = useState(false)
   const [scanError, setScanError] = useState('')
-  const [orgName, setOrgName] = useState('')
+  const [orgName, setOrgName] = useState(currentOrganization || '')
+  const [organizations, setOrganizations] = useState<string[]>([])
+  const [filteredOrganizations, setFilteredOrganizations] = useState<string[]>([])
+  const [showOrgDropdown, setShowOrgDropdown] = useState(false)
+  const [orgSearchQuery, setOrgSearchQuery] = useState('')
+  const [loadingOrgs, setLoadingOrgs] = useState(false)
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const isRunningRef = useRef(false)
 
   const lastScannedRef = useRef<string>('')
   const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Cargar organizaciones cuando se selecciona "organization"
+  useEffect(() => {
+    if (selectedType === 'organization' && organizations.length === 0) {
+      fetchOrganizations()
+    }
+  }, [selectedType])
+
+  // Filtrar organizaciones según búsqueda
+  useEffect(() => {
+    if (orgSearchQuery.trim()) {
+      const filtered = organizations.filter((org) =>
+        org.toLowerCase().includes(orgSearchQuery.toLowerCase())
+      )
+      setFilteredOrganizations(filtered)
+    } else {
+      setFilteredOrganizations(organizations)
+    }
+  }, [orgSearchQuery, organizations])
+
+  const fetchOrganizations = async () => {
+    try {
+      setLoadingOrgs(true)
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/events/${eventId}/organizations`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+
+      if (response.ok) {
+        const data = await response.json()
+        const orgs = data.organizations || []
+        setOrganizations(orgs)
+        setFilteredOrganizations(orgs)
+      }
+    } catch (err) {
+      console.error('Error fetching organizations:', err)
+    } finally {
+      setLoadingOrgs(false)
+    }
+  }
+
+  const selectOrganization = (org: string) => {
+    setOrgName(org)
+    setShowOrgDropdown(false)
+    setOrgSearchQuery('')
+  }
 
   useEffect(() => {
     return () => {
@@ -320,16 +376,66 @@ export default function GroupFormation({
         <div>
           <div className="mb-6">
             <label htmlFor="orgName" className="block text-sm font-semibold text-gray-700 mb-2">
-              Nombre de la Organización
+              Nombre de la Organización <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              id="orgName"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-              placeholder="Ej: Banco Popular, Scouts PR, etc."
-            />
+            
+            <div className="relative">
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    id="orgName"
+                    value={orgSearchQuery || orgName}
+                    onChange={(e) => {
+                      setOrgSearchQuery(e.target.value)
+                      setShowOrgDropdown(true)
+                    }}
+                    onFocus={() => setShowOrgDropdown(true)}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    placeholder="Busca o selecciona una organización..."
+                  />
+                  
+                  {/* Dropdown */}
+                  {showOrgDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-gray-300 rounded-lg shadow-lg z-10 max-h-64 overflow-y-auto">
+                      {loadingOrgs ? (
+                        <div className="p-4 text-center text-gray-500">
+                          Cargando organizaciones...
+                        </div>
+                      ) : filteredOrganizations.length > 0 ? (
+                        <div>
+                          {filteredOrganizations.map((org) => (
+                            <button
+                              key={org}
+                              type="button"
+                              onClick={() => selectOrganization(org)}
+                              className={`w-full text-left px-4 py-3 hover:bg-cyan-50 border-b border-gray-100 last:border-b-0 ${
+                                orgName === org ? 'bg-cyan-100 font-semibold' : ''
+                              }`}
+                            >
+                              {org}
+                              {currentOrganization === org && (
+                                <span className="ml-2 text-cyan-600 font-semibold">(Tu org)</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-gray-500">
+                          No se encontraron organizaciones
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {currentOrganization && !orgName && (
+              <p className="text-xs text-cyan-600 mt-2">
+                💡 Tu organización es: <strong>{currentOrganization}</strong>
+              </p>
+            )}
           </div>
 
           {scanError && (
@@ -343,6 +449,8 @@ export default function GroupFormation({
               onClick={() => {
                 setSelectedType(null)
                 setOrgName('')
+                setOrgSearchQuery('')
+                setShowOrgDropdown(false)
               }}
               className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50"
             >
