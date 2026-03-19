@@ -306,7 +306,7 @@ export default function GroupFormation({
 
           {isScanning ? (
             <div className="mb-6">
-              <div id="group-qr-reader" className="w-full h-80 rounded-lg overflow-hidden mb-4 bg-black"></div>
+              <div id="group-qr-reader" className="w-full aspect-square rounded-lg overflow-hidden mb-4 bg-black"></div>
               <button
                 onClick={stopScanning}
                 className="w-full px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700"
