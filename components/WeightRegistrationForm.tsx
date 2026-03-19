@@ -34,6 +34,7 @@ export default function WeightRegistrationForm({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showBreakdown, setShowBreakdown] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   // Form data
   const [weightCollected, setWeightCollected] = useState('')
@@ -103,7 +104,12 @@ export default function WeightRegistrationForm({
       }
 
       await registerWeight(registrationId, data)
-      onSuccess()
+      setShowSuccess(true)
+      
+      // Llamar a onSuccess después de mostrar el mensaje por 2 segundos
+      setTimeout(() => {
+        onSuccess()
+      }, 2000)
     } catch (err: any) {
       setError(err.message || 'Error al registrar peso')
     } finally {
@@ -113,6 +119,22 @@ export default function WeightRegistrationForm({
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl mx-auto">
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm text-center animate-in fade-in zoom-in">
+            <div className="text-6xl mb-4">✅</div>
+            <h2 className="text-2xl font-bold text-green-600 mb-2">¡Éxito!</h2>
+            <p className="text-gray-600 mb-6">
+              Peso registrado correctamente
+            </p>
+            <p className="text-sm text-gray-500">
+              Redirigiendo en unos momentos...
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           {isGroupWeight ? '⚖️ Registro de Peso Grupal' : '⚖️ Registrar Peso de Basura'}
