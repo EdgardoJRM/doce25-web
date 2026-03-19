@@ -92,6 +92,7 @@ export const handler = async (
         weight: r.weightCollected,
         organization: r.organization || '',
         trashType: r.trashType || 'mixed',
+        participationType: r.participationType || 'individual',
       }))
 
     // Conteo por tipo de basura

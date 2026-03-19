@@ -18,6 +18,7 @@ interface TopParticipant {
   weight: number
   organization: string
   trashType: string
+  participationType?: string
 }
 
 interface EventStats {
@@ -32,13 +33,11 @@ interface EventStats {
   lastUpdated: string
 }
 
-const TRASH_TYPES = {
-  plastic: { label: '🥤 Plástico', color: 'bg-blue-100 text-blue-700' },
-  metal: { label: '🔩 Metal', color: 'bg-gray-100 text-gray-700' },
-  glass: { label: '🍾 Vidrio', color: 'bg-amber-100 text-amber-700' },
-  organic: { label: '🌱 Orgánico', color: 'bg-green-100 text-green-700' },
-  mixed: { label: '♻️ Mixto', color: 'bg-teal-100 text-teal-700' },
-  other: { label: '📦 Otro', color: 'bg-purple-100 text-purple-700' },
+const PARTICIPATION_TYPES = {
+  individual: { label: '👤 Individual', color: 'bg-blue-100 text-blue-700', emoji: '👤' },
+  duo: { label: '👥 Dúo', color: 'bg-purple-100 text-purple-700', emoji: '👥' },
+  group: { label: '👨‍👩‍👧‍👦 Grupo', color: 'bg-green-100 text-green-700', emoji: '👨‍👩‍👧‍👦' },
+  organization: { label: '🏢 Organización', color: 'bg-orange-100 text-orange-700', emoji: '🏢' },
 }
 
 export default function EstadisticasPage() {
@@ -100,14 +99,28 @@ export default function EstadisticasPage() {
     )
   }
 
-  // Obtener top 3 por tipo de basura
-  const getTop3ByType = (type: string) => {
+  // Obtener top 3 por tipo de participación
+  const getTop3ByParticipationType = (type: string) => {
     return stats.topParticipants
-      .filter((p) => p.trashType === type)
+      .filter((p) => (p.participationType || 'individual').toLowerCase() === type.toLowerCase())
       .slice(0, 3)
   }
 
-  const allTypes = Object.keys(TRASH_TYPES)
+  // Contar participantes por tipo
+  const countByParticipationType = (type: string) => {
+    return stats.topParticipants.filter(
+      (p) => (p.participationType || 'individual').toLowerCase() === type.toLowerCase()
+    ).length
+  }
+
+  // Calcular peso total por tipo
+  const getTotalWeightByType = (type: string) => {
+    return stats.topParticipants
+      .filter((p) => (p.participationType || 'individual').toLowerCase() === type.toLowerCase())
+      .reduce((sum, p) => sum + p.weight, 0)
+  }
+
+  const participationTypes = Object.keys(PARTICIPATION_TYPES)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
@@ -126,7 +139,7 @@ export default function EstadisticasPage() {
 
           <h1 className="text-4xl font-bold text-gray-900 mb-2">📊 Estadísticas de Peso</h1>
           <p className="text-gray-600">
-            Análisis detallado de la recolección de basura por categoría
+            Top 3 participantes por tipo de participación
           </p>
         </div>
 
@@ -170,12 +183,13 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* Top 3 por Categoría */}
+        {/* Top 3 por Tipo de Participación */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {allTypes.map((type) => {
-            const top3 = getTop3ByType(type)
-            const typeInfo = TRASH_TYPES[type as keyof typeof TRASH_TYPES]
-            const totalByType = stats.breakdown[type as keyof TrashBreakdown] || 0
+          {participationTypes.map((type) => {
+            const top3 = getTop3ByParticipationType(type)
+            const typeInfo = PARTICIPATION_TYPES[type as keyof typeof PARTICIPATION_TYPES]
+            const totalByType = getTotalWeightByType(type)
+            const countByType = countByParticipationType(type)
 
             return (
               <div key={type} className="bg-white rounded-lg shadow-lg p-6">
@@ -184,9 +198,9 @@ export default function EstadisticasPage() {
                     {typeInfo.label}
                   </h2>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{totalByType} kg</div>
+                    <div className="text-2xl font-bold text-gray-900">{totalByType.toFixed(2)} kg</div>
                     <div className="text-xs text-gray-500">
-                      {stats.trashTypeCounts[type] || 0} participantes
+                      {countByType} participantes
                     </div>
                   </div>
                 </div>
@@ -231,17 +245,18 @@ export default function EstadisticasPage() {
           })}
         </div>
 
-        {/* Desglose Total */}
+        {/* Resumen por Tipo */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">📈 Desglose Total por Categoría</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">📈 Resumen por Tipo de Participación</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allTypes.map((type) => {
-              const amount = stats.breakdown[type as keyof TrashBreakdown] || 0
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {participationTypes.map((type) => {
+              const totalByType = getTotalWeightByType(type)
+              const countByType = countByParticipationType(type)
               const percentage = stats.totalWeight > 0 
-                ? ((amount / stats.totalWeight) * 100).toFixed(1)
+                ? ((totalByType / stats.totalWeight) * 100).toFixed(1)
                 : 0
-              const typeInfo = TRASH_TYPES[type as keyof typeof TRASH_TYPES]
+              const typeInfo = PARTICIPATION_TYPES[type as keyof typeof PARTICIPATION_TYPES]
 
               return (
                 <div key={type} className="p-4 border border-gray-200 rounded-lg">
@@ -251,7 +266,8 @@ export default function EstadisticasPage() {
                       {percentage}%
                     </span>
                   </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-2">{amount} kg</div>
+                  <div className="text-2xl font-bold text-gray-900 mb-1">{totalByType.toFixed(2)} kg</div>
+                  <div className="text-xs text-gray-500 mb-3">{countByType} participantes</div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-cyan-500 to-blue-600 h-2 rounded-full transition-all"
