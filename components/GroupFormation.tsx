@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useCameraPermission } from '@/hooks/useCameraPermission'
+import { PREDEFINED_ORGANIZATIONS } from '@/lib/organizations'
 
 interface GroupFormationProps {
   currentRegistrationId: string
@@ -44,6 +45,8 @@ export default function GroupFormation({
   const [showOrgDropdown, setShowOrgDropdown] = useState(false)
   const [orgSearchQuery, setOrgSearchQuery] = useState('')
   const [loadingOrgs, setLoadingOrgs] = useState(false)
+  const [creatingOrg, setCreatingOrg] = useState(false)
+  const [showCreateButton, setShowCreateButton] = useState(false)
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const isRunningRef = useRef(false)
 
@@ -64,8 +67,15 @@ export default function GroupFormation({
         org.toLowerCase().includes(orgSearchQuery.toLowerCase())
       )
       setFilteredOrganizations(filtered)
+      
+      // Mostrar botón "Crear nueva" si el texto no coincide con ninguna organización existente
+      const exactMatch = organizations.some(
+        (org) => org.toLowerCase() === orgSearchQuery.toLowerCase()
+      )
+      setShowCreateButton(!exactMatch && orgSearchQuery.trim().length > 0)
     } else {
       setFilteredOrganizations(organizations)
+      setShowCreateButton(false)
     }
   }, [orgSearchQuery, organizations])
 
@@ -82,12 +92,25 @@ export default function GroupFormation({
 
       if (response.ok) {
         const data = await response.json()
-        const orgs = data.organizations || []
-        setOrganizations(orgs)
-        setFilteredOrganizations(orgs)
+        const fetchedOrgs = data.organizations || []
+        
+        // Combinar organizaciones predefinidas con las obtenidas del servidor
+        const allOrgs = Array.from(
+          new Set([...PREDEFINED_ORGANIZATIONS, ...fetchedOrgs])
+        ).sort()
+        
+        setOrganizations(allOrgs)
+        setFilteredOrganizations(allOrgs)
+      } else {
+        // Si hay error, al menos mostrar las predefinidas
+        setOrganizations(PREDEFINED_ORGANIZATIONS)
+        setFilteredOrganizations(PREDEFINED_ORGANIZATIONS)
       }
     } catch (err) {
       console.error('Error fetching organizations:', err)
+      // Si hay error, al menos mostrar las predefinidas
+      setOrganizations(PREDEFINED_ORGANIZATIONS)
+      setFilteredOrganizations(PREDEFINED_ORGANIZATIONS)
     } finally {
       setLoadingOrgs(false)
     }
@@ -97,6 +120,48 @@ export default function GroupFormation({
     setOrgName(org)
     setShowOrgDropdown(false)
     setOrgSearchQuery('')
+  }
+
+  const createNewOrganization = async () => {
+    if (!orgSearchQuery.trim()) return
+
+    try {
+      setCreatingOrg(true)
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/events/${eventId}/organizations`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            organizationName: orgSearchQuery.trim(),
+          }),
+        }
+      )
+
+      if (response.ok) {
+        const data = await response.json()
+        const newOrgName = data.organizationName
+
+        // Agregar la nueva organización a la lista
+        setOrganizations((prev) => {
+          const updated = [...prev, newOrgName].sort()
+          return updated
+        })
+
+        // Seleccionar la nueva organización
+        setOrgName(newOrgName)
+        setShowOrgDropdown(false)
+        setOrgSearchQuery('')
+        setShowCreateButton(false)
+      } else {
+        setScanError('Error al crear la organización')
+      }
+    } catch (err) {
+      console.error('Error creating organization:', err)
+      setScanError('Error al crear la organización')
+    } finally {
+      setCreatingOrg(false)
+    }
   }
 
   useEffect(() => {
@@ -402,27 +467,54 @@ export default function GroupFormation({
                         <div className="p-4 text-center text-gray-500">
                           Cargando organizaciones...
                         </div>
-                      ) : filteredOrganizations.length > 0 ? (
+                      ) : (
                         <div>
-                          {filteredOrganizations.map((org) => (
+                          {/* Botón para crear nueva organización */}
+                          {showCreateButton && (
                             <button
-                              key={org}
                               type="button"
-                              onClick={() => selectOrganization(org)}
-                              className={`w-full text-left px-4 py-3 hover:bg-cyan-50 border-b border-gray-100 last:border-b-0 ${
-                                orgName === org ? 'bg-cyan-100 font-semibold' : ''
-                              }`}
+                              onClick={createNewOrganization}
+                              disabled={creatingOrg}
+                              className="w-full text-left px-4 py-3 bg-cyan-50 hover:bg-cyan-100 border-b-2 border-cyan-300 font-semibold text-cyan-700 flex items-center gap-2"
                             >
-                              {org}
-                              {currentOrganization === org && (
-                                <span className="ml-2 text-cyan-600 font-semibold">(Tu org)</span>
+                              {creatingOrg ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-600"></div>
+                                  Creando...
+                                </>
+                              ) : (
+                                <>
+                                  <span>➕</span>
+                                  Crear: "{orgSearchQuery}"
+                                </>
                               )}
                             </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="p-4 text-center text-gray-500">
-                          No se encontraron organizaciones
+                          )}
+
+                          {/* Lista de organizaciones existentes */}
+                          {filteredOrganizations.length > 0 ? (
+                            <div>
+                              {filteredOrganizations.map((org) => (
+                                <button
+                                  key={org}
+                                  type="button"
+                                  onClick={() => selectOrganization(org)}
+                                  className={`w-full text-left px-4 py-3 hover:bg-cyan-50 border-b border-gray-100 last:border-b-0 ${
+                                    orgName === org ? 'bg-cyan-100 font-semibold' : ''
+                                  }`}
+                                >
+                                  {org}
+                                  {currentOrganization === org && (
+                                    <span className="ml-2 text-cyan-600 font-semibold">(Tu org)</span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          ) : !showCreateButton ? (
+                            <div className="p-4 text-center text-gray-500">
+                              No se encontraron organizaciones
+                            </div>
+                          ) : null}
                         </div>
                       )}
                     </div>
