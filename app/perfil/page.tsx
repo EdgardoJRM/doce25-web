@@ -498,7 +498,7 @@ export default function ProfilePage() {
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-gray-900">Total Recolectado:</span>
                             <span className="text-2xl font-bold text-green-600">
-                              {history.totalWeight.toFixed(1)} kg
+                              {history.totalWeight.toFixed(1)} lb
                             </span>
                           </div>
                         </div>

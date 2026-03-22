@@ -56,7 +56,7 @@ Juan regresa del evento
 Staff escanea NFC card de Juan
     ↓
 App abre formulario de peso:
-   - Peso recogido: [45] kg
+   - Peso recogido: [45] lb
    - Tipo de basura: [Plástico ▼]
    - Desglose: Plástico: 30kg, Metal: 15kg
    - Notas: [Mucha basura...]
@@ -78,7 +78,7 @@ Se abre automáticamente: https://doce25.org/participante/reg-123
 Juan ve su perfil:
    - Nombre: Juan García
    - Evento: Limpieza Playa Aviones
-   - Peso recogido: 45 kg
+   - Peso recogido: 45 lb
    - Desglose: Plástico 30kg, Metal 15kg
    - Impacto: "Salvaste 45kg del océano"
     ↓
@@ -126,7 +126,7 @@ Opciones:
   // Check-out (Peso) - NUEVO
   checkedOut: true,
   checkOutTime: "2026-03-22T12:30:00",
-  weightCollected: 45,                 // Peso total en kg
+  weightCollected: 45,                 // Peso total en lb
   trashType: "mixed",                  // Tipo principal
   trashBreakdown: {                    // Desglose detallado
     plastic: 30,
@@ -494,13 +494,13 @@ export const handler = async (event: any): Promise<APIGatewayProxyResult> => {
       size: 16
     })
 
-    page.drawText(`Recogió: ${registration.weightCollected} kg de basura`, {
+    page.drawText(`Recogió: ${registration.weightCollected} lb de basura`, {
       x: 150,
       y: height - 450,
       size: 14
     })
 
-    page.drawText(`Impacto: Salvaste ${registration.weightCollected}kg del océano`, {
+    page.drawText(`Impacto: Salvaste ${registration.weightCollected}lb del océano`, {
       x: 100,
       y: height - 500,
       size: 14,
@@ -602,21 +602,21 @@ export default async function ParticipantProfile({ params }) {
         {/* Peso Recogido */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">📊 Peso Recogido</h2>
-          <p className="text-4xl font-bold text-teal-600">{registration.weightCollected} kg</p>
+          <p className="text-4xl font-bold text-teal-600">{registration.weightCollected} lb</p>
           
           {registration.trashBreakdown && (
             <div className="mt-4 space-y-2">
               {Object.entries(registration.trashBreakdown).map(([type, weight]) => (
                 <div key={type} className="flex justify-between">
                   <span className="capitalize">{type}:</span>
-                  <span className="font-semibold">{weight} kg</span>
+                  <span className="font-semibold">{weight} lb</span>
                 </div>
               ))}
             </div>
           )}
           
           <p className="mt-4 text-lg text-teal-700 font-semibold">
-            🌊 ¡Salvaste {registration.weightCollected}kg del océano!
+            🌊 ¡Salvaste {registration.weightCollected}lb del océano!
           </p>
         </div>
 

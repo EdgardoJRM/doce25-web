@@ -22,10 +22,10 @@ Cuando un usuario logueado tiene registraciones con check-in, verá:
 
 **Stats Cards:**
 - 📊 **Viajes de Recolección**: Número total de trips
-- ⚖️ **kg Total Recogidos**: Peso acumulado de todos los viajes
+- ⚖️ **lb Total Recogidos**: Peso acumulado de todos los viajes
 
 **Por cada evento asistido:**
-- Badge con número de viajes y kg total (ej: "♻️ 3 viajes · 15.5 kg")
+- Badge con número de viajes y lb total (ej: "♻️ 3 viajes · 15.5 lb")
 - Botón expandible: "📊 Ver Historial de Recolección (X viajes)"
 - Al expandir, lista detallada de cada viaje:
   - Fecha y hora
@@ -49,7 +49,7 @@ Cuando un usuario logueado tiene registraciones con check-in, verá:
 - **Grupos**: Agrupa por grupos/organizaciones con historial compartido
 
 **Para cada participante/grupo:**
-- Badge con número de viajes y kg total
+- Badge con número de viajes y lb total
 - Lista expandible de cada viaje
 - **Para grupos**: Muestra quién de los miembros registró cada peso
 

@@ -167,7 +167,7 @@ export default function EstadisticasPage() {
               {stats.participantsCount > 0 
                 ? (stats.totalWeight / stats.participantsCount).toFixed(2)
                 : 0
-              } kg
+              } lb
             </div>
             <div className="text-xs text-gray-500 mt-2">Por participante</div>
           </div>

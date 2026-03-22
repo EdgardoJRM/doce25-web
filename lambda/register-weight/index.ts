@@ -71,7 +71,7 @@ export const handler = async (
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'El peso debe estar entre 0.1 y 500 kg' }),
+        body: JSON.stringify({ error: 'El peso debe estar entre 0.1 y 500 lb' }),
       }
     }
 
