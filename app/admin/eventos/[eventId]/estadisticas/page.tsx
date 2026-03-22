@@ -29,6 +29,13 @@ interface EventStats {
   participationRate: number
   breakdown: TrashBreakdown
   topParticipants: TopParticipant[]
+  topParticipantsByType?: Record<string, TopParticipant[]>
+  topOrganizations?: Array<{
+    name: string
+    weight: number
+    participantCount: number
+    participationType: string
+  }>
   trashTypeCounts: Record<string, number>
   lastUpdated: string
 }
@@ -183,8 +190,9 @@ export default function EstadisticasPage() {
           </div>
         </div>
 
-        {/* Top 3 por Tipo de Participación */}
+        {/* Top 3 por Tipo de Participación y Organizaciones */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Tipos de Participación */}
           {participationTypes.map((type) => {
             const top3 = getTop3ByParticipationType(type)
             const typeInfo = PARTICIPATION_TYPES[type as keyof typeof PARTICIPATION_TYPES]
@@ -243,6 +251,53 @@ export default function EstadisticasPage() {
               </div>
             )
           })}
+
+          {/* Organizaciones */}
+          {stats.topOrganizations && stats.topOrganizations.length > 0 && (
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  🏢 Organizaciones
+                </h2>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {stats.topOrganizations.reduce((sum, org) => sum + org.weight, 0).toFixed(2)} lb
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {stats.topOrganizations.length} organizaciones
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {stats.topOrganizations.slice(0, 3).map((org, index) => (
+                  <div
+                    key={org.name}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 text-white font-bold text-sm">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 truncate">
+                          {org.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {org.participantCount} participante{org.participantCount !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right ml-2">
+                      <div className="text-lg font-bold text-gray-900">
+                        {org.weight.toFixed(2)} lb
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Resumen por Tipo */}
