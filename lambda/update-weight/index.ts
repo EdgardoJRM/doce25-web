@@ -21,6 +21,7 @@ interface UpdateWeightBody {
   trashType: 'plastic' | 'metal' | 'glass' | 'organic' | 'mixed' | 'other'
   trashBreakdown?: TrashBreakdown
   notes?: string
+  eventOrganization?: string
 }
 
 export const handler = async (
@@ -59,7 +60,7 @@ export const handler = async (
     }
 
     const body: UpdateWeightBody = JSON.parse(event.body || '{}')
-    const { weightCollected, trashType, trashBreakdown, notes } = body
+    const { weightCollected, trashType, trashBreakdown, notes, eventOrganization } = body
 
     // Validaciones
     if (weightCollected === undefined || weightCollected === null) {
@@ -108,13 +109,14 @@ export const handler = async (
         TableName: TABLES.REGISTRATIONS,
         Key: { registrationId },
         UpdateExpression:
-          'SET weightCollected = :weight, trashType = :type, trashBreakdown = :breakdown, notes = :notes, updatedAt = :updated',
+          'SET weightCollected = :weight, trashType = :type, trashBreakdown = :breakdown, notes = :notes, updatedAt = :updated' + (eventOrganization ? ', eventOrganization = :org' : ''),
         ExpressionAttributeValues: {
           ':weight': weightCollected,
           ':type': trashType,
           ':breakdown': trashBreakdown || {},
           ':notes': notes || '',
           ':updated': new Date().toISOString(),
+          ...(eventOrganization && { ':org': eventOrganization }),
         },
         ReturnValues: 'ALL_NEW',
       })

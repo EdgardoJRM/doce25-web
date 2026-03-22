@@ -90,7 +90,7 @@ export const handler = async (
         rank: index + 1,
         name: r.fullName || r.name,
         weight: r.weightCollected,
-        organization: r.organization || '',
+        organization: r.participationType === 'organization' ? (r.eventOrganization || '') : (r.organization || ''),
         trashType: r.trashType || 'mixed',
         participationType: r.participationType || 'individual',
       }))

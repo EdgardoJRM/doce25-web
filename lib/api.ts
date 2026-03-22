@@ -505,6 +505,7 @@ export interface RegisterWeightData {
   trashBreakdown?: TrashBreakdown
   notes?: string
   registeredBy?: string
+  eventOrganization?: string
 }
 
 export interface EventStats {

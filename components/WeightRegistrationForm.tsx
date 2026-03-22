@@ -11,6 +11,7 @@ interface WeightRegistrationFormProps {
   isGroupWeight?: boolean
   groupMembers?: Array<{ name: string; registrationId: string }>
   currentMemberName?: string
+  eventOrganization?: string
 }
 
 const TRASH_TYPES = [
@@ -30,6 +31,7 @@ export default function WeightRegistrationForm({
   isGroupWeight = false,
   groupMembers = [],
   currentMemberName,
+  eventOrganization,
 }: WeightRegistrationFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -90,6 +92,7 @@ export default function WeightRegistrationForm({
         trashType,
         notes: notes.trim(),
         registeredBy: 'staff', // TODO: Obtener del usuario logueado
+        eventOrganization,
       }
 
       // Agregar breakdown si se especificó
@@ -159,9 +162,16 @@ export default function WeightRegistrationForm({
             )}
           </div>
         ) : (
-          <p className="text-gray-600">
-            Participante: <span className="font-semibold text-gray-900">{participantName}</span>
-          </p>
+          <div>
+            <p className="text-gray-600">
+              Participante: <span className="font-semibold text-gray-900">{participantName}</span>
+            </p>
+            {eventOrganization && (
+              <p className="text-gray-600 mt-2">
+                Organización: <span className="font-semibold text-cyan-700">🏢 {eventOrganization}</span>
+              </p>
+            )}
+          </div>
         )}
       </div>
 

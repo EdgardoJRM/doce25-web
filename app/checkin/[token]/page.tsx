@@ -299,6 +299,7 @@ export default function CheckInPage() {
               name: member.name || 'Miembro' 
             }))}
             currentMemberName={attendeeInfo.name}
+            eventOrganization={attendeeInfo.eventOrganization}
           />
         </div>
       </div>

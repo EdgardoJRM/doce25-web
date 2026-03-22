@@ -24,6 +24,7 @@ interface RegisterWeightBody {
   trashBreakdown?: TrashBreakdown
   notes?: string
   registeredBy?: string
+  eventOrganization?: string
 }
 
 export const handler = async (
@@ -56,7 +57,7 @@ export const handler = async (
     }
 
     const body: RegisterWeightBody = JSON.parse(event.body || '{}')
-    const { weightCollected, trashType, trashBreakdown, notes, registeredBy } = body
+    const { weightCollected, trashType, trashBreakdown, notes, registeredBy, eventOrganization } = body
 
     // Validaciones
     if (weightCollected === undefined || weightCollected === null) {
@@ -143,6 +144,11 @@ export const handler = async (
       timestamp,
       registeredBy: registrationId,
       registeredByName,
+    }
+
+    // Agregar organización si existe
+    if (eventOrganization) {
+      weightRecord.eventOrganization = eventOrganization
     }
 
     // Solo incluir registrationId o groupId, nunca ambos
