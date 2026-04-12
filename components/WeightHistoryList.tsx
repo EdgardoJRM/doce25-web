@@ -1,5 +1,7 @@
 'use client'
 
+import { getTrashTypeLabel } from '@/lib/trashTypes'
+
 interface WeightRecord {
   weightRecordId: string
   weightCollected: number
@@ -25,6 +27,8 @@ const TRASH_TYPE_EMOJI: Record<string, string> = {
   organic: '🌱',
   mixed: '♻️',
   other: '📦',
+  common: '🗑️',
+  'no-aplica': '🗑️',
 }
 
 export default function WeightHistoryList({
@@ -81,8 +85,8 @@ export default function WeightHistoryList({
                     <div className="font-bold text-xl text-cyan-600">
                       {record.weightCollected.toFixed(1)} lb
                     </div>
-                    <div className="text-sm text-gray-600 capitalize">
-                      {record.trashType === 'mixed' ? 'Mixto' : record.trashType}
+                    <div className="text-sm text-gray-600 line-clamp-2">
+                      {getTrashTypeLabel(record.trashType)}
                     </div>
                   </div>
                 </div>

@@ -28,7 +28,7 @@ interface TrashBreakdown {
 interface Body {
   eventOrganization: string
   weightCollected: number
-  trashType: 'plastic' | 'metal' | 'glass' | 'organic' | 'mixed' | 'other'
+  trashType: string
   trashBreakdown?: TrashBreakdown
   notes?: string
 }

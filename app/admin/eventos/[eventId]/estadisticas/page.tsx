@@ -3,42 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-
-interface TrashBreakdown {
-  plastic?: number
-  metal?: number
-  glass?: number
-  organic?: number
-  other?: number
-}
-
-interface TopParticipant {
-  rank: number
-  name: string
-  weight: number
-  organization: string
-  trashType: string
-  participationType?: string
-}
-
-interface EventStats {
-  eventId: string
-  totalWeight: number
-  participantsCount: number
-  totalRegistrations: number
-  participationRate: number
-  breakdown: TrashBreakdown
-  topParticipants: TopParticipant[]
-  topParticipantsByType?: Record<string, TopParticipant[]>
-  topOrganizations?: Array<{
-    name: string
-    weight: number
-    participantCount: number
-    participationType: string
-  }>
-  trashTypeCounts: Record<string, number>
-  lastUpdated: string
-}
+import type { EventStats } from '@/lib/api'
+import { getTrashTypeLabel } from '@/lib/trashTypes'
 
 const PARTICIPATION_TYPES = {
   individual: { label: '👤 Individual', color: 'bg-blue-100 text-blue-700', emoji: '👤' },
@@ -106,25 +72,29 @@ export default function EstadisticasPage() {
     )
   }
 
-  // Obtener top 3 por tipo de participación
+  // Top 3 real por categoría (viene del API; no filtrar el top 10 global mezclado)
   const getTop3ByParticipationType = (type: string) => {
-    return stats.topParticipants
-      .filter((p) => (p.participationType || 'individual').toLowerCase() === type.toLowerCase())
-      .slice(0, 3)
+    if (type === 'organization') {
+      return stats.topOrganizations?.slice(0, 3) ?? []
+    }
+    const key = type as 'individual' | 'duo' | 'group'
+    return stats.topParticipantsByType?.[key] ?? []
   }
 
-  // Contar participantes por tipo
   const countByParticipationType = (type: string) => {
-    return stats.topParticipants.filter(
-      (p) => (p.participationType || 'individual').toLowerCase() === type.toLowerCase()
-    ).length
+    const t = stats.totalsByParticipationType
+    if (t && type in t) {
+      return t[type as keyof typeof t].count
+    }
+    return getTop3ByParticipationType(type).length
   }
 
-  // Calcular peso total por tipo
   const getTotalWeightByType = (type: string) => {
-    return stats.topParticipants
-      .filter((p) => (p.participationType || 'individual').toLowerCase() === type.toLowerCase())
-      .reduce((sum, p) => sum + p.weight, 0)
+    const t = stats.totalsByParticipationType
+    if (t && type in t) {
+      return t[type as keyof typeof t].totalWeight
+    }
+    return getTop3ByParticipationType(type).reduce((sum, p) => sum + p.weight, 0)
   }
 
   const participationTypes = Object.keys(PARTICIPATION_TYPES)
@@ -228,16 +198,34 @@ export default function EstadisticasPage() {
                             <p className="font-semibold text-gray-900 truncate">
                               {participant.name}
                             </p>
-                            {participant.organization && (
+                            {'organization' in participant && participant.organization ? (
                               <p className="text-xs text-gray-500 truncate">
                                 {participant.organization}
                               </p>
-                            )}
+                            ) : 'participantCount' in participant ? (
+                              <p className="text-xs text-gray-500">
+                                {participant.participantCount} participante
+                                {participant.participantCount !== 1 ? 's' : ''}
+                              </p>
+                            ) : null}
+                            {'trashType' in participant &&
+                              participant.trashType &&
+                              typeof participant.trashType === 'string' && (
+                                <p
+                                  className="text-xs text-gray-400 truncate mt-0.5"
+                                  title={getTrashTypeLabel(participant.trashType)}
+                                >
+                                  {getTrashTypeLabel(participant.trashType)}
+                                </p>
+                              )}
                           </div>
                         </div>
                         <div className="text-right ml-2">
                           <div className="text-lg font-bold text-gray-900">
-                            {participant.weight} lb
+                            {typeof participant.weight === 'number'
+                              ? participant.weight.toFixed(1)
+                              : participant.weight}{' '}
+                            lb
                           </div>
                         </div>
                       </div>
@@ -251,53 +239,6 @@ export default function EstadisticasPage() {
               </div>
             )
           })}
-
-          {/* Organizaciones */}
-          {stats.topOrganizations && stats.topOrganizations.length > 0 && (
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
-                  🏢 Organizaciones
-                </h2>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-gray-900">
-                    {stats.topOrganizations.reduce((sum, org) => sum + org.weight, 0).toFixed(2)} lb
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {stats.topOrganizations.length} organizaciones
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {stats.topOrganizations.slice(0, 3).map((org, index) => (
-                  <div
-                    key={org.name}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
-                  >
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 text-white font-bold text-sm">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 truncate">
-                          {org.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {org.participantCount} participante{org.participantCount !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right ml-2">
-                      <div className="text-lg font-bold text-gray-900">
-                        {org.weight.toFixed(2)} lb
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Resumen por Tipo */}

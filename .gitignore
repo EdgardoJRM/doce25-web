@@ -111,3 +111,6 @@ aws-exports.js
 
 # Fotos grandes - usar hero/ e images/ en public/
 Fotos doce25/
+
+# Salida local del seed E2E (IDs de registro reales)
+scripts/e2e-seed-latest.json

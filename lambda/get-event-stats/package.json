@@ -1,7 +1,6 @@
 {
   "name": "get-event-stats",
   "version": "1.0.0",
-  "type": "module",
   "description": "Lambda function to get event weight statistics",
   "main": "index.js",
   "scripts": {
@@ -9,7 +8,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.511.0",
-    "@aws-sdk/lib-dynamodb": "^3.511.0"
+    "@aws-sdk/lib-dynamodb": "^3.511.0",
+    "esbuild": "^0.24.2"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.131",

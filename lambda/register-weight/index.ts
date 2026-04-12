@@ -20,7 +20,7 @@ interface TrashBreakdown {
 
 interface RegisterWeightBody {
   weightCollected: number
-  trashType: 'plastic' | 'metal' | 'glass' | 'organic' | 'mixed' | 'other'
+  trashType: string
   trashBreakdown?: TrashBreakdown
   notes?: string
   registeredBy?: string

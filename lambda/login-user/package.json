@@ -1,13 +1,13 @@
 {
   "name": "login-user",
   "version": "1.0.0",
-  "type": "module",
   "description": "Lambda function to login users",
   "main": "index.ts",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.540.0",
     "@aws-sdk/lib-dynamodb": "^3.540.0",
     "bcryptjs": "^2.4.3",
+    "esbuild": "^0.24.2",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
@@ -17,5 +17,3 @@
     "typescript": "^5.3.0"
   }
 }
-
-

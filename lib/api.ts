@@ -501,11 +501,30 @@ export interface TrashBreakdown {
 
 export interface RegisterWeightData {
   weightCollected: number
-  trashType: 'plastic' | 'metal' | 'glass' | 'organic' | 'mixed' | 'other'
+  /** Valores del catálogo en lib/trashTypes.ts (Precot + legacy) */
+  trashType: string
   trashBreakdown?: TrashBreakdown
   notes?: string
   registeredBy?: string
   eventOrganization?: string
+}
+
+/** Fila en ranking por tipo (individual / duo / group) */
+export interface EventStatsTopParticipantRow {
+  rank: number
+  name: string
+  weight: number
+  organization: string
+  trashType: string
+  participationType: string
+}
+
+/** Organización acumulada (varios participantes con mismo eventOrganization) */
+export interface EventStatsTopOrganizationRow {
+  name: string
+  weight: number
+  participantCount: number
+  participationType: string
 }
 
 export interface EventStats {
@@ -521,7 +540,23 @@ export interface EventStats {
     weight: number
     organization: string
     trashType: string
+    participationType?: string
   }>
+  /** Top 3 por categoría (personas), calculado en backend */
+  topParticipantsByType?: {
+    individual: EventStatsTopParticipantRow[]
+    duo: EventStatsTopParticipantRow[]
+    group: EventStatsTopParticipantRow[]
+  }
+  /** Top organizaciones por peso acumulado */
+  topOrganizations?: EventStatsTopOrganizationRow[]
+  /** Peso total y cantidad de registros con peso por tipo (todos, no solo top 3) */
+  totalsByParticipationType?: {
+    individual: { totalWeight: number; count: number }
+    duo: { totalWeight: number; count: number }
+    group: { totalWeight: number; count: number }
+    organization: { totalWeight: number; count: number }
+  }
   trashTypeCounts: Record<string, number>
   lastUpdated: string
 }

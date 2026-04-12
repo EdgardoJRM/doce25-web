@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { registerWeight, registerOrganizationWeight, RegisterWeightData } from '@/lib/api'
+import { TRASH_TYPE_FORM_OPTIONS } from '@/lib/trashTypes'
 
 interface WeightRegistrationFormProps {
   /** Omitir si usas organizationOnly (peso sin QR de participante) */
@@ -16,15 +17,6 @@ interface WeightRegistrationFormProps {
   /** Staff: registrar peso solo a nombre de la organización (sin check-in de persona) */
   organizationOnly?: { eventId: string; eventOrganization: string }
 }
-
-const TRASH_TYPES = [
-  { value: 'plastic', label: '🥤 Plástico', emoji: '🥤' },
-  { value: 'metal', label: '🔩 Metal', emoji: '🔩' },
-  { value: 'glass', label: '🍾 Vidrio', emoji: '🍾' },
-  { value: 'organic', label: '🌱 Orgánico', emoji: '🌱' },
-  { value: 'mixed', label: '♻️ Mixto', emoji: '♻️' },
-  { value: 'other', label: '📦 Otro', emoji: '📦' },
-] as const
 
 export default function WeightRegistrationForm({
   registrationId,
@@ -44,7 +36,7 @@ export default function WeightRegistrationForm({
 
   // Form data
   const [weightCollected, setWeightCollected] = useState('')
-  const [trashType, setTrashType] = useState<RegisterWeightData['trashType']>('mixed')
+  const [trashType, setTrashType] = useState<RegisterWeightData['trashType']>('no-aplica')
   const [notes, setNotes] = useState('')
 
   // Breakdown
@@ -234,7 +226,7 @@ export default function WeightRegistrationForm({
             className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-lg"
             required
           >
-            {TRASH_TYPES.map((type) => (
+            {TRASH_TYPE_FORM_OPTIONS.map((type) => (
               <option key={type.value} value={type.value}>
                 {type.label}
               </option>

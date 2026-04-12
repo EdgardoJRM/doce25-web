@@ -92,10 +92,20 @@ export const handler = async (
     // Agrupar por organización (dinámicamente)
     const byOrganization: Record<string, any[]> = {}
 
+    const totalsByParticipationType = {
+      individual: { totalWeight: 0, count: 0 },
+      duo: { totalWeight: 0, count: 0 },
+      group: { totalWeight: 0, count: 0 },
+      organization: { totalWeight: 0, count: 0 },
+    }
+
     withWeight.forEach((r) => {
       const type = (r.participationType || 'individual').toLowerCase()
-      
+      const w = r.weightCollected || 0
+
       if (type === 'organization') {
+        totalsByParticipationType.organization.totalWeight += w
+        totalsByParticipationType.organization.count += 1
         // Agrupar por organización
         const orgName = r.eventOrganization || 'Sin Organización'
         if (!byOrganization[orgName]) {
@@ -103,11 +113,22 @@ export const handler = async (
         }
         byOrganization[orgName].push(r)
       } else {
+        if (totalsByParticipationType[type as keyof typeof totalsByParticipationType]) {
+          const bucket = totalsByParticipationType[type as 'individual' | 'duo' | 'group']
+          bucket.totalWeight += w
+          bucket.count += 1
+        }
         // Agrupar por tipo de participación
         if (byParticipationType[type]) {
           byParticipationType[type].push(r)
         }
       }
+    })
+
+    Object.keys(totalsByParticipationType).forEach((k) => {
+      const key = k as keyof typeof totalsByParticipationType
+      totalsByParticipationType[key].totalWeight =
+        Math.round(totalsByParticipationType[key].totalWeight * 100) / 100
     })
 
     // Crear top participantes por tipo de participación
@@ -174,6 +195,7 @@ export const handler = async (
         topParticipants,
         topParticipantsByType,
         topOrganizations,
+        totalsByParticipationType,
         trashTypeCounts,
         lastUpdated: new Date().toISOString(),
       }),

@@ -18,7 +18,7 @@ interface TrashBreakdown {
 
 interface UpdateWeightBody {
   weightCollected: number
-  trashType: 'plastic' | 'metal' | 'glass' | 'organic' | 'mixed' | 'other'
+  trashType: string
   trashBreakdown?: TrashBreakdown
   notes?: string
   eventOrganization?: string
