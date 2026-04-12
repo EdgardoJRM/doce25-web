@@ -180,13 +180,14 @@ export const handler = async (
       })
     )
 
-    // También actualizar el registro individual con el peso
+    // Acumular el peso en el registro (ADD suma; si no existe, inicializa en 0 + valor)
     const updateParams: any = {
       TableName: TABLES.REGISTRATIONS,
       Key: { registrationId },
-      UpdateExpression: 'SET weightCollected = :weight, trashType = :type, weightRecordedAt = :timestamp',
+      UpdateExpression: 'ADD weightCollected :weight SET trashType = :type, weightRecordedAt = :timestamp, lastWeightAdded = :lastAdded',
       ExpressionAttributeValues: {
         ':weight': weightCollected,
+        ':lastAdded': weightCollected,
         ':type': trashType,
         ':timestamp': timestamp,
       },
