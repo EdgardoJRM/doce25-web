@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import type { EventStats } from '@/lib/api'
 import { getTrashTypeLabel } from '@/lib/trashTypes'
+import { resolveTopOrganizations, resolveTopParticipantsByType } from '@/lib/eventStatsHelpers'
 
 const PARTICIPATION_TYPES = {
   individual: { label: '👤 Individual', color: 'bg-blue-100 text-blue-700', emoji: '👤' },
@@ -19,6 +20,15 @@ export default function EstadisticasPage() {
   const [stats, setStats] = useState<EventStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const topByParticipation = useMemo(
+    () => (stats ? resolveTopParticipantsByType(stats) : null),
+    [stats]
+  )
+  const topOrgsResolved = useMemo(
+    () => (stats ? resolveTopOrganizations(stats) : []),
+    [stats]
+  )
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -72,13 +82,13 @@ export default function EstadisticasPage() {
     )
   }
 
-  // Top 3 real por categoría (viene del API; no filtrar el top 10 global mezclado)
+  // Top 3 por categoría: API + fallback si la Lambda antigua no envía topParticipantsByType
   const getTop3ByParticipationType = (type: string) => {
     if (type === 'organization') {
-      return stats.topOrganizations?.slice(0, 3) ?? []
+      return topOrgsResolved.slice(0, 3)
     }
     const key = type as 'individual' | 'duo' | 'group'
-    return stats.topParticipantsByType?.[key] ?? []
+    return topByParticipation?.[key] ?? []
   }
 
   const countByParticipationType = (type: string) => {

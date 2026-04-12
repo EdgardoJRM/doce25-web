@@ -16,6 +16,22 @@ interface TrashBreakdown {
   other?: number
 }
 
+type ParticipationKind = 'individual' | 'duo' | 'group' | 'organization'
+
+/** Alinea valores guardados en Dynamo (ES/EN, mayúsculas) con las claves del ranking. */
+function normalizeParticipationType(raw: unknown): ParticipationKind {
+  const s = String(raw ?? 'individual')
+    .trim()
+    .toLowerCase()
+  if (!s) return 'individual'
+  const deAcc = s.normalize('NFD').replace(/\p{M}/gu, '')
+  if (deAcc === 'organizacion' || s === 'organización' || s === 'organization') return 'organization'
+  if (deAcc === 'grupo' || s === 'group') return 'group'
+  if (s === 'duo' || deAcc === 'duo') return 'duo'
+  if (s === 'individual') return 'individual'
+  return 'individual'
+}
+
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -100,7 +116,7 @@ export const handler = async (
     }
 
     withWeight.forEach((r) => {
-      const type = (r.participationType || 'individual').toLowerCase()
+      const type = normalizeParticipationType(r.participationType)
       const w = r.weightCollected || 0
 
       if (type === 'organization') {
@@ -113,14 +129,14 @@ export const handler = async (
         }
         byOrganization[orgName].push(r)
       } else {
-        if (totalsByParticipationType[type as keyof typeof totalsByParticipationType]) {
-          const bucket = totalsByParticipationType[type as 'individual' | 'duo' | 'group']
+        const tKey = type as 'individual' | 'duo' | 'group'
+        if (totalsByParticipationType[tKey]) {
+          const bucket = totalsByParticipationType[tKey]
           bucket.totalWeight += w
           bucket.count += 1
         }
-        // Agrupar por tipo de participación
-        if (byParticipationType[type]) {
-          byParticipationType[type].push(r)
+        if (byParticipationType[tKey]) {
+          byParticipationType[tKey].push(r)
         }
       }
     })

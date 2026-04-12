@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import {
   getEventStats,
@@ -11,6 +11,7 @@ import {
 } from '@/lib/api'
 import Link from 'next/link'
 import { getTrashTypeLabel } from '@/lib/trashTypes'
+import { resolveTopOrganizations, resolveTopParticipantsByType } from '@/lib/eventStatsHelpers'
 
 const MEDALS = ['🥇', '🥈', '🥉']
 
@@ -125,6 +126,15 @@ export default function EventStatsPage() {
 
     return () => clearInterval(interval)
   }, [eventData])
+
+  const topByParticipation = useMemo(
+    () => (stats ? resolveTopParticipantsByType(stats) : null),
+    [stats]
+  )
+  const topOrgsResolved = useMemo(
+    () => (stats ? resolveTopOrganizations(stats) : []),
+    [stats]
+  )
 
   const handleRefresh = async () => {
     if (!eventData?.eventId) return
@@ -283,30 +293,32 @@ export default function EventStatsPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">🏆 Top 3 por categoría</h2>
               <p className="text-gray-600 mb-6 text-sm">
                 Individual, dúo, grupo (hasta 3 personas) y organizaciones (peso acumulado por org).
+                Si una categoría aparece vacía, no hay registros de peso con ese tipo de participación
+                (por ejemplo, solo verás ranking en Organizaciones si casi todos registraron como org).
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <CategoryTopThree
                   title="Individual"
                   subtitle="Una persona por registro"
-                  rows={stats.topParticipantsByType?.individual ?? []}
+                  rows={topByParticipation?.individual ?? []}
                   variant="person"
                 />
                 <CategoryTopThree
                   title="Dúo"
                   subtitle="Tú + 1 integrante"
-                  rows={stats.topParticipantsByType?.duo ?? []}
+                  rows={topByParticipation?.duo ?? []}
                   variant="person"
                 />
                 <CategoryTopThree
                   title="Grupo"
                   subtitle="Hasta 3 personas en total"
-                  rows={stats.topParticipantsByType?.group ?? []}
+                  rows={topByParticipation?.group ?? []}
                   variant="person"
                 />
                 <CategoryTopThree
                   title="Organizaciones"
                   subtitle="Peso total por organización"
-                  rows={(stats.topOrganizations ?? []).slice(0, 3)}
+                  rows={topOrgsResolved.slice(0, 3)}
                   variant="org"
                 />
               </div>
