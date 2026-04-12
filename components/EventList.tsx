@@ -99,12 +99,18 @@ export function EventList() {
               </div>
             </div>
           </Link>
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-6 flex flex-col gap-2">
             <Link
               href={`/eventos/${event.slug}`}
               className="block w-full text-center bg-cyan-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-cyan-700 transition"
             >
               Registrarse
+            </Link>
+            <Link
+              href={`/eventos/${event.slug}/estadisticas`}
+              className="block w-full text-center border-2 border-amber-500 text-amber-800 bg-amber-50 px-4 py-2 rounded-lg font-semibold hover:bg-amber-100 transition"
+            >
+              Ver estadísticas en vivo
             </Link>
           </div>
         </div>

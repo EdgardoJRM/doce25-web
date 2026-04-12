@@ -96,10 +96,13 @@ export default function EventStatsPage() {
           </Link>
 
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              📊 Estadísticas en Vivo
-            </h1>
-            <p className="text-xl text-gray-600 mb-4">{eventData.name}</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-cyan-600 mb-2">
+              Estadísticas en vivo
+            </p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{eventData.name}</h1>
+            <p className="text-lg text-gray-600 mb-4">
+              Peso recogido, participación y ranking público de este evento.
+            </p>
 
             <div className="flex items-center gap-4 text-sm text-gray-500">
               <span className="flex items-center gap-2">

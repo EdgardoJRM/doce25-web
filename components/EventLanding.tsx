@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Image from 'next/image'
 import { EventRegistrationForm } from './EventRegistrationForm'
 import { getEventBySlug } from '@/lib/api'
@@ -162,6 +163,12 @@ export function EventLanding({ eventSlug }: EventLandingProps) {
               >
                 🎯 Registrarme al Evento
               </button>
+              <Link
+                href={`/eventos/${event.slug}/estadisticas`}
+                className="inline-flex items-center justify-center bg-amber-500 text-white px-8 py-4 rounded-lg font-semibold hover:bg-amber-600 transition shadow-lg hover:shadow-xl"
+              >
+                📊 Ver estadísticas públicas
+              </Link>
               <button
                 onClick={copyToClipboard}
                 className="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-6 py-4 rounded-lg font-semibold hover:bg-white/20 transition shadow-lg hover:shadow-xl flex items-center gap-2"
