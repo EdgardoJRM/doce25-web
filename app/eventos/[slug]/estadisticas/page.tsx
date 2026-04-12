@@ -243,41 +243,6 @@ export default function EventStatsPage() {
               </div>
             </div>
 
-            {/* Desglose por Tipo */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Desglose por Tipo de Basura</h2>
-
-              <div className="space-y-4">
-                {[
-                  { type: 'plastic', label: '🥤 Plástico', color: 'bg-blue-500' },
-                  { type: 'metal', label: '🔩 Metal', color: 'bg-gray-500' },
-                  { type: 'glass', label: '🍾 Vidrio', color: 'bg-green-500' },
-                  { type: 'organic', label: '🌱 Orgánico', color: 'bg-green-700' },
-                  { type: 'other', label: '📦 Otro', color: 'bg-purple-500' },
-                ].map(({ type, label, color }) => {
-                  const weight = stats.breakdown[type as keyof typeof stats.breakdown] || 0
-                  const percentage = stats.totalWeight > 0 ? (weight / stats.totalWeight) * 100 : 0
-
-                  return (
-                    <div key={type}>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm font-semibold text-gray-700">{label}</span>
-                        <span className="text-sm font-bold text-gray-900">
-                          {weight.toFixed(1)} lb ({percentage.toFixed(1)}%)
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                          className={`${color} h-3 rounded-full transition-all duration-500`}
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
             {/* Top 3 por categoría de participación */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">🏆 Top 3 por categoría</h2>
