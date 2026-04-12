@@ -112,33 +112,12 @@ export default function GroupFormation({
   const fetchOrganizations = async () => {
     try {
       setLoadingOrgs(true)
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/events/${eventId}/organizations`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-
-      if (response.ok) {
-        const data = await response.json()
-        const fetchedOrgs = data.organizations || []
-        
-        // Combinar organizaciones predefinidas con las obtenidas del servidor
-        const allOrgs = Array.from(
-          new Set([...PREDEFINED_ORGANIZATIONS, ...fetchedOrgs])
-        ).sort()
-        
-        setOrganizations(allOrgs)
-        setFilteredOrganizations(allOrgs)
-      } else {
-        // Si hay error, al menos mostrar las predefinidas
-        setOrganizations(PREDEFINED_ORGANIZATIONS)
-        setFilteredOrganizations(PREDEFINED_ORGANIZATIONS)
-      }
+      // Usar únicamente la lista canónica predefinida para evitar variantes
+      // sucias provenientes de entradas libres en DynamoDB
+      setOrganizations(PREDEFINED_ORGANIZATIONS)
+      setFilteredOrganizations(PREDEFINED_ORGANIZATIONS)
     } catch (err) {
-      console.error('Error fetching organizations:', err)
-      // Si hay error, al menos mostrar las predefinidas
+      console.error('Error loading organizations:', err)
       setOrganizations(PREDEFINED_ORGANIZATIONS)
       setFilteredOrganizations(PREDEFINED_ORGANIZATIONS)
     } finally {
