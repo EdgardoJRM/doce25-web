@@ -72,7 +72,7 @@ export default function GroupFormation({
       const org = initialEventOrganization?.trim() || currentOrganization?.trim() || ''
       if (org) {
         setOrgName(org)
-        setOrgSearchQuery('')
+        setOrgSearchQuery(org)
       }
     }
     if (
@@ -148,8 +148,8 @@ export default function GroupFormation({
 
   const selectOrganization = (org: string) => {
     setOrgName(org)
+    setOrgSearchQuery(org)
     setShowOrgDropdown(false)
-    setOrgSearchQuery('')
   }
 
   const createNewOrganization = async () => {
@@ -180,8 +180,8 @@ export default function GroupFormation({
 
         // Seleccionar la nueva organización
         setOrgName(newOrgName)
+        setOrgSearchQuery(newOrgName)
         setShowOrgDropdown(false)
-        setOrgSearchQuery('')
         setShowCreateButton(false)
       } else {
         setScanError('Error al crear la organización')
@@ -368,13 +368,14 @@ export default function GroupFormation({
     }
 
     if (selectedType === 'organization') {
-      if (!orgName.trim()) {
+      const orgChosen = orgSearchQuery.trim()
+      if (!orgChosen) {
         setScanError('Ingresa el nombre de la organización')
         return
       }
       onComplete({
         participationType: 'organization',
-        eventOrganization: orgName.trim(),
+        eventOrganization: orgChosen,
       })
       return
     }
@@ -449,7 +450,12 @@ export default function GroupFormation({
           </button>
 
           <button
-            onClick={() => setSelectedType('organization')}
+            onClick={() => {
+              const seed = (currentOrganization || orgName || '').trim()
+              setSelectedType('organization')
+              setOrgSearchQuery(seed)
+              setOrgName(seed)
+            }}
             className={`p-6 border-2 rounded-xl transition-all text-left ${
               hasRegistrationOrganization
                 ? 'border-cyan-600 bg-cyan-50 ring-2 ring-cyan-200 hover:bg-cyan-100'
@@ -501,7 +507,7 @@ export default function GroupFormation({
                   <input
                     type="text"
                     id="orgName"
-                    value={orgSearchQuery || orgName}
+                    value={orgSearchQuery}
                     onChange={(e) => {
                       setOrgSearchQuery(e.target.value)
                       setShowOrgDropdown(true)
@@ -551,7 +557,7 @@ export default function GroupFormation({
                                   type="button"
                                   onClick={() => selectOrganization(org)}
                                   className={`w-full text-left px-4 py-3 hover:bg-cyan-50 border-b border-gray-100 last:border-b-0 ${
-                                    orgName === org ? 'bg-cyan-100 font-semibold' : ''
+                                    orgSearchQuery.trim() === org ? 'bg-cyan-100 font-semibold' : ''
                                   }`}
                                 >
                                   {org}
@@ -574,7 +580,7 @@ export default function GroupFormation({
               </div>
             </div>
 
-            {currentOrganization && !orgName && (
+            {currentOrganization && !orgSearchQuery.trim() && (
               <p className="text-xs text-cyan-600 mt-2">
                 💡 Tu organización es: <strong>{currentOrganization}</strong>
               </p>

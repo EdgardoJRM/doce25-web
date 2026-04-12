@@ -444,7 +444,10 @@ export default function ScannerPage() {
             participantName={selectedParticipant.name}
             onSuccess={handleWeightSuccess}
             onCancel={handleWeightCancel}
-            isGroupWeight={!!selectedParticipant.groupId}
+            isGroupWeight={
+              !!selectedParticipant.groupId &&
+              selectedParticipant.participationType !== 'organization'
+            }
             groupMembers={
               selectedParticipant.groupMembers
                 ? (selectedParticipant.groupMembers as string[]).map((id) => ({

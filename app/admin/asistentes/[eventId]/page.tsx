@@ -245,7 +245,10 @@ export default function AdminAsistentesPage() {
           participantName={selectedAttendee.fullName || selectedAttendee.name}
           onSuccess={handleWeightSuccess}
           onCancel={handleWeightCancel}
-          isGroupWeight={!!selectedAttendee.groupId}
+          isGroupWeight={
+            !!selectedAttendee.groupId &&
+            selectedAttendee.participationType !== 'organization'
+          }
           groupMembers={normalizeGroupMembersForWeightForm(
             selectedAttendee.groupMembers,
             registrationDisplayNameMap

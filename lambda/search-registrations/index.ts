@@ -92,6 +92,7 @@ export const handler = async (
       groupId: reg.groupId ?? null,
       groupMembers: reg.groupMembers ?? null,
       eventOrganization: reg.eventOrganization ?? null,
+      participationType: reg.participationType ?? null,
     }))
 
     return {

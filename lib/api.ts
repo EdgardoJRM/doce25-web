@@ -538,6 +538,7 @@ export interface SearchResult {
   groupId?: string | null
   groupMembers?: string[] | null
   eventOrganization?: string | null
+  participationType?: string | null
 }
 
 // Registrar peso de un participante
