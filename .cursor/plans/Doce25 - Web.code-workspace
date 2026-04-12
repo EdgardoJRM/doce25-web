@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "../.."
+		},
+		{
+			"path": "../../../DOCE25/Precot"
 		}
 	],
 	"settings": {}
