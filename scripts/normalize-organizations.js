@@ -62,6 +62,7 @@ const NORMALIZATION_MAP = {
 
   // Colegio de La Salle
   'Colegio De La Salle':                                              'Colegio de La Salle',
+  'Colegio de la Salle':                                              'Colegio de La Salle',
   'Colegio de la salle':                                              'Colegio de La Salle',
   'La Salle':                                                         'Colegio de La Salle',
 
@@ -117,6 +118,7 @@ const NORMALIZATION_MAP = {
 
   // MedLife UAGM
   'Medlife UAGM - Gurabo':                                            'MedLife UAGM - Gurabo',
+  'Medlife UAGM - gurabo':                                            'MedLife UAGM - Gurabo',
 
   // MedLife UIPR
   'Medlife UIPR metro':                                               'MedLife UIPR Metro',
