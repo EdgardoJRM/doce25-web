@@ -29,81 +29,139 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: REGION }
 // valor  = nombre canónico al que se migra
 const NORMALIZATION_MAP = {
   // AAPEDS
-  'AAPEDS- Rio Piedras':                         'AAPEDS - Río Piedras',
+  'AAPEDS- Rio Piedras':                                              'AAPEDS - Río Piedras',
+  'AAPEDS - Rio Piedras':                                             'AAPEDS - Río Piedras',
+
+  // Acción Social
+  'Acción Social desde la Psicologia':                                'Acción Social desde la Psicología UPR Río Piedras',
+  'Acción Social desde la Psicología UPR Rio Piedras':               'Acción Social desde la Psicología UPR Río Piedras',
+
+  // ACS
+  'ACS-UPRRP':                                                        'ACS - UPRRP',
+
+  // AESA
+  'AESA- Asociación Estudiantil de Salud Ambiental (UPR-Ciencias Médicas)': 'AESA - Ciencias Médicas',
+  'AESA-Recinto de Ciencias Médicas':                                 'AESA - Ciencias Médicas',
 
   // AESPUG
-  'AESPUG':                                      'AESPUG - RCM',
-  'AESPUG -Recinto de Ciencias Medicas':         'AESPUG - RCM',
-  'AESPUG RCM':                                  'AESPUG - RCM',
-  'AESPUG-RCM':                                  'AESPUG - RCM',
+  'AESPUG':                                                           'AESPUG - RCM',
+  'AESPUG -Recinto de Ciencias Medicas':                              'AESPUG - RCM',
+  'AESPUG RCM':                                                       'AESPUG - RCM',
+  'AESPUG-RCM':                                                       'AESPUG - RCM',
+
+  // AMSA Intermetro
+  'AMSA Intermetro':                                                  'AMSA Universidad Interamericana Metro',
+  'AMSA Universidad Interamericana de Puerto Rico / Metro':           'AMSA Universidad Interamericana Metro',
+  'AMSA universidad Interamericana recinto Metro':                    'AMSA Universidad Interamericana Metro',
+
+  // APPR
+  'APPR Río Piedras':                                                 'APPR - Río Piedras',
+
+  // Baristas
+  'Baristas del Caribe(Starbucks)- Los Colobos, Carolina':           'Baristas del Caribe (Starbucks) - Los Colobos, Carolina',
 
   // Colegio de La Salle
-  'Colegio De La Salle':                         'Colegio de La Salle',
-  'Colegio de la salle':                         'Colegio de La Salle',
-  'La Salle':                                    'Colegio de La Salle',
+  'Colegio De La Salle':                                              'Colegio de La Salle',
+  'Colegio de la salle':                                              'Colegio de La Salle',
+  'La Salle':                                                         'Colegio de La Salle',
 
   // CPM
-  'CPM- Mayagüez':                               'CPM - UPR Mayagüez',
-  'CPM- UPR Mayagüez':                           'CPM - UPR Mayagüez',
+  'CPM- Mayagüez':                                                    'CPM - UPR Mayagüez',
+  'CPM- UPR Mayagüez':                                               'CPM - UPR Mayagüez',
+
+  // Cupeyville
+  'Cupeyville School (horas comunitarias)':                           'Cupeyville School',
+
+  // DECA
+  'DECA UAGM cupey':                                                  'DECA UAGM Cupey',
 
   // Escuela Pedro Falú
-  'Escuela Pedro falu orellano':                 'Escuela Pedro Falú Orellano',
-  'Escuela pedro falu ..rio grande':             'Escuela Pedro Falú Orellano',
+  'Escuela Pedro falu orellano':                                      'Escuela Pedro Falú Orellano',
+  'Escuela pedro falu ..rio grande':                                  'Escuela Pedro Falú Orellano',
+
+  // Escuela Segundo Ruiz
+  'Escuela Segundo Ruiz Belvis (para horas verdes)':                 'Escuela Segundo Ruiz Belvis',
 
   // FPA UPRRP
-  'FPA UPRRP':                                   'FPA - UPRRP',
-  'FPA- UPR Rio Piedras':                        'FPA - UPRRP',
-  'FPA- UPRRP':                                  'FPA - UPRRP',
+  'FPA UPRRP':                                                        'FPA - UPRRP',
+  'FPA- UPR Rio Piedras':                                             'FPA - UPRRP',
+  'FPA- UPRRP':                                                       'FPA - UPRRP',
 
   // HOSA
-  'HOSA':                                        'HOSA - UPRRP',
-  'HOSA-UPRRP':                                  'HOSA - UPRRP',
+  'HOSA':                                                             'HOSA - UPRRP',
+  'HOSA-UPRRP':                                                       'HOSA - UPRRP',
 
   // Hortus
-  'Hortus, sociedad de honor':                   'Hortus',
+  'HORTUS':                                                           'Hortus',
+  'Hortus, sociedad de honor':                                        'Hortus',
+  'Capitulo Hortus- NHS':                                             'Capítulo Hortus - NHS',
+  'Capitulo Hortus de la Sociedad Nacional de Honor de la.Escuela Superior University Gardens.': 'Capítulo Hortus de University Gardens',
 
   // IRP
-  'IRP- Plus':                                   'IRP+',
+  'IRP- Plus':                                                        'IRP+',
 
-  // MedLife Inter Metro (12 variantes)
-  'MED LIFE Inter metro':                        'MedLife Inter Metro',
-  'MEDLIFE INTER METRO':                         'MedLife Inter Metro',
-  'MEDLIFE Inter Metro':                         'MedLife Inter Metro',
-  'MEDLIFE Intermetro':                          'MedLife Inter Metro',
-  'Med Life Inter Metro':                        'MedLife Inter Metro',
-  'Med life Intermetro':                         'MedLife Inter Metro',
-  'MedLife Capítulo Metro':                      'MedLife Inter Metro',
-  'Medlife - Inter Recinto Metro':               'MedLife Inter Metro',
-  'Medlife Inter Metro':                         'MedLife Inter Metro',
-  'Medlife Inter metro':                         'MedLife Inter Metro',
-  'Medlife InterMetro':                          'MedLife Inter Metro',
-  'Medlife Intermetro':                          'MedLife Inter Metro',
-  'Medlife inter metro':                         'MedLife Inter Metro',
+  // MedLife Inter Metro
+  'MED LIFE Inter metro':                                             'MedLife Inter Metro',
+  'MEDLIFE INTER METRO':                                              'MedLife Inter Metro',
+  'MEDLIFE Inter Metro':                                              'MedLife Inter Metro',
+  'MEDLIFE Intermetro':                                               'MedLife Inter Metro',
+  'Med Life Inter Metro':                                             'MedLife Inter Metro',
+  'Med life Intermetro':                                              'MedLife Inter Metro',
+  'MedLife Capítulo Metro':                                           'MedLife Inter Metro',
+  'Medlife - Inter Recinto Metro':                                    'MedLife Inter Metro',
+  'Medlife Inter Metro':                                              'MedLife Inter Metro',
+  'Medlife Inter metro':                                              'MedLife Inter Metro',
+  'Medlife InterMetro':                                               'MedLife Inter Metro',
+  'Medlife Intermetro':                                               'MedLife Inter Metro',
+  'Medlife inter metro':                                              'MedLife Inter Metro',
 
-  // Neuroboricuas Río Piedras (7 variantes)
-  'NeuroBoricuas UPR Río Piedras':              'Neuroboricuas UPR - Río Piedras',
-  'NeuroBoricuas UPRRP':                         'Neuroboricuas UPR - Río Piedras',
-  'Neuroboricuas UPR Río Piedras':              'Neuroboricuas UPR - Río Piedras',
-  'Neuroboricuas UPRRP':                         'Neuroboricuas UPR - Río Piedras',
-  'Neuroboricuas rio piedras':                   'Neuroboricuas UPR - Río Piedras',
-  'Neuroboricuas- Rio Piedras':                  'Neuroboricuas UPR - Río Piedras',
-  'Neuroboricuas- UPR Rio Piedras':              'Neuroboricuas UPR - Río Piedras',
+  // MedLife UAGM
+  'Medlife UAGM - Gurabo':                                            'MedLife UAGM - Gurabo',
+
+  // MedLife UIPR
+  'Medlife UIPR metro':                                               'MedLife UIPR Metro',
+
+  // MedLife UPR Cayey
+  'Medlife UPR - Cayey':                                              'MedLife UPR - Cayey',
+
+  // MedLife UPR Río Piedras
+  'Medlife UPR - Rio Piedras':                                        'MedLife UPR - Río Piedras',
+
+  // Neuroboricuas Río Piedras
+  'NeuroBoricuas UPR Río Piedras':                                   'Neuroboricuas UPR - Río Piedras',
+  'NeuroBoricuas UPRRP':                                              'Neuroboricuas UPR - Río Piedras',
+  'Neuroboricuas UPR Río Piedras':                                   'Neuroboricuas UPR - Río Piedras',
+  'Neuroboricuas UPRRP':                                              'Neuroboricuas UPR - Río Piedras',
+  'Neuroboricuas rio piedras':                                        'Neuroboricuas UPR - Río Piedras',
+  'Neuroboricuas- Rio Piedras':                                       'Neuroboricuas UPR - Río Piedras',
+  'Neuroboricuas- UPR Rio Piedras':                                   'Neuroboricuas UPR - Río Piedras',
+
+  // ONU
+  'Organizacióm de las Naciones Unidas (Onu)':                       'Organización de las Naciones Unidas (ONU)',
+
+  // Pre Vet
+  'Pre Vet student association Rio Piedras':                          'Pre Vet Student Association Río Piedras',
+
+  // PRPDA
+  'Prpda inter metro':                                                'PRPDA Intermetro',
 
   // PVSA
-  'PVSAUPRRP':                                   'PVSA - UPRRP',
+  'PVSA':                                                             'PVSA - UPRRP',
+  'PVSAUPRRP':                                                        'PVSA - UPRRP',
 
-  // Sociedad de Honor Junior - Fidei
-  'Junior Honor society- Fidei':                 'Sociedad de Honor Junior - Fidei',
+  // Sociedad de Honor Junior
+  'Junior Honor society- Fidei':                                      'Sociedad de Honor Junior - Fidei',
+  'Sociedad de Honor Junior capitulo- Fidei':                        'Sociedad de Honor Junior - Fidei',
 
   // Sociedad Eco-Ambiental
-  'Sociedad Eco Ambiental (SEA)':               'Sociedad Eco-Ambiental UPRRP',
+  'Sociedad Eco Ambiental (SEA)':                                    'Sociedad Eco-Ambiental UPRRP',
 
   // University Gardens
-  'University Gardens Highschool':               'University Gardens High School',
+  'University Gardens Highschool':                                    'University Gardens High School',
 
   // Veterinary UAGM
-  'Veterinary Technology Community':             'Vet-Tech Community UAGM - Gurabo',
-  'Veterinary Tecnology Community UAGM \u2014Gurabo': 'Vet-Tech Community UAGM - Gurabo',
+  'Veterinary Technology Community':                                  'Vet-Tech Community UAGM - Gurabo',
+  'Veterinary Tecnology Community UAGM \u2014Gurabo':                'Vet-Tech Community UAGM - Gurabo',
 }
 
 async function getAllRegistrations() {
