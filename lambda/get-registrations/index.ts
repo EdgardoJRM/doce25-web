@@ -5,7 +5,7 @@ import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const TABLES = {
-  REGISTRATIONS: 'Dosce25-Registrations',
+  REGISTRATIONS: process.env.REGISTRATIONS_TABLE || 'Dosce25-Registrations',
 }
 
 export const handler = async (

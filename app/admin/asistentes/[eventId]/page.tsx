@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import { getRegistrations, manualCheckIn, searchRegistrations, registerWeight } from '@/lib/api'
 import WeightRegistrationForm from '@/components/WeightRegistrationForm'
@@ -16,7 +16,32 @@ interface Attendee {
   participationType?: string
   weightCollected?: number
   groupId?: string
-  groupMembers?: Array<{ registrationId: string; name: string }>
+  /** Dynamo guarda string[]; el form espera objetos con nombre */
+  groupMembers?: string[] | Array<{ registrationId: string; name: string }>
+  eventOrganization?: string
+  fullName?: string
+}
+
+/** groupMembers en Dynamo es string[] de IDs; resolvemos nombres desde el listado del evento */
+function normalizeGroupMembersForWeightForm(
+  groupMembers: unknown,
+  registrationIdToDisplayName: Map<string, string>
+): Array<{ registrationId: string; name: string }> {
+  if (!groupMembers || !Array.isArray(groupMembers)) return []
+  return groupMembers.map((m: unknown) => {
+    if (typeof m === 'string') {
+      return {
+        registrationId: m,
+        name: registrationIdToDisplayName.get(m) || 'Integrante',
+      }
+    }
+    const o = m as { registrationId?: string; name?: string }
+    const id = o.registrationId || ''
+    return {
+      registrationId: id,
+      name: o.name || registrationIdToDisplayName.get(id) || 'Integrante',
+    }
+  })
 }
 
 interface Stats {
@@ -41,6 +66,18 @@ export default function AdminAsistentesPage() {
   const [searching, setSearching] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [selectedAttendee, setSelectedAttendee] = useState<Attendee | null>(null)
+
+  const registrationDisplayNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    const add = (a: Attendee) => {
+      m.set(a.registrationId, a.fullName || a.name || 'Integrante')
+    }
+    attendees.forEach(add)
+    filteredAttendees.forEach((a) => {
+      if (!m.has(a.registrationId)) add(a)
+    })
+    return m
+  }, [attendees, filteredAttendees])
 
   useEffect(() => {
     async function fetchRegistrations() {
@@ -205,12 +242,16 @@ export default function AdminAsistentesPage() {
 
         <WeightRegistrationForm
           registrationId={selectedAttendee.registrationId}
-          participantName={selectedAttendee.name}
+          participantName={selectedAttendee.fullName || selectedAttendee.name}
           onSuccess={handleWeightSuccess}
           onCancel={handleWeightCancel}
           isGroupWeight={!!selectedAttendee.groupId}
-          groupMembers={selectedAttendee.groupMembers || []}
-          currentMemberName={selectedAttendee.name}
+          groupMembers={normalizeGroupMembersForWeightForm(
+            selectedAttendee.groupMembers,
+            registrationDisplayNameMap
+          )}
+          currentMemberName={selectedAttendee.fullName || selectedAttendee.name}
+          eventOrganization={selectedAttendee.eventOrganization}
         />
       </div>
     )

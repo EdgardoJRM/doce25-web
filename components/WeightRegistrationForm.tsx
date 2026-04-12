@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { registerWeight, RegisterWeightData } from '@/lib/api'
+import { registerWeight, registerOrganizationWeight, RegisterWeightData } from '@/lib/api'
 
 interface WeightRegistrationFormProps {
-  registrationId: string
+  /** Omitir si usas organizationOnly (peso sin QR de participante) */
+  registrationId?: string
   participantName: string
   onSuccess: () => void
   onCancel: () => void
@@ -12,6 +13,8 @@ interface WeightRegistrationFormProps {
   groupMembers?: Array<{ name: string; registrationId: string }>
   currentMemberName?: string
   eventOrganization?: string
+  /** Staff: registrar peso solo a nombre de la organización (sin check-in de persona) */
+  organizationOnly?: { eventId: string; eventOrganization: string }
 }
 
 const TRASH_TYPES = [
@@ -32,6 +35,7 @@ export default function WeightRegistrationForm({
   groupMembers = [],
   currentMemberName,
   eventOrganization,
+  organizationOnly,
 }: WeightRegistrationFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -92,7 +96,7 @@ export default function WeightRegistrationForm({
         trashType,
         notes: notes.trim(),
         registeredBy: 'staff', // TODO: Obtener del usuario logueado
-        eventOrganization,
+        eventOrganization: organizationOnly?.eventOrganization ?? eventOrganization,
       }
 
       // Agregar breakdown si se especificó
@@ -106,7 +110,18 @@ export default function WeightRegistrationForm({
         }
       }
 
-      await registerWeight(registrationId, data)
+      if (organizationOnly) {
+        await registerOrganizationWeight(organizationOnly.eventId, {
+          ...data,
+          eventOrganization: organizationOnly.eventOrganization,
+        })
+      } else if (registrationId) {
+        await registerWeight(registrationId, data)
+      } else {
+        setError('Falta el registro del participante')
+        setLoading(false)
+        return
+      }
       setShowSuccess(true)
       
       // Llamar a onSuccess después de mostrar el mensaje por 2 segundos
@@ -140,9 +155,18 @@ export default function WeightRegistrationForm({
 
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          {isGroupWeight ? '⚖️ Registro de Peso Grupal' : '⚖️ Registrar Peso de Basura'}
+          {organizationOnly
+            ? '⚖️ Peso por organización (sin QR)'
+            : isGroupWeight
+              ? '⚖️ Registro de Peso Grupal'
+              : '⚖️ Registrar Peso de Basura'}
         </h2>
-        {isGroupWeight ? (
+        {organizationOnly ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-900 text-sm">
+            El peso se suma al grupo de <strong>{organizationOnly.eventOrganization}</strong>. No está
+            ligado a una persona en particular (útil cuando no hay QR).
+          </div>
+        ) : isGroupWeight ? (
           <div>
             <p className="text-gray-600 mb-3">
               <strong>{currentMemberName || participantName}</strong> está registrando peso para

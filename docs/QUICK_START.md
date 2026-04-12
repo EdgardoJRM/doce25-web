@@ -73,7 +73,7 @@ Puedes probar el frontend localmente sin configurar AWS. Las llamadas a la API f
    Abre http://localhost:3000
 
 2. **Desplegar Backend (Lambda + DynamoDB + S3):**
-   - Sigue las instrucciones en `DEPLOYMENT.md`
+   - Sigue las instrucciones en `docs/ops/DEPLOYMENT.md`
    - Usa `sam build && sam deploy --guided`
 
 3. **Configurar Cognito:**
@@ -100,7 +100,7 @@ Puedes probar el frontend localmente sin configurar AWS. Las llamadas a la API f
 ## 📚 Documentación Adicional
 
 - `README.md` - Información general del proyecto
-- `DEPLOYMENT.md` - Guía completa de despliegue en AWS
+- `docs/ops/DEPLOYMENT.md` - Guía completa de despliegue en AWS
 - `package.json` - Dependencias y scripts disponibles
 
 

@@ -57,6 +57,9 @@ export const handler = async (
       if (r.organization && r.organization.trim()) {
         organizationsSet.add(r.organization.trim())
       }
+      if (r.eventOrganization && String(r.eventOrganization).trim()) {
+        organizationsSet.add(String(r.eventOrganization).trim())
+      }
     })
 
     const organizations = Array.from(organizationsSet).sort()

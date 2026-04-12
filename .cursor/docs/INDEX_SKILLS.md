@@ -3,7 +3,7 @@
 ## 🎯 Comienza Aquí
 
 ### Para Inicio Rápido
-👉 **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Comandos y referencias rápidas
+👉 **[QUICK_REFERENCE.md](../../docs/QUICK_REFERENCE.md)** - Comandos y referencias rápidas
 
 ### Para Entender Todo
 👉 **[README_SKILLS.md](README_SKILLS.md)** - Resumen general y guía de inicio

@@ -535,6 +535,9 @@ export interface SearchResult {
   checkedOut: boolean
   weightCollected: number | null
   phone: string
+  groupId?: string | null
+  groupMembers?: string[] | null
+  eventOrganization?: string | null
 }
 
 // Registrar peso de un participante
@@ -553,7 +556,40 @@ export async function registerWeight(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Error registrando peso' }))
-    throw new Error(error.message || 'Error registrando peso')
+    const msg =
+      (error && typeof error === 'object' && 'message' in error && error.message) ||
+      (error && typeof error === 'object' && 'error' in error && error.error) ||
+      'Error registrando peso'
+    throw new Error(String(msg))
+  }
+
+  return response.json()
+}
+
+/** Peso solo a nombre de organización (sin QR de participante) — staff */
+export async function registerOrganizationWeight(
+  eventId: string,
+  data: RegisterWeightData & { eventOrganization: string }
+) {
+  const { eventOrganization, ...rest } = data
+  const response = await fetch(
+    `${API_ENDPOINT}/events/${eventId}/register-organization-weight`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventOrganization,
+        weightCollected: rest.weightCollected,
+        trashType: rest.trashType,
+        trashBreakdown: rest.trashBreakdown,
+        notes: rest.notes,
+      }),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Error registrando peso' }))
+    throw new Error(error.message || error.error || 'Error registrando peso')
   }
 
   return response.json()

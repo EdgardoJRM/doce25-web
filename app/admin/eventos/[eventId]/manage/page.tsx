@@ -179,6 +179,21 @@ export default function EventManagePage() {
           </div>
         </Link>
 
+        {/* RSVP limpieza 12 abril */}
+        <Link
+          href={`/admin/eventos/${eventId}/rsvp`}
+          className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-teal-500"
+        >
+          <div className="text-4xl mb-3">✉️</div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Confirmaciones RSVP</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Quién respondió sí o no al correo de la limpieza del 12 de abril
+          </p>
+          <div className="text-teal-600 font-semibold text-sm">
+            Ver respuestas →
+          </div>
+        </Link>
+
         {/* Datos del Evento */}
         <Link
           href={`/admin/eventos/${eventId}`}

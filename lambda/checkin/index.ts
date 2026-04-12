@@ -5,8 +5,8 @@ import { DynamoDBDocumentClient, QueryCommand, UpdateCommand, GetCommand } from 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 
 const TABLES = {
-  REGISTRATIONS: 'Dosce25-Registrations',
-  EVENTS: 'Dosce25-Events',
+  REGISTRATIONS: process.env.REGISTRATIONS_TABLE || 'Dosce25-Registrations',
+  EVENTS: process.env.EVENTS_TABLE || 'Dosce25-Events',
 }
 
 export const handler = async (
@@ -106,11 +106,13 @@ export const handler = async (
             name: registration.fullName || registration.name,
             email: registration.email,
             organization: registration.organization,
+            eventId: registration.eventId,
             checkedInAt: registration.checkedInAt,
             participationType: registration.participationType || 'individual',
             groupId: registration.groupId || null,
             groupMembers: registration.groupMembers || null,
             eventOrganization: registration.eventOrganization || null,
+            groupLeaderId: registration.groupLeaderId || null,
           },
         }),
       }
@@ -163,6 +165,7 @@ export const handler = async (
           groupId: registration.groupId || null,
           groupMembers: registration.groupMembers || null,
           eventOrganization: registration.eventOrganization || null,
+          groupLeaderId: registration.groupLeaderId || null,
         },
       }),
     }

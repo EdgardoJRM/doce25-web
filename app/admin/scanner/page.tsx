@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Html5Qrcode } from 'html5-qrcode'
 import { searchRegistrations, SearchResult } from '@/lib/api'
 import WeightRegistrationForm from '@/components/WeightRegistrationForm'
 import { useCameraPermission } from '@/hooks/useCameraPermission'
+import { PREDEFINED_ORGANIZATIONS } from '@/lib/organizations'
 
-type Mode = 'scanner' | 'search' | 'weight'
+type Mode = 'scanner' | 'search' | 'weight' | 'org-weight'
 
 const DEFAULT_EVENT_ID = 'ea44d757-de19-4a13-aa9f-afbf0da433f2'
 
@@ -28,7 +29,82 @@ export default function ScannerPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [selectedParticipant, setSelectedParticipant] = useState<SearchResult | null>(null)
 
+  // Sin QR — peso por organización
+  const [orgWeightEventId, setOrgWeightEventId] = useState(DEFAULT_EVENT_ID)
+  const [orgList, setOrgList] = useState<string[]>([])
+  const [orgLoading, setOrgLoading] = useState(false)
+  const [orgSearchQuery, setOrgSearchQuery] = useState('')
+  const [orgShowDropdown, setOrgShowDropdown] = useState(false)
+  const [orgSelectedName, setOrgSelectedName] = useState('')
+  const [orgCreating, setOrgCreating] = useState(false)
+  const [orgShowCreate, setOrgShowCreate] = useState(false)
+
+  const fetchOrganizationsForEvent = useCallback(async (eid: string) => {
+    try {
+      setOrgLoading(true)
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/events/${eid}/organizations`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        const list = data.organizations || []
+        setOrgList(Array.from(new Set([...PREDEFINED_ORGANIZATIONS, ...list])).sort())
+      } else {
+        setOrgList([...PREDEFINED_ORGANIZATIONS])
+      }
+    } catch {
+      setOrgList([...PREDEFINED_ORGANIZATIONS])
+    } finally {
+      setOrgLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
+    if (mode === 'org-weight' && orgWeightEventId) {
+      fetchOrganizationsForEvent(orgWeightEventId.trim())
+    }
+  }, [mode, orgWeightEventId, fetchOrganizationsForEvent])
+
+  useEffect(() => {
+    if (!orgSearchQuery.trim()) {
+      setOrgShowCreate(false)
+      return
+    }
+    const exact = orgList.some((o) => o.toLowerCase() === orgSearchQuery.trim().toLowerCase())
+    setOrgShowCreate(!exact && orgSearchQuery.trim().length > 0)
+  }, [orgSearchQuery, orgList])
+
+  const createOrgByName = async () => {
+    const name = orgSearchQuery.trim()
+    if (!name || !orgWeightEventId.trim()) return
+    try {
+      setOrgCreating(true)
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/events/${orgWeightEventId.trim()}/organizations`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ organizationName: name }),
+        }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        const newName = data.organizationName || name
+        setOrgList((prev) => [...new Set([...prev, newName])].sort())
+        setOrgSelectedName(newName)
+        setOrgSearchQuery('')
+        setOrgShowDropdown(false)
+        setOrgShowCreate(false)
+      }
+    } finally {
+      setOrgCreating(false)
+    }
+  }
+
+  useEffect(() => {
+    if (mode !== 'scanner') return
+
     const scanner = new Html5Qrcode('qr-reader')
     scannerRef.current = scanner
 
@@ -203,6 +279,151 @@ export default function ScannerPage() {
     setSelectedParticipant(null)
   }
 
+  const handleOrgWeightSuccess = () => {
+    setMode('scanner')
+    setOrgSelectedName('')
+    setOrgSearchQuery('')
+    setError('')
+  }
+
+  const handleOrgWeightCancel = () => {
+    setMode('scanner')
+    setOrgSelectedName('')
+    setOrgSearchQuery('')
+    setError('')
+  }
+
+  const filteredOrgList = orgList.filter((o) =>
+    orgSearchQuery.trim()
+      ? o.toLowerCase().includes(orgSearchQuery.toLowerCase())
+      : true
+  )
+
+  // Peso sin QR — solo organización
+  if (mode === 'org-weight') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setMode('scanner')}
+              className="px-4 py-2 border-2 border-cyan-600 text-cyan-600 rounded-lg font-semibold hover:bg-cyan-50"
+            >
+              📱 Escanear QR
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('search')}
+              className="px-4 py-2 border-2 border-cyan-600 text-cyan-600 rounded-lg font-semibold hover:bg-cyan-50"
+            >
+              🔍 Búsqueda manual
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Peso por organización (sin QR)
+            </h1>
+            <p className="text-gray-600 text-sm">
+              Selecciona el evento y la organización. El peso se acredita al grupo de esa org (como
+              cuando alguien elige &quot;Organización&quot; en el check-in). Puedes crear una org nueva
+              si no está en la lista.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 space-y-4">
+            <div>
+              <label htmlFor="orgWeightEventId" className="block text-sm font-semibold text-gray-700 mb-2">
+                ID del evento
+              </label>
+              <input
+                id="orgWeightEventId"
+                type="text"
+                value={orgWeightEventId}
+                onChange={(e) => {
+                  setOrgWeightEventId(e.target.value)
+                  setOrgSelectedName('')
+                }}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Organización <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={orgSearchQuery || orgSelectedName}
+                onChange={(e) => {
+                  setOrgSearchQuery(e.target.value)
+                  setOrgSelectedName('')
+                  setOrgShowDropdown(true)
+                }}
+                onFocus={() => setOrgShowDropdown(true)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                placeholder="Buscar o escribir organización..."
+              />
+              {orgShowDropdown && (
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                  {orgLoading ? (
+                    <div className="p-4 text-gray-500">Cargando...</div>
+                  ) : (
+                    <>
+                      {orgShowCreate && (
+                        <button
+                          type="button"
+                          onClick={createOrgByName}
+                          disabled={orgCreating}
+                          className="w-full text-left px-4 py-3 bg-cyan-50 hover:bg-cyan-100 font-semibold text-cyan-800 border-b"
+                        >
+                          {orgCreating ? 'Creando...' : `➕ Crear: "${orgSearchQuery.trim()}"`}
+                        </button>
+                      )}
+                      {filteredOrgList.map((org) => (
+                        <button
+                          key={org}
+                          type="button"
+                          onClick={() => {
+                            setOrgSelectedName(org)
+                            setOrgSearchQuery('')
+                            setOrgShowDropdown(false)
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                        >
+                          {org}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {orgSelectedName && (
+              <p className="text-sm text-green-700 font-medium">
+                Seleccionado: <strong>{orgSelectedName}</strong>
+              </p>
+            )}
+          </div>
+
+          {orgSelectedName && orgWeightEventId.trim() && (
+            <WeightRegistrationForm
+              participantName={orgSelectedName}
+              organizationOnly={{
+                eventId: orgWeightEventId.trim(),
+                eventOrganization: orgSelectedName,
+              }}
+              onSuccess={handleOrgWeightSuccess}
+              onCancel={handleOrgWeightCancel}
+            />
+          )}
+        </div>
+      </div>
+    )
+  }
+
   // Weight registration mode
   if (mode === 'weight' && selectedParticipant) {
     return (
@@ -223,6 +444,17 @@ export default function ScannerPage() {
             participantName={selectedParticipant.name}
             onSuccess={handleWeightSuccess}
             onCancel={handleWeightCancel}
+            isGroupWeight={!!selectedParticipant.groupId}
+            groupMembers={
+              selectedParticipant.groupMembers
+                ? (selectedParticipant.groupMembers as string[]).map((id) => ({
+                    registrationId: id,
+                    name: 'Integrante',
+                  }))
+                : []
+            }
+            currentMemberName={selectedParticipant.name}
+            eventOrganization={selectedParticipant.eventOrganization ?? undefined}
           />
         </div>
       </div>
@@ -235,12 +467,19 @@ export default function ScannerPage() {
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Mode Toggle */}
-          <div className="mb-6 flex gap-3">
+          <div className="mb-6 flex flex-wrap gap-3">
             <button
               onClick={() => setMode('scanner')}
               className="px-4 py-2 border-2 border-cyan-600 text-cyan-600 rounded-lg font-semibold hover:bg-cyan-50 transition-colors"
             >
               📱 Escanear QR
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('org-weight')}
+              className="px-4 py-2 border-2 border-amber-600 text-amber-800 rounded-lg font-semibold hover:bg-amber-50 transition-colors"
+            >
+              🏢 Sin QR / Org
             </button>
             <button
               onClick={() => router.push(`/admin/asistentes/${DEFAULT_EVENT_ID}`)}
@@ -381,12 +620,26 @@ export default function ScannerPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
         {/* Mode Toggle */}
-        <div className="mb-6 flex gap-3">
+        <div className="mb-6 flex flex-wrap gap-3">
           <button
             onClick={() => setMode('scanner')}
             className="px-4 py-2 bg-cyan-600 text-white rounded-lg font-semibold"
           >
             📱 Escanear QR
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('search')}
+            className="px-4 py-2 border-2 border-cyan-600 text-cyan-600 rounded-lg font-semibold hover:bg-cyan-50 transition-colors"
+          >
+            🔍 Búsqueda manual
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('org-weight')}
+            className="px-4 py-2 border-2 border-amber-600 text-amber-800 rounded-lg font-semibold hover:bg-amber-50 transition-colors"
+          >
+            🏢 Sin QR / Org
           </button>
           <button
             onClick={() => router.push(`/admin/asistentes/${DEFAULT_EVENT_ID}`)}

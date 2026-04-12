@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { checkIn, updateCheckInGroup, getGroupInfo } from '@/lib/api'
 import GroupFormation from '@/components/GroupFormation'
 import WeightRegistrationForm from '@/components/WeightRegistrationForm'
 
-type ViewMode = 'loading' | 'check-in-form' | 'already-checked' | 'success' | 'invalid' | 'weight-form'
+type ViewMode = 'loading' | 'check-in-form' | 'success' | 'invalid' | 'weight-form'
 
 export default function CheckInPage() {
   const params = useParams()
@@ -21,6 +21,8 @@ export default function CheckInPage() {
   const [countdown, setCountdown] = useState<number | null>(null)
   const [error, setError] = useState('')
   const [processing, setProcessing] = useState(false)
+  /** first = primer check-in; edit = cambiar tipo desde formulario de peso */
+  const [groupFormationIntent, setGroupFormationIntent] = useState<'first' | 'edit'>('first')
 
   useEffect(() => {
     performCheckIn()
@@ -91,11 +93,28 @@ export default function CheckInPage() {
       const response = await checkIn(token)
       if (response.status === 'already-checked') {
         setAttendeeInfo(response.registration)
+        if (response.registration.groupId) {
+          try {
+            const group = await getGroupInfo(response.registration.groupId)
+            setGroupInfo(group)
+          } catch (err) {
+            console.error('Error obteniendo info del grupo:', err)
+            setGroupInfo(null)
+          }
+        } else {
+          setGroupInfo(null)
+        }
       }
 
-      setViewMode('success')
+      if (groupFormationIntent === 'edit') {
+        setGroupFormationIntent('first')
+        setViewMode('weight-form')
+      } else {
+        setViewMode('success')
+      }
     } catch (err: any) {
       setError(err.message || 'Error al actualizar grupo')
+    } finally {
       setProcessing(false)
     }
   }
@@ -107,6 +126,22 @@ export default function CheckInPage() {
       setViewMode('success')
     }
   }
+
+  const initialGroupMembersForEdit = useMemo(() => {
+    if (!attendeeInfo?.groupMembers?.length) return undefined
+    const members = groupInfo?.members || []
+    const leaderId = attendeeInfo.groupLeaderId || attendeeInfo.registrationId
+    return attendeeInfo.groupMembers
+      .filter((id: string) => id !== leaderId)
+      .map((id: string) => {
+        const m = members.find((x: { registrationId: string }) => x.registrationId === id)
+        return {
+          registrationId: id,
+          name: m?.name || 'Integrante',
+          email: m?.email || '',
+        }
+      })
+  }, [attendeeInfo, groupInfo])
 
   // Loading state
   if (viewMode === 'loading') {
@@ -144,17 +179,24 @@ export default function CheckInPage() {
     )
   }
 
-  // Check-in form (first time)
+  // Check-in form (first time) o edición de tipo de participación
   if (viewMode === 'check-in-form' && attendeeInfo) {
+    const isEditParticipation = groupFormationIntent === 'edit'
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="text-5xl">✅</div>
+              <div className="text-5xl">{isEditParticipation ? '✏️' : '✅'}</div>
               <div>
-                <h1 className="text-2xl font-bold text-green-600">Check-in Exitoso</h1>
-                <p className="text-gray-600">Bienvenido, {attendeeInfo.name}!</p>
+                <h1 className="text-2xl font-bold text-green-600">
+                  {isEditParticipation ? 'Cambiar participación' : 'Check-in Exitoso'}
+                </h1>
+                <p className="text-gray-600">
+                  {isEditParticipation
+                    ? `${attendeeInfo.name} — elige el tipo correcto y confirma`
+                    : `Bienvenido, ${attendeeInfo.name}!`}
+                </p>
               </div>
             </div>
 
@@ -187,82 +229,29 @@ export default function CheckInPage() {
               currentName={attendeeInfo.name}
               currentOrganization={attendeeInfo.organization}
               eventId={attendeeInfo.eventId}
+              editMode={isEditParticipation}
+              initialParticipationType={
+                isEditParticipation
+                  ? (attendeeInfo.participationType as
+                      | 'individual'
+                      | 'duo'
+                      | 'group'
+                      | 'organization') || 'individual'
+                  : undefined
+              }
+              initialEventOrganization={isEditParticipation ? attendeeInfo.eventOrganization : undefined}
+              initialGroupMembers={isEditParticipation ? initialGroupMembersForEdit : undefined}
               onComplete={handleGroupFormationComplete}
+              onCancel={
+                isEditParticipation
+                  ? () => {
+                      setGroupFormationIntent('first')
+                      setViewMode('weight-form')
+                    }
+                  : undefined
+              }
             />
           )}
-        </div>
-      </div>
-    )
-  }
-
-  // Already checked in
-  if (viewMode === 'already-checked' && attendeeInfo) {
-    const hasGroup = attendeeInfo.groupId
-    const isIndividual = attendeeInfo.participationType === 'individual' || !attendeeInfo.participationType
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="text-center mb-8">
-              <div className="text-6xl mb-4">⚠️</div>
-              <h1 className="text-2xl font-bold mb-2 text-yellow-600">Ya Registrado</h1>
-              <p className="text-gray-600">Ya realizaste check-in anteriormente</p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6 mb-8">
-              <h3 className="font-semibold text-gray-900 mb-4">Información del Participante</h3>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <strong>Nombre:</strong> {attendeeInfo.name}
-                </p>
-                <p>
-                  <strong>Email:</strong> {attendeeInfo.email}
-                </p>
-                {attendeeInfo.checkedInAt && (
-                  <p>
-                    <strong>Check-in:</strong>{' '}
-                    {new Date(attendeeInfo.checkedInAt).toLocaleString('es-MX')}
-                  </p>
-                )}
-                <p>
-                  <strong>Tipo:</strong>{' '}
-                  <span className="capitalize">
-                    {attendeeInfo.participationType || 'Individual'}
-                  </span>
-                </p>
-                {attendeeInfo.eventOrganization && (
-                  <p>
-                    <strong>Organización:</strong> {attendeeInfo.eventOrganization}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                onClick={() => setViewMode('weight-form')}
-                className="px-6 py-4 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-              >
-                ⚖️ Registrar Peso
-              </button>
-
-              {fromScanner && (
-                <button
-                  onClick={() => router.push('/admin/scanner')}
-                  className="px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50"
-                >
-                  Volver al Scanner
-                </button>
-              )}
-            </div>
-
-            {fromScanner && countdown !== null && (
-              <p className="text-center text-sm text-gray-500 mt-4">
-                Regresando al scanner en {countdown} segundo{countdown !== 1 ? 's' : ''}...
-              </p>
-            )}
-          </div>
         </div>
       </div>
     )
@@ -287,6 +276,19 @@ export default function CheckInPage() {
               Volver al Scanner
             </button>
           )}
+
+          <div className="mb-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setGroupFormationIntent('edit')
+                setViewMode('check-in-form')
+              }}
+              className="px-4 py-2 border-2 border-amber-500 text-amber-800 rounded-lg font-semibold hover:bg-amber-50 text-sm"
+            >
+              Cambiar tipo de participación
+            </button>
+          </div>
 
           <WeightRegistrationForm
             registrationId={attendeeInfo.registrationId}

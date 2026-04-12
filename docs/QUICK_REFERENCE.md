@@ -39,11 +39,11 @@ Design a portfolio website with dark mode
 
 | Archivo | Propósito |
 |---------|-----------|
-| `README_SKILLS.md` | Inicio rápido |
-| `SKILLS_INSTALLED.md` | Guía completa |
-| `EXAMPLES_SKILLS.md` | Ejemplos prácticos |
-| `NANO_BANANA_SETUP.md` | Configuración Nano Banana 2 |
-| `INSTALLATION_CHECKLIST.md` | Verificación y troubleshooting |
+| `.cursor/docs/README_SKILLS.md` | Inicio rápido |
+| `.cursor/docs/SKILLS_INSTALLED.md` | Guía completa |
+| `.cursor/docs/EXAMPLES_SKILLS.md` | Ejemplos prácticos |
+| `.cursor/docs/NANO_BANANA_SETUP.md` | Configuración Nano Banana 2 |
+| `docs/INSTALLATION_CHECKLIST.md` | Verificación y troubleshooting |
 
 ---
 

@@ -17,6 +17,7 @@ Globals:
         SES_FROM_EMAIL: doce25@precotracks.org
         FRONTEND_URL: https://dosce25.org
         JWT_SECRET: dosce25-super-secret-key-change-in-production
+        RSVP_LINK_SECRET: dosce25-super-secret-key-change-in-production
     Architectures:
       - x86_64
 
@@ -388,6 +389,31 @@ Resources:
             Method: get
       Policies:
         - DynamoDBReadPolicy:
+            TableName: !Ref RegistrationsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
+  ConfirmRsvpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/confirm-rsvp/
+      Handler: index.handler
+      Events:
+        ConfirmRsvp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /rsvp/confirm
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
             TableName: !Ref RegistrationsTable
     Metadata:
       BuildMethod: esbuild
@@ -803,6 +829,35 @@ Resources:
         EntryPoints:
           - index.ts
 
+  RegisterOrganizationWeightFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/register-organization-weight/
+      Handler: index.handler
+      Events:
+        RegisterOrganizationWeight:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}/register-organization-weight
+            Method: post
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref RegistrationsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref WeightRecordsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
   SearchRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -944,6 +999,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref RegistrationsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventsTable
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

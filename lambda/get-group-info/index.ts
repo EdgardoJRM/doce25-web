@@ -61,9 +61,23 @@ export const handler = async (
       }
     }
 
-    const firstMember = scanResult.Items![0]
-    const participationType = firstMember.participationType?.S || 'group'
-    const eventOrganization = firstMember.eventOrganization?.S
+    const rawItems = scanResult.Items || []
+    let participationType = 'group'
+    let eventOrganization: string | undefined
+    for (const item of rawItems) {
+      const pt = item.participationType?.S
+      if (pt && String(pt).trim()) {
+        participationType = pt
+        break
+      }
+    }
+    for (const item of rawItems) {
+      const eo = item.eventOrganization?.S
+      if (eo && String(eo).trim()) {
+        eventOrganization = eo
+        break
+      }
+    }
 
     // Get weight history for this group
     const weightHistoryResult = await dynamoClient.send(

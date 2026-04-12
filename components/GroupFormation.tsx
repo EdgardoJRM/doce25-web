@@ -5,11 +5,22 @@ import { Html5Qrcode } from 'html5-qrcode'
 import { useCameraPermission } from '@/hooks/useCameraPermission'
 import { PREDEFINED_ORGANIZATIONS } from '@/lib/organizations'
 
+interface ScannedMember {
+  registrationId: string
+  name: string
+  email: string
+}
+
 interface GroupFormationProps {
   currentRegistrationId: string
   currentName: string
   currentOrganization?: string
   eventId: string
+  /** Pre-fill when user edits participation after check-in */
+  initialParticipationType?: 'individual' | 'duo' | 'group' | 'organization' | null
+  initialEventOrganization?: string
+  initialGroupMembers?: ScannedMember[]
+  editMode?: boolean
   onComplete: (data: {
     participationType: 'individual' | 'duo' | 'group' | 'organization'
     groupMembers?: string[]
@@ -18,17 +29,15 @@ interface GroupFormationProps {
   onCancel?: () => void
 }
 
-interface ScannedMember {
-  registrationId: string
-  name: string
-  email: string
-}
-
 export default function GroupFormation({
   currentRegistrationId,
   currentName,
   currentOrganization,
   eventId,
+  initialParticipationType,
+  initialEventOrganization,
+  initialGroupMembers,
+  editMode = false,
   onComplete,
   onCancel,
 }: GroupFormationProps) {
@@ -52,6 +61,27 @@ export default function GroupFormation({
 
   const lastScannedRef = useRef<string>('')
   const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const editPrefillAppliedRef = useRef(false)
+
+  // Pre-fill tipo de participación al editar después del check-in (una sola vez por montaje)
+  useEffect(() => {
+    if (!initialParticipationType || editPrefillAppliedRef.current) return
+    editPrefillAppliedRef.current = true
+    setSelectedType(initialParticipationType)
+    if (initialParticipationType === 'organization') {
+      const org = initialEventOrganization?.trim() || currentOrganization?.trim() || ''
+      if (org) {
+        setOrgName(org)
+        setOrgSearchQuery('')
+      }
+    }
+    if (
+      (initialParticipationType === 'duo' || initialParticipationType === 'group') &&
+      initialGroupMembers?.length
+    ) {
+      setScannedMembers(initialGroupMembers)
+    }
+  }, [initialParticipationType, initialEventOrganization, currentOrganization, initialGroupMembers])
 
   // Cargar organizaciones cuando se selecciona "organization"
   useEffect(() => {
@@ -367,9 +397,21 @@ export default function GroupFormation({
     }
   }
 
+  const hasRegistrationOrganization = !!(
+    currentOrganization && String(currentOrganization).trim()
+  )
+
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Tipo de Participación</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        {editMode ? 'Cambiar tipo de participación' : 'Tipo de Participación'}
+      </h2>
+      {editMode && (
+        <p className="text-sm text-gray-600 mb-4">
+          Puedes corregir tu elección (por ejemplo, si elegiste organización y no viniste con la org).
+          Confirma abajo para guardar.
+        </p>
+      )}
 
       {!selectedType ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -402,16 +444,25 @@ export default function GroupFormation({
             className="p-6 border-2 border-gray-300 rounded-xl hover:border-cyan-600 hover:bg-cyan-50 transition-all text-left"
           >
             <div className="text-3xl mb-2">👨‍👩‍👧</div>
-            <div className="font-bold text-lg text-gray-900">Grupo (3+)</div>
-            <div className="text-sm text-gray-600">Vengo con 2+ personas</div>
+            <div className="font-bold text-lg text-gray-900">Grupo</div>
+            <div className="text-sm text-gray-600">Hasta 3 personas en total (tú + hasta 2 más)</div>
           </button>
 
           <button
             onClick={() => setSelectedType('organization')}
-            className="p-6 border-2 border-gray-300 rounded-xl hover:border-cyan-600 hover:bg-cyan-50 transition-all text-left"
+            className={`p-6 border-2 rounded-xl transition-all text-left ${
+              hasRegistrationOrganization
+                ? 'border-cyan-600 bg-cyan-50 ring-2 ring-cyan-200 hover:bg-cyan-100'
+                : 'border-gray-300 hover:border-cyan-600 hover:bg-cyan-50'
+            }`}
           >
             <div className="text-3xl mb-2">🏢</div>
             <div className="font-bold text-lg text-gray-900">Organización</div>
+            {hasRegistrationOrganization ? (
+              <div className="text-sm font-semibold text-cyan-800 mt-1">
+                Tu org: {currentOrganization}
+              </div>
+            ) : null}
             <div className="text-sm text-gray-600">Vengo con mi org</div>
           </button>
         </div>
@@ -485,7 +536,7 @@ export default function GroupFormation({
                               ) : (
                                 <>
                                   <span>➕</span>
-                                  Crear: "{orgSearchQuery}"
+                                  Crear: &quot;{orgSearchQuery}&quot;
                                 </>
                               )}
                             </button>

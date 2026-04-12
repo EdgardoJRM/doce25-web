@@ -146,6 +146,10 @@ export const handler = async (
       registeredByName,
     }
 
+    if (registration.userId) {
+      weightRecord.userId = registration.userId
+    }
+
     // Agregar organización si existe
     if (eventOrganization) {
       weightRecord.eventOrganization = eventOrganization

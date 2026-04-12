@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
 const TABLES = {
   REGISTRATIONS: process.env.REGISTRATIONS_TABLE || 'Dosce25-Registrations',
+  EVENTS: process.env.EVENTS_TABLE || 'Dosce25-Events',
 }
 
 interface UpdateGroupBody {
@@ -130,6 +131,31 @@ export const handler = async (
       } else {
         // Create new groupId for this organization
         groupId = uuidv4()
+      }
+
+      // Mapa evento -> groupId por nombre de org (peso sin QR + consistencia)
+      const eventResult = await dynamoClient.send(
+        new GetCommand({
+          TableName: TABLES.EVENTS,
+          Key: { eventId },
+        })
+      )
+      if (eventResult.Item) {
+        const orgMap = {
+          ...((eventResult.Item.organizationGroupMap as Record<string, string>) || {}),
+          [eventOrganization]: groupId,
+        }
+        await dynamoClient.send(
+          new UpdateCommand({
+            TableName: TABLES.EVENTS,
+            Key: { eventId },
+            UpdateExpression: 'SET organizationGroupMap = :map, updatedAt = :u',
+            ExpressionAttributeValues: {
+              ':map': orgMap,
+              ':u': new Date().toISOString(),
+            },
+          })
+        )
       }
 
       await dynamoClient.send(
