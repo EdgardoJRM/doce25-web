@@ -243,6 +243,7 @@ export default function AdminAsistentesPage() {
         <WeightRegistrationForm
           registrationId={selectedAttendee.registrationId}
           participantName={selectedAttendee.fullName || selectedAttendee.name}
+          participationType={selectedAttendee.participationType ?? undefined}
           onSuccess={handleWeightSuccess}
           onCancel={handleWeightCancel}
           isGroupWeight={

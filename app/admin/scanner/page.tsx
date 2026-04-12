@@ -442,6 +442,7 @@ export default function ScannerPage() {
           <WeightRegistrationForm
             registrationId={selectedParticipant.registrationId}
             participantName={selectedParticipant.name}
+            participationType={selectedParticipant.participationType ?? undefined}
             onSuccess={handleWeightSuccess}
             onCancel={handleWeightCancel}
             isGroupWeight={

@@ -14,6 +14,8 @@ interface WeightRegistrationFormProps {
   groupMembers?: Array<{ name: string; registrationId: string }>
   currentMemberName?: string
   eventOrganization?: string
+  /** Si es "organization", el encabezado prioriza la org (no la UI de grupo de 2–3 personas) */
+  participationType?: string | null
   /** Staff: registrar peso solo a nombre de la organización (sin check-in de persona) */
   organizationOnly?: { eventId: string; eventOrganization: string }
 }
@@ -27,8 +29,10 @@ export default function WeightRegistrationForm({
   groupMembers = [],
   currentMemberName,
   eventOrganization,
+  participationType,
   organizationOnly,
 }: WeightRegistrationFormProps) {
+  const isOrganizationParticipant = participationType === 'organization'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showBreakdown, setShowBreakdown] = useState(false)
@@ -149,14 +153,29 @@ export default function WeightRegistrationForm({
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           {organizationOnly
             ? '⚖️ Peso por organización (sin QR)'
-            : isGroupWeight
-              ? '⚖️ Registro de Peso Grupal'
-              : '⚖️ Registrar Peso de Basura'}
+            : isOrganizationParticipant
+              ? '⚖️ Registro de peso por organización'
+              : isGroupWeight
+                ? '⚖️ Registro de Peso Grupal'
+                : '⚖️ Registrar Peso de Basura'}
         </h2>
         {organizationOnly ? (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-900 text-sm">
             El peso se suma al grupo de <strong>{organizationOnly.eventOrganization}</strong>. No está
             ligado a una persona en particular (útil cuando no hay QR).
+          </div>
+        ) : isOrganizationParticipant ? (
+          <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4 text-cyan-950 text-sm space-y-2">
+            <p className="font-semibold text-base">
+              Organización:{' '}
+              <span className="text-cyan-800">
+                🏢 {eventOrganization?.trim() || 'Sin nombre en el registro'}
+              </span>
+            </p>
+            <p className="text-cyan-800/90">
+              El peso cuenta para esta organización. Quien escaneó:{' '}
+              <span className="font-medium text-gray-900">{participantName}</span>
+            </p>
           </div>
         ) : isGroupWeight ? (
           <div>

@@ -259,7 +259,8 @@ export default function CheckInPage() {
 
   // Weight registration form
   if (viewMode === 'weight-form' && attendeeInfo) {
-    const isGroupWeight = !!attendeeInfo.groupId
+    const isGroupWeight =
+      !!attendeeInfo.groupId && attendeeInfo.participationType !== 'organization'
     const groupMembers = groupInfo?.members || attendeeInfo.groupMembers || []
 
     return (
@@ -293,6 +294,7 @@ export default function CheckInPage() {
           <WeightRegistrationForm
             registrationId={attendeeInfo.registrationId}
             participantName={attendeeInfo.name}
+            participationType={attendeeInfo.participationType ?? undefined}
             onSuccess={handleWeightSuccess}
             onCancel={() => fromScanner ? router.push('/admin/scanner') : router.push('/')}
             isGroupWeight={isGroupWeight}
