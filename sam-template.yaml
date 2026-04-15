@@ -2,6 +2,24 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Dosce25 API - Lambda functions for event registration
 
+Parameters:
+  CognitoUserPoolId:
+    Type: String
+    Default: ''
+    Description: Same as NEXT_PUBLIC_COGNITO_USER_POOL_ID (required for admin Cognito tokens on GET /users/{userId}/registrations)
+  CognitoClientId:
+    Type: String
+    Default: ''
+    Description: Same as NEXT_PUBLIC_COGNITO_CLIENT_ID
+  CognitoAdminGroup:
+    Type: String
+    Default: admin
+    Description: Cognito group; id token must include cognito:groups with this name for admin access (or use AdminEmails)
+  AdminEmails:
+    Type: String
+    Default: ''
+    Description: Optional comma-separated admin emails (alternative to Cognito group)
+
 Globals:
   Function:
     Timeout: 30
@@ -18,6 +36,10 @@ Globals:
         FRONTEND_URL: https://dosce25.org
         JWT_SECRET: dosce25-super-secret-key-change-in-production
         RSVP_LINK_SECRET: dosce25-super-secret-key-change-in-production
+        COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+        COGNITO_CLIENT_ID: !Ref CognitoClientId
+        COGNITO_ADMIN_GROUP: !Ref CognitoAdminGroup
+        ADMIN_EMAILS: !Ref AdminEmails
     Architectures:
       - x86_64
 

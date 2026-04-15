@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display, Poppins } from 'next/font/google'
 import './globals.css'
 import 'leaflet/dist/leaflet.css'
@@ -95,6 +95,12 @@ export const metadata: Metadata = {
     // Agregar después: google: 'tu-codigo-de-verificacion',
     // Agregar después: yandex: 'tu-codigo-de-verificacion',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({

@@ -184,19 +184,19 @@ const CertificateSignaturePad = forwardRef<CertificateSignaturePadHandle, Props>
       <div className={className}>
         <div
           ref={wrapRef}
-          className="relative w-full h-36 rounded-lg border-2 border-dashed border-slate-300 bg-white overflow-hidden touch-none"
+          className="relative w-full h-[11rem] md:h-36 rounded-lg border-2 border-dashed border-slate-300 bg-white overflow-hidden touch-none"
         >
           <canvas
             ref={canvasRef}
-            className="block w-full h-full cursor-crosshair"
+            className="block w-full h-full cursor-crosshair touch-none"
             onPointerDown={startDraw}
             onPointerMove={draw}
             onPointerUp={endDraw}
             onPointerLeave={endDraw}
           />
         </div>
-        <div className="flex items-center justify-between mt-2 gap-2">
-          <p className="text-xs text-slate-500">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between mt-2">
+          <p className="text-xs text-slate-500 min-w-0 flex-1 leading-relaxed">
             {ready
               ? 'Firma lista — ya puedes descargar el certificado.'
               : 'Firma obligatoria para descargar: dibuja aquí (dedo o mouse).'}
@@ -204,7 +204,7 @@ const CertificateSignaturePad = forwardRef<CertificateSignaturePadHandle, Props>
           <button
             type="button"
             onClick={clear}
-            className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1 rounded-md border border-slate-200 bg-white"
+            className="shrink-0 text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2.5 sm:py-1 rounded-md border border-slate-200 bg-white w-full sm:w-auto min-h-[44px] sm:min-h-0"
           >
             Borrar
           </button>

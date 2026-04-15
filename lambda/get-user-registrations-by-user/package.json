@@ -6,6 +6,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.540.0",
     "@aws-sdk/lib-dynamodb": "^3.540.0",
+    "aws-jwt-verify": "^4.0.1",
     "esbuild": "^0.24.2",
     "jsonwebtoken": "^9.0.2"
   },

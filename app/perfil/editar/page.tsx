@@ -82,29 +82,29 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-6 sm:py-10 md:py-12 px-3 sm:px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="max-w-2xl w-full mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <Link
             href="/perfil"
-            className="inline-flex items-center text-cyan-600 hover:text-cyan-700 mb-4"
+            className="inline-flex items-center text-cyan-600 hover:text-cyan-700 mb-4 text-sm sm:text-base min-h-[44px] sm:min-h-0"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Volver al perfil
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">
             Editar Perfil
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Actualiza tu información personal
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8">
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
@@ -234,17 +234,17 @@ export default function EditProfilePage() {
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-4">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 text-white py-4 rounded-lg font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 text-white py-4 min-h-[48px] rounded-lg font-semibold text-base sm:text-lg hover:shadow-xl sm:hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {loading ? 'Guardando...' : 'Guardar Cambios'}
               </button>
               <Link
                 href="/perfil"
-                className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                className="inline-flex justify-center items-center w-full sm:w-auto px-8 py-4 min-h-[48px] border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors shrink-0"
               >
                 Cancelar
               </Link>

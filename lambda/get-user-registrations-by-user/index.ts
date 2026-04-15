@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, QueryCommand, GetCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb'
+import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import * as jwt from 'jsonwebtoken'
 
 const dynamoClient = DynamoDBDocumentClient.from(new DynamoDBClient({}))
@@ -8,6 +9,39 @@ const REGISTRATIONS_TABLE = process.env.REGISTRATIONS_TABLE || 'Dosce25-Registra
 const EVENTS_TABLE = process.env.EVENTS_TABLE || 'Dosce25-Events'
 const USERS_TABLE = process.env.USERS_TABLE || 'Dosce25-Users'
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
+const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || ''
+const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID || ''
+const COGNITO_ADMIN_GROUP = process.env.COGNITO_ADMIN_GROUP || ''
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
+  .split(',')
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean)
+
+let cognitoVerifier: ReturnType<typeof CognitoJwtVerifier.create> | null = null
+
+function getCognitoVerifier() {
+  if (!COGNITO_USER_POOL_ID || !COGNITO_CLIENT_ID) return null
+  if (!cognitoVerifier) {
+    cognitoVerifier = CognitoJwtVerifier.create({
+      userPoolId: COGNITO_USER_POOL_ID,
+      tokenUse: 'id',
+      clientId: COGNITO_CLIENT_ID,
+    })
+  }
+  return cognitoVerifier
+}
+
+function cognitoPayloadIsAdmin(payload: { email?: string; 'cognito:groups'?: string[] }) {
+  if (ADMIN_EMAILS.length > 0) {
+    const email = (payload.email || '').toLowerCase()
+    if (ADMIN_EMAILS.includes(email)) return true
+  }
+  if (COGNITO_ADMIN_GROUP) {
+    const groups = payload['cognito:groups']
+    if (Array.isArray(groups) && groups.includes(COGNITO_ADMIN_GROUP)) return true
+  }
+  return false
+}
 
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -35,23 +69,57 @@ export const handler = async (
     }
 
     const token = authHeader.substring(7)
-    let decoded: any
+    let appUserId: string | undefined
+    let isCognitoAdmin = false
 
     try {
-      decoded = jwt.verify(token, JWT_SECRET)
-    } catch (err) {
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({ message: 'Token inválido o expirado' }),
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId?: string }
+      appUserId = decoded.userId
+    } catch {
+      const verifier = getCognitoVerifier()
+      if (!verifier) {
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({
+            message:
+              'Token inválido o expirado. Para el panel admin, despliega la API con COGNITO_USER_POOL_ID y COGNITO_CLIENT_ID (mismos valores que NEXT_PUBLIC_ en el front).',
+          }),
+        }
+      }
+      try {
+        const payload = await verifier.verify(token)
+        if (!cognitoPayloadIsAdmin(payload)) {
+          return {
+            statusCode: 403,
+            headers,
+            body: JSON.stringify({
+              message:
+                'No tienes permiso de administrador. Añade tu usuario al grupo Cognito configurado en COGNITO_ADMIN_GROUP o tu email en ADMIN_EMAILS.',
+            }),
+          }
+        }
+        isCognitoAdmin = true
+      } catch {
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({ message: 'Token inválido o expirado' }),
+        }
       }
     }
 
-    const userId = event.pathParameters?.userId || decoded.userId
+    const userId = event.pathParameters?.userId || appUserId
 
-    // Verificar que el usuario solo pueda ver sus propios registros (a menos que sea admin)
-    if (userId !== decoded.userId) {
-      // TODO: Verificar si es admin con Cognito
+    if (!userId) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ message: 'userId requerido' }),
+      }
+    }
+
+    if (!isCognitoAdmin && userId !== appUserId) {
       return {
         statusCode: 403,
         headers,

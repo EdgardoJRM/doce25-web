@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    Asunto sugerido: "Están limpiando ahora mismo 🌊 — mira cómo va"
+    Uso: node scripts/send-html-email-ses.js <email> public/email-templates/fomo-post-evento.html "Están limpiando ahora mismo 🌊 — mira cómo va" [nombre]
+  -->
+  <title>Ya empezamos — Doce25</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0fdfa;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0fdfa;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width:560px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(8,145,178,0.12);">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#0891b2,#0d9488);padding:32px 24px;text-align:center;">
+              <p style="margin:0 0 10px 0;color:#a5f3fc;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">🔴 En vivo ahora mismo</p>
+              <h1 style="margin:0 0 12px 0;color:#ffffff;font-size:26px;line-height:1.25;font-weight:800;">Ya empezamos. 🌊</h1>
+              <p style="margin:0;color:#cffafe;font-size:15px;line-height:1.6;">Playa Aviones y La Pocita · ahora mismo</p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="padding:28px 24px;color:#1e293b;font-size:16px;line-height:1.7;">
+
+              <p style="margin:0 0 18px 0;">Hola{{NOMBRE_PARTE}},</p>
+
+              <p style="margin:0 0 18px 0;">
+                Mientras lees esto, cientos de voluntarios ya están en la orilla de <strong>Playa Aviones y La Pocita</strong> con guantes y bolsas, limpiando el mar que todos compartimos.
+              </p>
+
+              <!-- FOMO BOX -->
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 20px 0;width:100%;">
+                <tr>
+                  <td style="background-color:#fff7ed;border-left:4px solid #f97316;padding:16px 18px;border-radius:0 10px 10px 0;">
+                    <p style="margin:0 0 4px 0;font-size:14px;color:#c2410c;font-weight:700;">🔥 El evento está pasando ahora</p>
+                    <p style="margin:0;font-size:15px;color:#7c2d12;line-height:1.6;">
+                      Orgs, estudiantes, familias — todos juntos en la playa <strong>en este momento.</strong> El contador de libras ya está corriendo.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 20px 0;">
+                Puedes ver en tiempo real cuánto estamos recogiendo, qué organizaciones están liderando y quién va primero en el ranking de hoy.
+              </p>
+
+              <!-- CTA PRINCIPAL -->
+              <p style="margin:0 0 10px 0;text-align:center;">
+                <a href="https://doce25.precotracks.org/eventos/playa-aviones-y-la-pocita/estadisticas" style="display:inline-block;background:linear-gradient(135deg,#0891b2,#0d9488);color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:16px 36px;border-radius:10px;letter-spacing:0.01em;">Ver estadísticas en vivo →</a>
+              </p>
+              <p style="margin:0 0 28px 0;text-align:center;font-size:13px;color:#94a3b8;">Se actualiza en tiempo real</p>
+
+              <!-- CIERRE -->
+              <p style="margin:0 0 0 0;padding-top:20px;border-top:1px solid #e2e8f0;font-size:14px;color:#64748b;line-height:1.6;">
+                ¡Gracias por ser parte del movimiento!<br />
+                <strong style="color:#0f172a;">El equipo de Doce25</strong>
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+        <p style="margin:16px 0 0 0;font-size:12px;color:#94a3b8;max-width:560px;text-align:center;">
+          Recibiste este mensaje porque te registraste en un evento de Doce25.<br/>
+          Responde a este correo si tienes preguntas.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
