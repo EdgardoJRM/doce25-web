@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    Placeholders reemplazados por el script:
+      {{FIRST_NAME}}         → primer nombre
+      {{FULL_NAME}}          → nombre completo
+      {{WEIGHT_LBS}}         → libras recolectadas (número)
+      {{RANK}}               → posición global (ej. 3)
+      {{TOTAL_PARTICIPANTS}} → total participantes con peso
+      {{PARTICIPATION_TYPE}} → "individual", "duo", "grupo" u "organización"
+      {{GROUP_SECTION}}      → bloque HTML del grupo/org (o vacío si es individual)
+      {{TRASH_SECTION}}      → bloque HTML del desglose de basura (o vacío)
+  -->
+  <title>Certificado de Labor Comunitaria · Doce25</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f4f8;padding:28px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width:580px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(13,37,71,0.12);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#0d2547 0%,#0a3d6b 60%,#0e6a7a 100%);padding:36px 32px;text-align:center;">
+              <p style="margin:0 0 6px 0;color:#19b8b8;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">Doce25</p>
+              <h1 style="margin:0 0 10px 0;color:#ffffff;font-size:24px;font-weight:800;line-height:1.3;">Certificado de Labor Comunitaria</h1>
+              <p style="margin:0;color:#a8d4e6;font-size:14px;line-height:1.5;">Playa Aviones · Loíza, Puerto Rico · 12 de abril de 2026</p>
+            </td>
+          </tr>
+
+          <!-- Greeting -->
+          <tr>
+            <td style="padding:32px 32px 0;">
+              <p style="margin:0 0 16px 0;font-size:16px;color:#1a1a2e;line-height:1.6;">
+                Hola <strong>{{FIRST_NAME}}</strong>,
+              </p>
+              <p style="margin:0 0 20px 0;font-size:15px;color:#334155;line-height:1.7;">
+                Queremos agradecerte por tu participación en la limpieza de playa del pasado
+                <strong>domingo, 12 de abril de 2026</strong> en <strong>Playa Aviones, Loíza</strong>.
+                Tu esfuerzo hace una diferencia real para nuestras playas y comunidades.
+              </p>
+              <p style="margin:0 0 28px 0;font-size:15px;color:#334155;line-height:1.7;">
+                Adjunto a este correo encontrarás tu <strong>Certificado de Labor Comunitaria</strong>
+                personalizado. Puedes usarlo para acreditar tus horas de servicio comunitario.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Stats: tu aportación -->
+          {{WEIGHT_SECTION}}
+
+          <!-- Ranking (oculto si RANK es –) -->
+          {{RANKING_SECTION}}
+
+          <!-- Grupo/Org section (reemplazado por el script, o vacío) -->
+          {{GROUP_SECTION}}
+
+          <!-- Trash breakdown (reemplazado por el script, o vacío) -->
+          {{TRASH_SECTION}}
+
+          <!-- Certificate note -->
+          <tr>
+            <td style="padding:0 32px 32px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="background:#fefce8;border-left:4px solid #ca8a04;border-radius:0 10px 10px 0;padding:16px 20px;">
+                    <p style="margin:0;font-size:14px;color:#78350f;line-height:1.6;">
+                      📎 <strong>Tu certificado está adjunto a este correo</strong> en formato PDF.
+                      Si necesitas una copia adicional o tienes algún problema, responde a este correo o escríbenos a
+                      <a href="mailto:info@doce25.org" style="color:#92400e;">info@doce25.org</a>.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Sign-off -->
+          <tr>
+            <td style="padding:0 32px 32px;">
+              <p style="margin:0 0 6px 0;font-size:15px;color:#334155;line-height:1.7;">
+                Gracias por ser parte de este movimiento y por demostrar que juntos podemos cuidar nuestras playas. 🌊
+              </p>
+              <p style="margin:20px 0 0 0;font-size:14px;color:#64748b;">
+                Cordialmente,<br />
+                <strong style="color:#0f172a;">Equipo de Doce25</strong><br />
+                <a href="tel:7876728883" style="color:#0891b2;text-decoration:none;">787-672-8883</a> ·
+                <a href="mailto:info@doce25.org" style="color:#0891b2;text-decoration:none;">info@doce25.org</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#0d2547;padding:20px 32px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#7b94bb;line-height:1.6;">
+                Doce25 · Tortuga Club PR, Inc. · 1026 Ave. Luis Vigoreaux, Guaynabo, PR 00966<br />
+                <a href="https://doce25.org" style="color:#19b8b8;text-decoration:none;">doce25.org</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

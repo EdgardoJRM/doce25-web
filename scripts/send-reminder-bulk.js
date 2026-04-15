@@ -37,8 +37,10 @@ const TO_OVERRIDE = process.env.TO_OVERRIDE || null   // para pruebas
 const LIMIT      = process.env.LIMIT ? parseInt(process.env.LIMIT, 10) : null
 const DELAY_MS   = 120   // pausa entre envíos (evitar throttle de SES)
 
-const SUBJECT = '¡Nos vemos hoy! Tu entrada al evento 🌊'
-const TEMPLATE_PATH = path.join(__dirname, '..', 'public', 'email-templates', 'recordatorio-playa-aviones-hoy.html')
+const SUBJECT = process.env.EMAIL_SUBJECT || '¡Nos vemos hoy! Tu entrada al evento 🌊'
+const TEMPLATE_PATH = process.env.TEMPLATE_PATH
+  ? path.join(__dirname, '..', process.env.TEMPLATE_PATH)
+  : path.join(__dirname, '..', 'public', 'email-templates', 'recordatorio-playa-aviones-hoy.html')
 
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({ region: REGION }))
 const s3     = new S3Client({ region: REGION })

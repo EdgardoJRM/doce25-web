@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calibrador de Nombre — Certificado Doce25</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header h1 { font-size: 16px; font-weight: 700; color: #f8fafc; }
+    header p  { font-size: 13px; color: #94a3b8; }
+
+    .layout {
+      display: flex;
+      height: calc(100vh - 57px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      background: #1e293b;
+      border-right: 1px solid #334155;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .card h2 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      margin-top: 10px;
+    }
+    label:first-of-type { margin-top: 0; }
+
+    input[type="text"], input[type="number"], input[type="range"] {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #f1f5f9;
+      font-size: 14px;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    input:focus { border-color: #38bdf8; }
+
+    input[type="range"] {
+      padding: 4px 0;
+      accent-color: #38bdf8;
+    }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .coord-display {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #38bdf8;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      line-height: 1.8;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #0ea5e9; color: #fff; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-copy    { background: #334155; color: #e2e8f0; font-size: 13px; padding: 9px 12px; margin-top: 8px; }
+
+    .output-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: #4ade80;
+      line-height: 1.7;
+      word-break: break-all;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #0ea5e922;
+      color: #38bdf8;
+      border: 1px solid #0ea5e944;
+      border-radius: 4px;
+      font-size: 11px;
+      padding: 2px 6px;
+      font-weight: 600;
+    }
+
+    /* ── Canvas area ── */
+    .canvas-area {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+      background: #0a0f1a;
+    }
+
+    .pdf-wrapper {
+      position: relative;
+      display: inline-block;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6);
+      cursor: crosshair;
+    }
+
+    #pdf-canvas {
+      display: block;
+    }
+
+    /* The draggable name overlay */
+    #name-overlay {
+      position: absolute;
+      white-space: nowrap;
+      user-select: none;
+      cursor: grab;
+      padding: 2px 4px;
+      border-radius: 3px;
+      background: rgba(56, 189, 248, 0.18);
+      border: 1.5px dashed #38bdf8;
+      transition: background .1s;
+      touch-action: none;
+    }
+    #name-overlay:active { cursor: grabbing; background: rgba(56, 189, 248, 0.3); }
+    #name-overlay.placing { border-style: solid; }
+
+    /* Click-to-place crosshair guide lines */
+    .guide-h, .guide-v {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .1s;
+    }
+    .pdf-wrapper:hover .guide-h,
+    .pdf-wrapper:hover .guide-v { opacity: 1; }
+    .guide-h {
+      left: 0; right: 0; height: 1px;
+      background: rgba(56,189,248,.35);
+      transform: translateY(-50%);
+    }
+    .guide-v {
+      top: 0; bottom: 0; width: 1px;
+      background: rgba(56,189,248,.35);
+      transform: translateX(-50%);
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Calibrador de Nombre · Certificado Doce25</h1>
+    <p>Arrastra el nombre o haz clic en el certificado para posicionarlo exactamente</p>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+
+    <!-- Upload PDF -->
+    <div class="card">
+      <h2>1 · Cargar PDF</h2>
+      <input type="file" id="pdf-input" accept="application/pdf"
+        style="display:none" onchange="loadPDF(this)" />
+      <button class="btn btn-primary" onclick="document.getElementById('pdf-input').click()">
+        Seleccionar PDF base
+      </button>
+      <p class="hint" style="margin-top:10px;">
+        Selecciona <code>Certificado Labor Comunitaria Playa Aviones.pdf</code> de la carpeta <code>public/</code>
+      </p>
+    </div>
+
+    <!-- Name config -->
+    <div class="card">
+      <h2>2 · Texto del nombre</h2>
+      <label>Nombre de prueba</label>
+      <input type="text" id="name-input" value="Edgardo Hernandez Jr." oninput="updateOverlay()" />
+
+      <label>Fuente</label>
+      <select id="font-select" onchange="updateOverlay()"
+        style="width:100%;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#f1f5f9;font-size:14px;padding:8px 10px;outline:none;">
+        <option value="'Times New Roman', Times, serif"           selected>Times New Roman (Regular)</option>
+        <option value="'Times New Roman', Times, serif; font-weight:bold">Times New Roman Bold</option>
+        <option value="'Times New Roman', Times, serif; font-style:italic">Times New Roman Italic</option>
+        <option value="'Times New Roman', Times, serif; font-weight:bold; font-style:italic">Times New Roman Bold Italic</option>
+      </select>
+
+      <label>Tamaño de fuente (pt)</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="font-size" min="6" max="24" value="13" oninput="updateOverlay(); document.getElementById('font-size-val').textContent=this.value" style="flex:1" />
+        <span id="font-size-val" style="font-size:13px;color:#38bdf8;width:24px;text-align:right;">13</span>
+      </div>
+
+      <label>Color de texto</label>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="btn btn-copy" style="flex:1" onclick="setColor('#000000')">Negro</button>
+        <button class="btn btn-copy" style="flex:1" onclick="setColor('#1a1a2e')">Marino</button>
+        <button class="btn btn-copy" style="flex:1" onclick="setColor('#0d2547')">Azul</button>
+      </div>
+      <input type="color" id="text-color" value="#000000" oninput="updateOverlay()" style="width:100%;height:36px;padding:2px;margin-top:8px;border-radius:6px;border:1px solid #334155;background:#1e293b;cursor:pointer;" />
+    </div>
+
+    <!-- Coords -->
+    <div class="card">
+      <h2>3 · Posición (píxeles pantalla)</h2>
+      <div class="row-2">
+        <div>
+          <label>X (píxeles)</label>
+          <input type="number" id="pos-x" value="0" oninput="setPositionFromInputs()" />
+        </div>
+        <div>
+          <label>Y (píxeles)</label>
+          <input type="number" id="pos-y" value="0" oninput="setPositionFromInputs()" />
+        </div>
+      </div>
+      <p class="hint" style="margin-top:8px;">También puedes arrastrar el nombre directamente</p>
+    </div>
+
+    <!-- pdf-lib coords output -->
+    <div class="card">
+      <h2>4 · Coordenadas para pdf-lib</h2>
+      <p class="hint" style="margin-bottom:10px;">
+        Copia estos valores y pégalos en <code>send-certificates-bulk.js</code>
+      </p>
+      <div class="coord-display" id="coords-output">
+        Mueve el nombre primero…
+      </div>
+      <button class="btn btn-copy" onclick="copyCoords()">Copiar coordenadas</button>
+
+      <div style="margin-top:16px;">
+        <h2 style="margin-bottom:8px;">Código listo</h2>
+        <div class="output-box" id="code-output">–</div>
+        <button class="btn btn-copy" onclick="copyCode()">Copiar código</button>
+      </div>
+    </div>
+
+    <!-- Scale info -->
+    <div class="card" id="scale-card" style="display:none">
+      <h2>Info del PDF</h2>
+      <div class="coord-display" id="pdf-info">–</div>
+    </div>
+
+  </aside>
+
+  <!-- ── PDF canvas area ── -->
+  <main class="canvas-area">
+    <div class="pdf-wrapper" id="pdf-wrapper">
+      <div class="loading" id="loading-msg">← Carga el PDF para empezar</div>
+      <canvas id="pdf-canvas"></canvas>
+      <div class="guide-h" id="guide-h" style="top:50%"></div>
+      <div class="guide-v" id="guide-v" style="left:50%"></div>
+      <div id="name-overlay" style="display:none"></div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  // pdf.js worker
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+
+  let pdfPageWidth  = 0   // PDF page width in PDF user units (pts)
+  let pdfPageHeight = 0   // PDF page height in PDF user units (pts)
+  let canvasWidth   = 0   // rendered canvas width in CSS px
+  let canvasHeight  = 0   // rendered canvas height in CSS px
+  let scale         = 1   // CSS px per PDF unit
+  let currentColor  = '#000000'
+  let overlayX      = 0   // overlay left in CSS px relative to wrapper
+  let overlayY      = 0   // overlay top  in CSS px relative to wrapper
+
+  // ── Load PDF ────────────────────────────────────────────────────────────────
+  async function loadPDF(input) {
+    const file = input.files[0]
+    if (!file) return
+    const arrayBuffer = await file.arrayBuffer()
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+    const page = await pdf.getPage(1)
+    const viewport = page.getViewport({ scale: 1.5 })
+
+    pdfPageWidth  = viewport.width  / 1.5   // back to 1:1 pt units
+    pdfPageHeight = viewport.height / 1.5
+    canvasWidth   = viewport.width
+    canvasHeight  = viewport.height
+    scale         = canvasWidth / pdfPageWidth
+
+    const canvas  = document.getElementById('pdf-canvas')
+    const ctx     = canvas.getContext('2d')
+    canvas.width  = canvasWidth
+    canvas.height = canvasHeight
+
+    await page.render({ canvasContext: ctx, viewport }).promise
+
+    document.getElementById('loading-msg').style.display = 'none'
+    document.getElementById('scale-card').style.display  = 'block'
+    document.getElementById('pdf-info').textContent =
+      `Página: ${pdfPageWidth.toFixed(1)} × ${pdfPageHeight.toFixed(1)} pts\n` +
+      `Canvas: ${canvasWidth} × ${canvasHeight} px\n` +
+      `Escala render: 1.5×`
+
+    // Place overlay in a sensible default position (centre of page, ~40% down)
+    overlayX = canvasWidth  * 0.33
+    overlayY = canvasHeight * 0.42
+    showOverlay()
+    updatePositionInputs()
+    updateCoords()
+
+    // Enable click-to-place on wrapper
+    document.getElementById('pdf-wrapper').addEventListener('mousemove', onWrapperMouseMove)
+    document.getElementById('pdf-wrapper').addEventListener('click',     onWrapperClick)
+  }
+
+  // ── Overlay ─────────────────────────────────────────────────────────────────
+  // Map select value → { fontFamily, fontWeight, fontStyle, pdfLibFont }
+  const FONT_MAP = {
+    "'Times New Roman', Times, serif":                                                        { family: "'Times New Roman', Times, serif", weight: 'normal', style: 'normal',  pdfLib: 'StandardFonts.TimesRoman' },
+    "'Times New Roman', Times, serif; font-weight:bold":                                      { family: "'Times New Roman', Times, serif", weight: 'bold',   style: 'normal',  pdfLib: 'StandardFonts.TimesRomanBold' },
+    "'Times New Roman', Times, serif; font-style:italic":                                     { family: "'Times New Roman', Times, serif", weight: 'normal', style: 'italic',  pdfLib: 'StandardFonts.TimesRomanItalic' },
+    "'Times New Roman', Times, serif; font-weight:bold; font-style:italic":                   { family: "'Times New Roman', Times, serif", weight: 'bold',   style: 'italic',  pdfLib: 'StandardFonts.TimesRomanBoldItalic' },
+  }
+
+  function getSelectedFont() {
+    const val = document.getElementById('font-select').value
+    return FONT_MAP[val] || FONT_MAP["'Times New Roman', Times, serif"]
+  }
+
+  function showOverlay() {
+    const overlay  = document.getElementById('name-overlay')
+    const name     = document.getElementById('name-input').value || 'Nombre Apellido'
+    const size     = parseInt(document.getElementById('font-size').value)
+    const fontInfo = getSelectedFont()
+    overlay.style.display    = 'block'
+    overlay.style.left       = overlayX + 'px'
+    overlay.style.top        = overlayY + 'px'
+    overlay.style.fontSize   = (size * scale) + 'px'
+    overlay.style.color      = currentColor
+    overlay.style.fontFamily = fontInfo.family
+    overlay.style.fontWeight = fontInfo.weight
+    overlay.style.fontStyle  = fontInfo.style
+    overlay.textContent      = name
+  }
+
+  function updateOverlay() {
+    showOverlay()
+    updateCoords()
+  }
+
+  function setColor(hex) {
+    currentColor = hex
+    document.getElementById('text-color').value = hex
+    updateOverlay()
+  }
+
+  // ── Click-to-place ───────────────────────────────────────────────────────────
+  function onWrapperMouseMove(e) {
+    const rect = document.getElementById('pdf-wrapper').getBoundingClientRect()
+    const mx = e.clientX - rect.left
+    const my = e.clientY - rect.top
+    document.getElementById('guide-h').style.top  = my + 'px'
+    document.getElementById('guide-v').style.left = mx + 'px'
+  }
+
+  function onWrapperClick(e) {
+    // Ignore if clicking the overlay itself (handled by drag)
+    if (e.target === document.getElementById('name-overlay')) return
+    const rect = document.getElementById('pdf-wrapper').getBoundingClientRect()
+    overlayX = e.clientX - rect.left
+    overlayY = e.clientY - rect.top
+    showOverlay()
+    updatePositionInputs()
+    updateCoords()
+  }
+
+  // ── Drag the overlay ─────────────────────────────────────────────────────────
+  const overlay = document.getElementById('name-overlay')
+  let dragging = false, dragOffX = 0, dragOffY = 0
+
+  overlay.addEventListener('pointerdown', e => {
+    dragging = true
+    const rect = overlay.getBoundingClientRect()
+    dragOffX = e.clientX - rect.left
+    dragOffY = e.clientY - rect.top
+    overlay.setPointerCapture(e.pointerId)
+    e.stopPropagation()
+  })
+
+  overlay.addEventListener('pointermove', e => {
+    if (!dragging) return
+    const wrapperRect = document.getElementById('pdf-wrapper').getBoundingClientRect()
+    overlayX = e.clientX - wrapperRect.left - dragOffX
+    overlayY = e.clientY - wrapperRect.top  - dragOffY
+    // Clamp inside canvas
+    overlayX = Math.max(0, Math.min(canvasWidth  - overlay.offsetWidth,  overlayX))
+    overlayY = Math.max(0, Math.min(canvasHeight - overlay.offsetHeight, overlayY))
+    overlay.style.left = overlayX + 'px'
+    overlay.style.top  = overlayY + 'px'
+    updatePositionInputs()
+    updateCoords()
+  })
+
+  overlay.addEventListener('pointerup', () => { dragging = false })
+
+  // ── Manual input ─────────────────────────────────────────────────────────────
+  function setPositionFromInputs() {
+    overlayX = parseInt(document.getElementById('pos-x').value) || 0
+    overlayY = parseInt(document.getElementById('pos-y').value) || 0
+    showOverlay()
+    updateCoords()
+  }
+
+  function updatePositionInputs() {
+    document.getElementById('pos-x').value = Math.round(overlayX)
+    document.getElementById('pos-y').value = Math.round(overlayY)
+  }
+
+  // ── Convert to pdf-lib coordinates ───────────────────────────────────────────
+  // pdf-lib origin: bottom-left. Canvas origin: top-left.
+  // pdfX = overlayX / scale
+  // pdfY = pdfPageHeight - (overlayY / scale) - fontSize  (baseline adjust)
+  function toPdfCoords() {
+    if (!pdfPageWidth) return null
+    const fontSize = parseInt(document.getElementById('font-size').value)
+    const pdfX = overlayX / scale
+    // overlayY is the top of the text box in canvas pixels
+    // In pdf-lib, y is from bottom and is the baseline of the text
+    const pdfY = pdfPageHeight - (overlayY / scale) - fontSize * 0.2
+    return { x: Math.round(pdfX * 10) / 10, y: Math.round(pdfY * 10) / 10, size: fontSize }
+  }
+
+  function updateCoords() {
+    const c    = toPdfCoords()
+    if (!c) return
+    const font = getSelectedFont()
+    document.getElementById('coords-output').textContent =
+      `NAME_X         = ${c.x}\nNAME_Y         = ${c.y}\nNAME_FONT_SIZE = ${c.size}\nFUENTE         = ${font.pdfLib}`
+    document.getElementById('code-output').textContent =
+      `const NAME_X         = ${c.x}\nconst NAME_Y         = ${c.y}\nconst NAME_FONT_SIZE = ${c.size}\nconst font = await pdfDoc.embedFont(${font.pdfLib})`
+  }
+
+  function copyCoords() {
+    const c    = toPdfCoords()
+    if (!c) return
+    const font = getSelectedFont()
+    navigator.clipboard.writeText(
+      `NAME_X = ${c.x}\nNAME_Y = ${c.y}\nNAME_FONT_SIZE = ${c.size}\n${font.pdfLib}`
+    ).then(() => alert('¡Coordenadas copiadas!'))
+  }
+
+  function copyCode() {
+    const c    = toPdfCoords()
+    if (!c) return
+    const font = getSelectedFont()
+    navigator.clipboard.writeText(
+      `const NAME_X         = ${c.x}\nconst NAME_Y         = ${c.y}\nconst NAME_FONT_SIZE = ${c.size}\nconst font = await pdfDoc.embedFont(${font.pdfLib})`
+    ).then(() => alert('¡Código copiado!'))
+  }
+</script>
+
+</body>
+</html>

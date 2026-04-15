@@ -7,6 +7,13 @@ import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserRegistrations, getWeightHistory, WeightHistory } from '@/lib/api'
 import QRCode from 'qrcode'
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+
+/** Mismo layout que scripts/send-certificates-bulk.js */
+const CERT_PDF_PATH = '/Certificado%20Labor%20Comunitaria%20Playa%20Aviones.pdf'
+const CERT_NAME_X = 245.3
+const CERT_NAME_Y = 456.1
+const CERT_NAME_SIZE = 12
 
 interface Registration {
   registrationId: string
@@ -18,6 +25,7 @@ interface Registration {
   checkedIn: boolean
   registeredAt: string
   qrToken?: string
+  fullName?: string
   weightCollected?: number
   trashType?: string
   trashBreakdown?: {
@@ -141,6 +149,43 @@ export default function ProfilePage() {
   const closeQRModal = () => {
     setSelectedQR(null)
     setQrDataUrl('')
+  }
+
+  const hasCertificate = (reg: Registration) =>
+    !!reg.checkedIn &&
+    ((reg.weightCollected ?? 0) >= 0.01 ||
+      !!(reg.participationType && reg.participationType !== 'individual'))
+
+  const downloadCertificate = async (reg: Registration) => {
+    const displayName = (reg.fullName || user?.fullName || '').trim() || 'Participante'
+    try {
+      const res = await fetch(CERT_PDF_PATH)
+      if (!res.ok) throw new Error('No se pudo cargar el certificado base')
+      const bytes = await res.arrayBuffer()
+      const pdfDoc = await PDFDocument.load(bytes)
+      const page = pdfDoc.getPages()[0]
+      const font = await pdfDoc.embedFont(StandardFonts.TimesRoman)
+      page.drawText(displayName, {
+        x: CERT_NAME_X,
+        y: CERT_NAME_Y,
+        size: CERT_NAME_SIZE,
+        font,
+        color: rgb(0.05, 0.05, 0.05),
+      })
+      const out = await pdfDoc.save()
+      const blob = new Blob([new Uint8Array(out)], { type: 'application/pdf' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `Certificado-Labor-Comunitaria-${displayName.replace(/\s+/g, '-')}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error(err)
+      alert('No se pudo generar el certificado. Intenta de nuevo.')
+    }
   }
 
   const getTotalWeight = () => {
@@ -392,7 +437,7 @@ export default function ProfilePage() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
                           <button
                             onClick={() => showQRCode(registration)}
                             className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
@@ -402,6 +447,18 @@ export default function ProfilePage() {
                             </svg>
                             Ver Mi Pase
                           </button>
+                          {hasCertificate(registration) && (
+                            <button
+                              type="button"
+                              onClick={() => downloadCertificate(registration)}
+                              className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Descargar Certificado
+                            </button>
+                          )}
                           <Link
                             href={`/eventos/${registration.eventSlug || registration.eventId}`}
                             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center"

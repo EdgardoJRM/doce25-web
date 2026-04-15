@@ -460,7 +460,16 @@ export async function getUserRegistrations(token: string | undefined, userId: st
   })
 
   if (!response.ok) {
-    throw new Error('Error al obtener registros')
+    let detail = ''
+    try {
+      const errBody = await response.json()
+      detail = errBody.message || errBody.error || ''
+    } catch {
+      /* ignore */
+    }
+    throw new Error(
+      detail || `Error al obtener registros (${response.status})`
+    )
   }
 
   return response.json()

@@ -924,6 +924,14 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref RegistrationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref WeightRecordsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Dosce25-WeightRecords/index/EventIndex"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

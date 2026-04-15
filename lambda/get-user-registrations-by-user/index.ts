@@ -77,19 +77,24 @@ export const handler = async (
 
     const userEmail = userResult.Item.email
 
-    // Buscar registros por email usando el índice EmailIndex
-    const registrationsResult = await dynamoClient.send(
-      new QueryCommand({
-        TableName: REGISTRATIONS_TABLE,
-        IndexName: 'EmailIndex',
-        KeyConditionExpression: 'email = :email',
-        ExpressionAttributeValues: {
-          ':email': userEmail,
-        },
-      })
-    )
-
-    const registrations = registrationsResult.Items || []
+    // Buscar registros por email (paginado: el índice puede devolver varias páginas)
+    const registrations: any[] = []
+    let regLastKey: Record<string, unknown> | undefined
+    do {
+      const registrationsResult = await dynamoClient.send(
+        new QueryCommand({
+          TableName: REGISTRATIONS_TABLE,
+          IndexName: 'EmailIndex',
+          KeyConditionExpression: 'email = :email',
+          ExpressionAttributeValues: {
+            ':email': userEmail,
+          },
+          ExclusiveStartKey: regLastKey,
+        })
+      )
+      registrations.push(...(registrationsResult.Items || []))
+      regLastKey = registrationsResult.LastEvaluatedKey
+    } while (regLastKey)
 
     // Si no hay registros, devolver array vacío
     if (registrations.length === 0) {
@@ -100,21 +105,23 @@ export const handler = async (
       }
     }
 
-    // Obtener IDs únicos de eventos
-    const eventIds = [...new Set(registrations.map(r => r.eventId))]
-
-    // Obtener información de eventos en batch
-    const eventsResult = await dynamoClient.send(
-      new BatchGetCommand({
-        RequestItems: {
-          [EVENTS_TABLE]: {
-            Keys: eventIds.map(id => ({ eventId: id }))
-          }
-        }
-      })
-    )
-
-    const events = eventsResult.Responses?.[EVENTS_TABLE] || []
+    // Obtener IDs únicos de eventos (BatchGet admite máx. 100 claves por request)
+    const eventIds = [...new Set(registrations.map(r => r.eventId).filter(Boolean))]
+    const events: any[] = []
+    for (let i = 0; i < eventIds.length; i += 100) {
+      const chunk = eventIds.slice(i, i + 100)
+      const eventsResult = await dynamoClient.send(
+        new BatchGetCommand({
+          RequestItems: {
+            [EVENTS_TABLE]: {
+              Keys: chunk.map(id => ({ eventId: id })),
+            },
+          },
+        })
+      )
+      const batch = eventsResult.Responses?.[EVENTS_TABLE] || []
+      events.push(...batch)
+    }
     const eventsMap = new Map(events.map(e => [e.eventId, e]))
 
     // Mapear registros con información de eventos
@@ -130,6 +137,11 @@ export const handler = async (
         checkedIn: reg.checkedIn || false,
         registeredAt: reg.createdAt,
         qrToken: reg.qrToken,
+        fullName: reg.fullName || reg.name || '',
+        weightCollected: typeof reg.weightCollected === 'number' ? reg.weightCollected : Number(reg.weightCollected) || 0,
+        participationType: reg.participationType || 'individual',
+        eventOrganization: reg.eventOrganization || reg.organization || '',
+        groupId: reg.groupId || '',
       }
     })
 

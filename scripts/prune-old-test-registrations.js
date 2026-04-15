@@ -7,6 +7,7 @@
  *
  *   node scripts/prune-old-test-registrations.js
  *   DRY_RUN=1 node scripts/prune-old-test-registrations.js   # solo lista
+ *   DELETE_ALL_TEST=1 node scripts/prune-old-test-registrations.js   # borra TODOS los de prueba (incl. seed actual)
  */
 
 const fs = require('fs')
@@ -19,6 +20,8 @@ const API =
 
 const SEED = path.join(__dirname, 'e2e-seed-latest.json')
 const DRY = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true'
+const DELETE_ALL_TEST =
+  process.env.DELETE_ALL_TEST === '1' || process.env.DELETE_ALL_TEST === 'true'
 
 function isTestRow(r) {
   const name = (r.name || '').trim()
@@ -27,20 +30,35 @@ function isTestRow(r) {
 }
 
 async function main() {
-  if (!fs.existsSync(SEED)) {
-    console.error('Falta', SEED)
-    process.exit(1)
-  }
+  let eventId = process.env.EVENT_ID || ''
+  let keep = new Set()
 
-  const seed = JSON.parse(fs.readFileSync(SEED, 'utf8'))
-  const eventId = seed.eventId
-  const keep = new Set(
-    (seed.registrations || []).map((x) => x.registrationId).filter(Boolean)
-  )
+  if (DELETE_ALL_TEST) {
+    if (!eventId && fs.existsSync(SEED)) {
+      const seed = JSON.parse(fs.readFileSync(SEED, 'utf8'))
+      eventId = seed.eventId
+    }
+    if (!eventId) {
+      console.error('DELETE_ALL_TEST: define EVENT_ID o deja e2e-seed-latest.json con eventId')
+      process.exit(1)
+    }
+  } else {
+    if (!fs.existsSync(SEED)) {
+      console.error('Falta', SEED)
+      process.exit(1)
+    }
 
-  if (keep.size === 0) {
-    console.error('e2e-seed-latest.json no tiene registrationId')
-    process.exit(1)
+    const seed = JSON.parse(fs.readFileSync(SEED, 'utf8'))
+    eventId = seed.eventId
+    keep = new Set(
+      (seed.registrations || []).map((x) => x.registrationId).filter(Boolean)
+    )
+
+    if (keep.size === 0) {
+      console.warn(
+        'Aviso: e2e-seed-latest.json sin registrationId — se eliminarán todos los registros de prueba del evento.'
+      )
+    }
   }
 
   const res = await fetch(`${API}/events/${eventId}/registrations`)
@@ -52,12 +70,18 @@ async function main() {
   const data = await res.json()
   const list = data.registrations || []
 
-  const toDelete = list.filter(
-    (r) => isTestRow(r) && !keep.has(r.registrationId)
+  const toDelete = list.filter((r) =>
+    DELETE_ALL_TEST
+      ? isTestRow(r)
+      : isTestRow(r) && !keep.has(r.registrationId)
   )
 
   console.log(
-    `Evento ${eventId}: ${list.length} registros totales, ${toDelete.length} de prueba a eliminar (se conservan ${keep.size} del seed actual).`
+    `Evento ${eventId}: ${list.length} registros totales, ${toDelete.length} de prueba a eliminar${
+      DELETE_ALL_TEST
+        ? ' (DELETE_ALL_TEST: todos los test).'
+        : ` (se conservan ${keep.size} del seed actual).`
+    }`
   )
   if (DRY) {
     toDelete.forEach((r) =>

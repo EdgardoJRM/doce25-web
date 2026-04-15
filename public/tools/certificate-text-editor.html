@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor de Texto — Certificado Doce25</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+    header { background: #1e293b; border-bottom: 1px solid #334155; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    header h1 { font-size: 15px; font-weight: 700; color: #f8fafc; }
+    header p  { font-size: 12px; color: #94a3b8; }
+
+    .layout { display: flex; height: calc(100vh - 53px); }
+
+    .sidebar { width: 320px; flex-shrink: 0; background: #1e293b; border-right: 1px solid #334155; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+
+    .card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 14px; }
+    .card h2 { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }
+
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 3px; margin-top: 8px; }
+    label:first-of-type { margin-top: 0; }
+
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px;
+      color: #f1f5f9; font-size: 13px; padding: 7px 10px; outline: none; transition: border-color .15s;
+    }
+    input:focus, textarea:focus, select:focus { border-color: #38bdf8; }
+    textarea { resize: vertical; min-height: 56px; font-family: inherit; line-height: 1.5; }
+
+    input[type="range"] { width: 100%; accent-color: #38bdf8; padding: 4px 0; }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .btn { display: block; width: 100%; padding: 10px; border-radius: 7px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: opacity .15s; }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #0ea5e9; color: #fff; }
+    .btn-success { background: #16a34a; color: #fff; margin-top: 6px; }
+    .btn-muted   { background: #334155; color: #e2e8f0; margin-top: 6px; }
+
+    .code-box { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 10px 12px; font-size: 11px; font-family: 'SF Mono','Fira Code',monospace; color: #4ade80; line-height: 1.8; word-break: break-all; white-space: pre-wrap; }
+
+    .hint { font-size: 11px; color: #64748b; line-height: 1.5; margin-top: 6px; }
+
+    /* patches list */
+    .patch-item { background: #1e293b; border: 1px solid #334155; border-radius: 7px; padding: 10px 12px; margin-top: 8px; position: relative; }
+    .patch-item .del { position: absolute; top: 8px; right: 10px; background: none; border: none; color: #ef4444; font-size: 16px; cursor: pointer; line-height: 1; }
+    .patch-item p { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .patch-item strong { font-size: 13px; color: #f1f5f9; }
+
+    /* canvas */
+    .canvas-area { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px; background: #0a0f1a; }
+    .pdf-wrapper { position: relative; display: inline-block; box-shadow: 0 8px 40px rgba(0,0,0,.6); cursor: crosshair; }
+    #pdf-canvas { display: block; }
+
+    .patch-overlay { position: absolute; cursor: grab; touch-action: none; }
+    .patch-overlay:active { cursor: grabbing; }
+    .patch-overlay textarea {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.92); border: 2px dashed #f59e0b;
+      border-radius: 3px; resize: none; font-family: 'Times New Roman', Times, serif;
+      color: #111; line-height: 1.4; padding: 2px 4px; overflow: hidden;
+    }
+    .patch-overlay textarea:focus { outline: none; border-color: #0ea5e9; }
+    .patch-handle { position: absolute; bottom: -8px; right: -8px; width: 14px; height: 14px; background: #f59e0b; border-radius: 2px; cursor: se-resize; }
+    .patch-overlay.selected textarea { border-style: solid; border-color: #0ea5e9; }
+
+    .guide-h, .guide-v { position: absolute; pointer-events: none; opacity: 0; transition: opacity .1s; }
+    .pdf-wrapper:hover .guide-h,
+    .pdf-wrapper:hover .guide-v { opacity: 1; }
+    .guide-h { left: 0; right: 0; height: 1px; background: rgba(56,189,248,.3); }
+    .guide-v { top: 0; bottom: 0; width: 1px; background: rgba(56,189,248,.3); }
+
+    #loading-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Editor de Texto · Certificado Doce25</h1>
+    <p>Carga el PDF → haz clic donde quieres el parche → ajusta texto, posición y tamaño → copia el código</p>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+
+    <!-- 1 Load -->
+    <div class="card">
+      <h2>1 · Cargar PDF</h2>
+      <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="loadPDF(this)" />
+      <button class="btn btn-primary" onclick="document.getElementById('pdf-input').click()">Seleccionar PDF base</button>
+      <p class="hint">Selecciona <code>Certificado Labor Comunitaria Playa Aviones.pdf</code></p>
+    </div>
+
+    <!-- 2 New patch -->
+    <div class="card">
+      <h2>2 · Nuevo parche de texto</h2>
+      <label>Texto nuevo</label>
+      <textarea id="new-text" rows="3" placeholder="ej: cinco y media (5.5)">cinco y media (5.5)</textarea>
+      <label>Fuente</label>
+      <select id="new-font">
+        <option value="'Times New Roman',Times,serif">Times New Roman Regular</option>
+        <option value="'Times New Roman',Times,serif|bold">Times New Roman Bold</option>
+        <option value="'Times New Roman',Times,serif|italic">Times New Roman Italic</option>
+      </select>
+      <label>Tamaño (pt)</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="new-size" min="6" max="24" value="11" oninput="document.getElementById('new-size-val').textContent=this.value" style="flex:1" />
+        <span id="new-size-val" style="color:#38bdf8;font-size:12px;width:20px;">11</span>
+      </div>
+      <p class="hint" style="margin-top:8px;">Haz clic en el PDF para colocar el parche, o usa el botón:</p>
+      <button class="btn btn-muted" onclick="addPatchCenter()">+ Agregar al centro</button>
+    </div>
+
+    <!-- 3 Patches list -->
+    <div class="card">
+      <h2>3 · Parches activos</h2>
+      <div id="patches-list"><p class="hint">Ningún parche todavía.</p></div>
+    </div>
+
+    <!-- 4 Code output -->
+    <div class="card">
+      <h2>4 · Código para el script</h2>
+      <div class="code-box" id="code-out">–</div>
+      <button class="btn btn-success" onclick="copyCode()">Copiar código</button>
+    </div>
+
+  </aside>
+
+  <main class="canvas-area">
+    <div class="pdf-wrapper" id="pdf-wrapper">
+      <div id="loading-msg">← Carga el PDF para empezar</div>
+      <canvas id="pdf-canvas"></canvas>
+      <div class="guide-h" id="guide-h"></div>
+      <div class="guide-v" id="guide-v"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+
+  let pdfW = 0, pdfH = 0, canvasW = 0, canvasH = 0, renderScale = 1.5
+  let scale = 1   // canvasPx per pdfPt
+  let patches = []
+  let nextId = 1
+
+  // ── Load PDF ────────────────────────────────────────────────────────────────
+  async function loadPDF(input) {
+    const file = input.files[0]; if (!file) return
+    const ab   = await file.arrayBuffer()
+    const pdf  = await pdfjsLib.getDocument({ data: ab }).promise
+    const page = await pdf.getPage(1)
+    const vp   = page.getViewport({ scale: renderScale })
+
+    pdfW = vp.width / renderScale
+    pdfH = vp.height / renderScale
+    canvasW = vp.width
+    canvasH = vp.height
+    scale   = canvasW / pdfW
+
+    const canvas = document.getElementById('pdf-canvas')
+    canvas.width  = canvasW
+    canvas.height = canvasH
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise
+
+    document.getElementById('loading-msg').style.display = 'none'
+
+    const wrapper = document.getElementById('pdf-wrapper')
+    wrapper.addEventListener('mousemove', e => {
+      const r = wrapper.getBoundingClientRect()
+      document.getElementById('guide-h').style.top  = (e.clientY - r.top)  + 'px'
+      document.getElementById('guide-v').style.left = (e.clientX - r.left) + 'px'
+    })
+    wrapper.addEventListener('click', e => {
+      if (e.target.closest('.patch-overlay')) return
+      const r  = wrapper.getBoundingClientRect()
+      const cx = e.clientX - r.left
+      const cy = e.clientY - r.top
+      addPatch(cx, cy)
+    })
+  }
+
+  // ── Font helpers ─────────────────────────────────────────────────────────────
+  function parseFontSelect(val) {
+    const [family, mod] = val.split('|')
+    return {
+      cssFamily: family,
+      cssWeight: mod === 'bold'   ? 'bold'   : 'normal',
+      cssStyle:  mod === 'italic' ? 'italic' : 'normal',
+      pdfLib: mod === 'bold'   ? 'StandardFonts.TimesRomanBold'
+            : mod === 'italic' ? 'StandardFonts.TimesRomanItalic'
+            : 'StandardFonts.TimesRoman',
+    }
+  }
+
+  // ── Add patch ────────────────────────────────────────────────────────────────
+  function addPatch(canvasX, canvasY, text, size, fontVal) {
+    text    = text    || document.getElementById('new-text').value || 'Texto nuevo'
+    size    = size    || parseInt(document.getElementById('new-size').value)
+    fontVal = fontVal || document.getElementById('new-font').value
+    const f = parseFontSelect(fontVal)
+
+    const id      = nextId++
+    const pxSize  = size * scale
+    const w       = Math.max(120, text.length * pxSize * 0.55)
+    const h       = pxSize * 1.5 * (text.split('\n').length)
+
+    const patch = { id, text, size, fontVal, f,
+      x: canvasX,  // left edge in canvas px
+      y: canvasY,  // top edge in canvas px
+      w, h }
+    patches.push(patch)
+    renderPatch(patch)
+    updateList()
+    updateCode()
+  }
+
+  function addPatchCenter() {
+    if (!canvasW) return alert('Carga el PDF primero')
+    addPatch(canvasW / 2 - 80, canvasH / 2 - 20)
+  }
+
+  // ── Render one patch overlay ─────────────────────────────────────────────────
+  function renderPatch(p) {
+    const wrapper = document.getElementById('pdf-wrapper')
+    const el = document.createElement('div')
+    el.className = 'patch-overlay'
+    el.id = 'patch-' + p.id
+    el.style.cssText = `left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px;`
+
+    const ta = document.createElement('textarea')
+    ta.value = p.text
+    ta.style.fontSize   = (p.size * scale) + 'px'
+    ta.style.fontFamily = p.f.cssFamily
+    ta.style.fontWeight = p.f.cssWeight
+    ta.style.fontStyle  = p.f.cssStyle
+    ta.addEventListener('input', () => {
+      p.text = ta.value
+      updateList(); updateCode()
+    })
+    ta.addEventListener('click', e => e.stopPropagation())
+
+    const handle = document.createElement('div')
+    handle.className = 'patch-handle'
+
+    el.appendChild(ta)
+    el.appendChild(handle)
+    wrapper.appendChild(el)
+
+    makeDraggable(el, p)
+    makeResizable(handle, el, p)
+  }
+
+  // ── Drag ─────────────────────────────────────────────────────────────────────
+  function makeDraggable(el, p) {
+    let dragging = false, ox = 0, oy = 0
+    el.addEventListener('pointerdown', e => {
+      if (e.target.tagName === 'TEXTAREA' || e.target.classList.contains('patch-handle')) return
+      dragging = true
+      ox = e.clientX - p.x
+      oy = e.clientY - p.y
+      el.setPointerCapture(e.pointerId)
+    })
+    el.addEventListener('pointermove', e => {
+      if (!dragging) return
+      p.x = e.clientX - ox
+      p.y = e.clientY - oy
+      el.style.left = p.x + 'px'
+      el.style.top  = p.y + 'px'
+      updateList(); updateCode()
+    })
+    el.addEventListener('pointerup', () => { dragging = false })
+  }
+
+  // ── Resize ───────────────────────────────────────────────────────────────────
+  function makeResizable(handle, el, p) {
+    let resizing = false, sx = 0, sy = 0, sw = 0, sh = 0
+    handle.addEventListener('pointerdown', e => {
+      resizing = true; sx = e.clientX; sy = e.clientY; sw = p.w; sh = p.h
+      handle.setPointerCapture(e.pointerId); e.stopPropagation()
+    })
+    handle.addEventListener('pointermove', e => {
+      if (!resizing) return
+      p.w = Math.max(40, sw + e.clientX - sx)
+      p.h = Math.max(16, sh + e.clientY - sy)
+      el.style.width  = p.w + 'px'
+      el.style.height = p.h + 'px'
+      updateCode()
+    })
+    handle.addEventListener('pointerup', () => { resizing = false })
+  }
+
+  // ── Delete patch ──────────────────────────────────────────────────────────────
+  function deletePatch(id) {
+    patches = patches.filter(p => p.id !== id)
+    const el = document.getElementById('patch-' + id)
+    if (el) el.remove()
+    updateList(); updateCode()
+  }
+
+  // ── Sidebar list ─────────────────────────────────────────────────────────────
+  function updateList() {
+    const el = document.getElementById('patches-list')
+    if (patches.length === 0) { el.innerHTML = '<p class="hint">Ningún parche todavía.</p>'; return }
+    el.innerHTML = patches.map(p => {
+      const pdfX = (p.x / scale).toFixed(1)
+      const pdfY = (pdfH - (p.y / scale) - p.size).toFixed(1)
+      return `<div class="patch-item">
+        <button class="del" onclick="deletePatch(${p.id})">×</button>
+        <strong>${p.text.replace(/\n/g,' ')}</strong>
+        <p>X=${pdfX} Y=${pdfY} size=${p.size}pt · ${p.f.pdfLib.split('.')[1]}</p>
+      </div>`
+    }).join('')
+  }
+
+  // ── Code output ──────────────────────────────────────────────────────────────
+  function updateCode() {
+    if (patches.length === 0) { document.getElementById('code-out').textContent = '–'; return }
+    const lines = patches.map((p, i) => {
+      const pdfX = (p.x / scale).toFixed(1)
+      const pdfY = (pdfH - (p.y / scale) - p.size).toFixed(1)
+      const boxW = (p.w / scale).toFixed(1)
+      const boxH = (p.h / scale + 4).toFixed(1)
+      const txt  = p.text.replace(/`/g, "'").replace(/\n/g, '\\n')
+      return [
+        `// Parche ${i+1}: "${txt.substring(0,30)}..."`,
+        `const font${i} = await pdfDoc.embedFont(${p.f.pdfLib})`,
+        `page.drawRectangle({ x: ${pdfX}, y: ${pdfY}, width: ${boxW}, height: ${boxH}, color: rgb(1,1,1) })`,
+        `page.drawText(\`${txt}\`, { x: ${pdfX}, y: ${pdfY}, size: ${p.size}, font: font${i}, color: rgb(0,0,0) })`,
+      ].join('\n')
+    })
+    document.getElementById('code-out').textContent = lines.join('\n\n')
+  }
+
+  function copyCode() {
+    const txt = document.getElementById('code-out').textContent
+    if (txt === '–') return alert('Agrega al menos un parche primero')
+    navigator.clipboard.writeText(txt).then(() => alert('¡Código copiado!'))
+  }
+</script>
+</body>
+</html>
