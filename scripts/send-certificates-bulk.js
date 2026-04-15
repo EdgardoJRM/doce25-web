@@ -42,15 +42,27 @@ const SUBJECT         = '🌊 Tu Certificado de Labor Comunitaria – Doce25'
 const TEMPLATE_PATH   = path.join(__dirname, '..', 'public', 'email-templates', 'certificado-labor.html')
 const BASE_PDF_PATH   = path.join(__dirname, '..', 'public', 'Certificado Labor Comunitaria Playa Aviones.pdf')
 
-// Texto del certificado donde va el nombre (línea 11 del texto extraído):
-// "confirmamos que _______ completó el servicio comunitario"
-// Coordenadas calibradas para el PDF base (ajustar si es necesario)
-const NAME_X  = 245.3
-const NAME_Y  = 456.1
-const NAME_FONT_SIZE = 12
+// Nombre en PDF: mantener alineado con lib/certificatePdfLayout.ts (solo texto; la firma manuscrita es solo en /perfil).
+const NAME_X  = 245
+const NAME_Y  = 457.1
+const NAME_FONT_SIZE = 11
 
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({ region: REGION }))
 const ses    = new SESClient({ region: REGION })
+
+/** Mismo criterio que lib/formatCertificateName.ts — nombre en el PDF del certificado */
+function formatCertificateName(raw) {
+  const collapsed = String(raw || '').trim().replace(/\s+/g, ' ')
+  if (!collapsed) return collapsed
+  return collapsed
+    .split(/\s+/)
+    .map((part) => {
+      if (!part) return part
+      const lower = part.toLocaleLowerCase('es-PR')
+      return lower.charAt(0).toLocaleUpperCase('es-PR') + lower.slice(1)
+    })
+    .join(' ')
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -226,20 +238,20 @@ function buildTrashSection(bd) {
  * el nombre completo del participante sobre la línea en blanco.
  */
 async function generateCertificatePDF(participantFullName) {
+  const nameOnPdf = formatCertificateName(participantFullName)
   const basePdfBytes = fs.readFileSync(BASE_PDF_PATH)
   const pdfDoc  = await PDFDocument.load(basePdfBytes)
   const pages   = pdfDoc.getPages()
   const page    = pages[0]
 
-  const font = await pdfDoc.embedFont(StandardFonts.TimesRoman)
+  const font = await pdfDoc.embedFont(StandardFonts.TimesRomanBold)
 
-  // Dibuja el nombre sobre el espacio en blanco del certificado
-  page.drawText(participantFullName, {
+  page.drawText(nameOnPdf, {
     x:    NAME_X,
     y:    NAME_Y,
     size: NAME_FONT_SIZE,
     font,
-    color: rgb(0.05, 0.05, 0.05),
+    color: rgb(0.039, 0.039, 0.059),
   })
 
   const pdfBytes = await pdfDoc.save()
@@ -251,7 +263,8 @@ async function sendEmail(toEmail, htmlBody, pdfBuffer, recipientName) {
   const textBody   = htmlToText(htmlBody)
   const boundary   = `----Doce25Cert_${Date.now()}_${Math.random().toString(36).slice(2)}`
   const boundaryAlt = `----Doce25CertAlt_${Date.now()}_${Math.random().toString(36).slice(2)}`
-  const pdfName    = `Certificado-Labor-Comunitaria-${recipientName.replace(/\s+/g, '-')}.pdf`
+  const safeFile = formatCertificateName(recipientName).replace(/\s+/g, '-')
+  const pdfName    = `Certificado-Labor-Comunitaria-${safeFile}.pdf`
 
   const lines = [
     `From: Doce25 <${FROM_EMAIL}>`,

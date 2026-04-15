@@ -1,19 +1,18 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserRegistrations, getWeightHistory, WeightHistory } from '@/lib/api'
 import QRCode from 'qrcode'
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
-
-/** Mismo layout que scripts/send-certificates-bulk.js */
-const CERT_PDF_PATH = '/Certificado%20Labor%20Comunitaria%20Playa%20Aviones.pdf'
-const CERT_NAME_X = 245.3
-const CERT_NAME_Y = 456.1
-const CERT_NAME_SIZE = 12
+import { formatCertificateName } from '@/lib/formatCertificateName'
+import { CERT_PDF_PATH } from '@/lib/certificatePdfLayout'
+import { buildCertificatePdfFromBase } from '@/lib/buildCertificatePdf'
+import CertificateSignaturePad, {
+  type CertificateSignaturePadHandle,
+} from '@/components/CertificateSignaturePad'
 
 interface Registration {
   registrationId: string
@@ -68,6 +67,11 @@ export default function ProfilePage() {
   const [weightHistories, setWeightHistories] = useState<Record<string, WeightHistory>>({})
   const [expandedRegistration, setExpandedRegistration] = useState<string | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const certificateSigRef = useRef<CertificateSignaturePadHandle>(null)
+  const [certificateSignatureReady, setCertificateSignatureReady] = useState(false)
+  const onCertificateSignatureChange = useCallback((ok: boolean) => {
+    setCertificateSignatureReady(ok)
+  }, [])
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -157,22 +161,32 @@ export default function ProfilePage() {
       !!(reg.participationType && reg.participationType !== 'individual'))
 
   const downloadCertificate = async (reg: Registration) => {
-    const displayName = (reg.fullName || user?.fullName || '').trim() || 'Participante'
+    if (certificateSigRef.current?.isEmpty() || !certificateSignatureReady) {
+      alert(
+        'La descarga del certificado requiere tu firma. Ve al recuadro «Tu firma en el certificado» (arriba), dibuja con dedo o mouse y vuelve a intentar.'
+      )
+      return
+    }
+    const rawName = (reg.fullName || user?.fullName || '').trim() || 'Participante'
+    const displayName = formatCertificateName(rawName)
+    let signaturePng: Uint8Array | null = null
+    try {
+      signaturePng = (await certificateSigRef.current?.getPngBytes()) ?? null
+    } catch {
+      signaturePng = null
+    }
+    if (!signaturePng || signaturePng.byteLength === 0) {
+      alert('No se pudo leer la firma. Dibuja de nuevo e intenta otra vez.')
+      return
+    }
     try {
       const res = await fetch(CERT_PDF_PATH)
       if (!res.ok) throw new Error('No se pudo cargar el certificado base')
       const bytes = await res.arrayBuffer()
-      const pdfDoc = await PDFDocument.load(bytes)
-      const page = pdfDoc.getPages()[0]
-      const font = await pdfDoc.embedFont(StandardFonts.TimesRoman)
-      page.drawText(displayName, {
-        x: CERT_NAME_X,
-        y: CERT_NAME_Y,
-        size: CERT_NAME_SIZE,
-        font,
-        color: rgb(0.05, 0.05, 0.05),
+      const out = await buildCertificatePdfFromBase(bytes, {
+        displayName,
+        signaturePng,
       })
-      const out = await pdfDoc.save()
       const blob = new Blob([new Uint8Array(out)], { type: 'application/pdf' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -285,6 +299,24 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {!loading && registrations.some((r) => hasCertificate(r)) && (
+          <div className="bg-amber-50/80 rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-2 border-amber-200/90">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Tu firma en el certificado</h2>
+            <p className="text-sm font-medium text-amber-900/90 mb-1">
+              Obligatoria para descargar el PDF.
+            </p>
+            <p className="text-sm text-gray-700 mb-4 max-w-2xl">
+              Sin firma no se puede generar el certificado. Dibuja en el recuadro; se guarda en este dispositivo hasta que la borres. Puedes firmar de nuevo cuando quieras.
+            </p>
+            <CertificateSignaturePad
+              ref={certificateSigRef}
+              storageKey={`doce25_cert_sig_${user.userId}`}
+              className="max-w-lg"
+              onSignatureChange={onCertificateSignatureChange}
+            />
+          </div>
+        )}
 
         {/* Impacto Ambiental Card */}
         {getTotalWeight() > 0 && (
@@ -448,16 +480,29 @@ export default function ProfilePage() {
                             Ver Mi Pase
                           </button>
                           {hasCertificate(registration) && (
-                            <button
-                              type="button"
-                              onClick={() => downloadCertificate(registration)}
-                              className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              Descargar Certificado
-                            </button>
+                            <div className="flex flex-col gap-1 items-stretch sm:items-start">
+                              <button
+                                type="button"
+                                disabled={!certificateSignatureReady}
+                                title={
+                                  certificateSignatureReady
+                                    ? 'Descargar certificado con tu nombre y firma'
+                                    : 'Primero firma en el recuadro «Tu firma en el certificado» (arriba en esta página)'
+                                }
+                                onClick={() => downloadCertificate(registration)}
+                                className="px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700 disabled:bg-slate-400 disabled:hover:bg-slate-400 disabled:cursor-not-allowed disabled:opacity-80 transition-colors"
+                              >
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Descargar Certificado
+                              </button>
+                              {!certificateSignatureReady && (
+                                <span className="text-xs text-amber-800 max-w-[14rem] leading-snug">
+                                  Firma obligatoria: completa el recuadro de arriba antes de descargar.
+                                </span>
+                              )}
+                            </div>
                           )}
                           <Link
                             href={`/eventos/${registration.eventSlug || registration.eventId}`}

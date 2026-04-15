@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calibrador de Nombre — Certificado Doce25</title>
+  <title>Editor de layout — nombre y firma — Doce25</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -184,6 +184,30 @@
     #name-overlay:active { cursor: grabbing; background: rgba(56, 189, 248, 0.3); }
     #name-overlay.placing { border-style: solid; }
 
+    #sig-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      border: 2px dashed #f59e0b;
+      background: rgba(245, 158, 11, 0.14);
+      cursor: grab;
+      display: none;
+      box-sizing: border-box;
+      touch-action: none;
+    }
+    #sig-overlay:active { cursor: grabbing; }
+    #sig-overlay .sig-label {
+      position: absolute;
+      top: -20px;
+      left: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #f59e0b;
+      white-space: nowrap;
+      font-family: system-ui, sans-serif;
+      pointer-events: none;
+    }
+
     /* Click-to-place crosshair guide lines */
     .guide-h, .guide-v {
       position: absolute;
@@ -219,8 +243,8 @@
 
 <header>
   <div>
-    <h1>Calibrador de Nombre · Certificado Doce25</h1>
-    <p>Arrastra el nombre o haz clic en el certificado para posicionarlo exactamente</p>
+    <h1>Editor de layout · nombre + firma</h1>
+    <p>Vista previa en pantalla: arrastra el <strong style="color:#38bdf8">nombre</strong> y el recuadro <strong style="color:#f59e0b">firma</strong>. Ajusta tamaño del área de firma (pt). Copia el bloque final en <code>lib/certificatePdfLayout.ts</code>.</p>
   </div>
 </header>
 
@@ -232,49 +256,82 @@
     <!-- Upload PDF -->
     <div class="card">
       <h2>1 · Cargar PDF</h2>
+      <button class="btn btn-primary" onclick="loadProjectPdf()" style="margin-bottom:8px;">
+        Cargar PDF del proyecto (public/)
+      </button>
       <input type="file" id="pdf-input" accept="application/pdf"
-        style="display:none" onchange="loadPDF(this)" />
-      <button class="btn btn-primary" onclick="document.getElementById('pdf-input').click()">
-        Seleccionar PDF base
+        style="display:none" onchange="loadPDFFromFile(this)" />
+      <button class="btn btn-copy" onclick="document.getElementById('pdf-input').click()">
+        O elegir archivo…
       </button>
       <p class="hint" style="margin-top:10px;">
-        Selecciona <code>Certificado Labor Comunitaria Playa Aviones.pdf</code> de la carpeta <code>public/</code>
+        Con <code>npm run dev</code>, el botón superior carga <code>Certificado Labor Comunitaria Playa Aviones.pdf</code>. Si abres este HTML como archivo local, usa «Elegir archivo».
       </p>
     </div>
 
     <!-- Name config -->
     <div class="card">
-      <h2>2 · Texto del nombre</h2>
+      <h2>2 · Texto y tipografía</h2>
       <label>Nombre de prueba</label>
-      <input type="text" id="name-input" value="Edgardo Hernandez Jr." oninput="updateOverlay()" />
+      <input type="text" id="name-input" value="María Elena García López" oninput="updateOverlay()" />
 
-      <label>Fuente</label>
+      <label>Fuente (coincide con <code>pdf-lib</code> StandardFonts)</label>
       <select id="font-select" onchange="updateOverlay()"
-        style="width:100%;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#f1f5f9;font-size:14px;padding:8px 10px;outline:none;">
-        <option value="'Times New Roman', Times, serif"           selected>Times New Roman (Regular)</option>
-        <option value="'Times New Roman', Times, serif; font-weight:bold">Times New Roman Bold</option>
-        <option value="'Times New Roman', Times, serif; font-style:italic">Times New Roman Italic</option>
-        <option value="'Times New Roman', Times, serif; font-weight:bold; font-style:italic">Times New Roman Bold Italic</option>
+        style="width:100%;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#f1f5f9;font-size:13px;padding:8px 10px;outline:none;">
+        <optgroup label="Times (recomendado para certificados)">
+          <option value="'Times New Roman', Times, serif">Times · Regular</option>
+          <option value="'Times New Roman', Times, serif; font-weight:bold" selected>Times · Negrita</option>
+          <option value="'Times New Roman', Times, serif; font-style:italic">Times · Cursiva</option>
+          <option value="'Times New Roman', Times, serif; font-weight:bold; font-style:italic">Times · Negrita cursiva</option>
+        </optgroup>
+        <optgroup label="Helvetica">
+          <option value="Helvetica, Arial, sans-serif; font-weight:normal">Helvetica · Regular</option>
+          <option value="Helvetica, Arial, sans-serif; font-weight:bold">Helvetica · Negrita</option>
+        </optgroup>
+        <optgroup label="Courier (máquina de escribir)">
+          <option value="'Courier New', Courier, monospace">Courier · Regular</option>
+          <option value="'Courier New', Courier, monospace; font-weight:bold">Courier · Negrita</option>
+        </optgroup>
       </select>
 
-      <label>Tamaño de fuente (pt)</label>
+      <label>Tamaño (pt) — mismo valor que <code>NAME_FONT_SIZE</code></label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="font-size" min="6" max="24" value="13" oninput="updateOverlay(); document.getElementById('font-size-val').textContent=this.value" style="flex:1" />
-        <span id="font-size-val" style="font-size:13px;color:#38bdf8;width:24px;text-align:right;">13</span>
+        <input type="range" id="font-size" min="6" max="28" value="11" oninput="updateOverlay(); document.getElementById('font-size-val').textContent=this.value" style="flex:1" />
+        <span id="font-size-val" style="font-size:13px;color:#38bdf8;width:24px;text-align:right;">11</span>
       </div>
+
+      <label>Interletraje (solo vista previa web)</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="letter-space" min="-0.05" max="0.3" step="0.01" value="0" oninput="updateOverlay(); document.getElementById('letter-space-val').textContent=this.value" style="flex:1" />
+        <span id="letter-space-val" style="font-size:12px;color:#94a3b8;width:36px;">0</span>
+      </div>
+      <p class="hint">pdf-lib no dibuja interletraje automático; ajústelo en la vista previa solo como guía.</p>
 
       <label>Color de texto</label>
       <div style="display:flex;gap:8px;margin-top:4px;">
-        <button class="btn btn-copy" style="flex:1" onclick="setColor('#000000')">Negro</button>
-        <button class="btn btn-copy" style="flex:1" onclick="setColor('#1a1a2e')">Marino</button>
-        <button class="btn btn-copy" style="flex:1" onclick="setColor('#0d2547')">Azul</button>
+        <button type="button" class="btn btn-copy" style="flex:1" onclick="setColor('#000000')">Negro</button>
+        <button type="button" class="btn btn-copy" style="flex:1" onclick="setColor('#1a1a2e')">Marino</button>
+        <button type="button" class="btn btn-copy" style="flex:1" onclick="setColor('#0d2547')">Azul</button>
       </div>
-      <input type="color" id="text-color" value="#000000" oninput="updateOverlay()" style="width:100%;height:36px;padding:2px;margin-top:8px;border-radius:6px;border:1px solid #334155;background:#1e293b;cursor:pointer;" />
+      <input type="color" id="text-color" value="#0a0a0f" oninput="syncColorFromPicker(); updateOverlay()" style="width:100%;height:36px;padding:2px;margin-top:8px;border-radius:6px;border:1px solid #334155;background:#1e293b;cursor:pointer;" />
     </div>
 
     <!-- Coords -->
     <div class="card">
-      <h2>3 · Posición (píxeles pantalla)</h2>
+      <h2>3 · Firma — tamaño en el PDF (pt)</h2>
+      <p class="hint" style="margin-bottom:8px;">Rectángulo máximo donde se escala la imagen PNG de la firma.</p>
+      <div class="row-2">
+        <div>
+          <label>Ancho máx.</label>
+          <input type="number" id="sig-max-w" value="220" min="40" max="400" step="0.1" oninput="showSigOverlay(); updateCoords();" />
+        </div>
+        <div>
+          <label>Alto máx.</label>
+          <input type="number" id="sig-max-h" value="52" min="20" max="200" step="0.1" oninput="showSigOverlay(); updateCoords();" />
+        </div>
+      </div>
+
+      <h2 style="margin-top:18px;">4 · Posición nombre (px pantalla)</h2>
       <div class="row-2">
         <div>
           <label>X (píxeles)</label>
@@ -290,19 +347,30 @@
 
     <!-- pdf-lib coords output -->
     <div class="card">
-      <h2>4 · Coordenadas para pdf-lib</h2>
+      <h2>5 · Copiar a <code>lib/certificatePdfLayout.ts</code></h2>
       <p class="hint" style="margin-bottom:10px;">
-        Copia estos valores y pégalos en <code>send-certificates-bulk.js</code>
+        Incluye nombre + firma + <code>CERT_NAME_RGB</code>. El script bulk solo usa nombre (mismos <code>NAME_*</code> que antes).
       </p>
       <div class="coord-display" id="coords-output">
-        Mueve el nombre primero…
+        Carga el PDF…
       </div>
-      <button class="btn btn-copy" onclick="copyCoords()">Copiar coordenadas</button>
+      <button class="btn btn-copy" onclick="copyCoords()">Copiar resumen texto</button>
+
+      <div style="margin-top:14px;">
+        <h2 style="margin-bottom:8px;">Archivo completo sugerido</h2>
+        <div class="output-box" id="code-output-layout" style="max-height:220px;overflow:auto;">–</div>
+        <button class="btn btn-success" onclick="copyCodeLayout()">Copiar <code>certificatePdfLayout.ts</code></button>
+      </div>
 
       <div style="margin-top:16px;">
-        <h2 style="margin-bottom:8px;">Código listo</h2>
+        <h2 style="margin-bottom:8px;">Solo script (Node)</h2>
         <div class="output-box" id="code-output">–</div>
-        <button class="btn btn-copy" onclick="copyCode()">Copiar código</button>
+        <button class="btn btn-copy" onclick="copyCode()">Copiar</button>
+      </div>
+      <div style="margin-top:14px;">
+        <h2 style="margin-bottom:8px;">Solo constantes nombre (perfil)</h2>
+        <div class="output-box" id="code-output-perfil">–</div>
+        <button class="btn btn-copy" onclick="copyCodePerfil()">Copiar</button>
       </div>
     </div>
 
@@ -310,6 +378,11 @@
     <div class="card" id="scale-card" style="display:none">
       <h2>Info del PDF</h2>
       <div class="coord-display" id="pdf-info">–</div>
+    </div>
+
+    <div class="card">
+      <h2>Otro</h2>
+      <p class="hint">¿Varias líneas de texto sobre el mismo PDF? Usa <a href="certificate-text-editor.html" style="color:#38bdf8;">certificate-text-editor.html</a> (parches múltiples).</p>
     </div>
 
   </aside>
@@ -322,6 +395,9 @@
       <div class="guide-h" id="guide-h" style="top:50%"></div>
       <div class="guide-v" id="guide-v" style="left:50%"></div>
       <div id="name-overlay" style="display:none"></div>
+      <div id="sig-overlay" style="display:none">
+        <span class="sig-label">Área firma (PNG escalado)</span>
+      </div>
     </div>
   </main>
 
@@ -337,20 +413,24 @@
   let canvasWidth   = 0   // rendered canvas width in CSS px
   let canvasHeight  = 0   // rendered canvas height in CSS px
   let scale         = 1   // CSS px per PDF unit
-  let currentColor  = '#000000'
+  let currentColor  = '#0a0a0f'
   let overlayX      = 0   // overlay left in CSS px relative to wrapper
   let overlayY      = 0   // overlay top  in CSS px relative to wrapper
+  let sigOverlayX   = 0
+  let sigOverlayY   = 0
+
+  const DEFAULT_NAME_PDF = { x: 245, y: 457.1, size: 11 }
+  const DEFAULT_SIG_PDF  = { x: 278.3, y: 216.9, maxW: 220, maxH: 52 }
 
   // ── Load PDF ────────────────────────────────────────────────────────────────
-  async function loadPDF(input) {
-    const file = input.files[0]
-    if (!file) return
-    const arrayBuffer = await file.arrayBuffer()
+  let pdfEventsBound = false
+
+  async function loadPdfFromArrayBuffer(arrayBuffer) {
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
     const page = await pdf.getPage(1)
     const viewport = page.getViewport({ scale: 1.5 })
 
-    pdfPageWidth  = viewport.width  / 1.5   // back to 1:1 pt units
+    pdfPageWidth  = viewport.width  / 1.5
     pdfPageHeight = viewport.height / 1.5
     canvasWidth   = viewport.width
     canvasHeight  = viewport.height
@@ -370,25 +450,56 @@
       `Canvas: ${canvasWidth} × ${canvasHeight} px\n` +
       `Escala render: 1.5×`
 
-    // Place overlay in a sensible default position (centre of page, ~40% down)
-    overlayX = canvasWidth  * 0.33
-    overlayY = canvasHeight * 0.42
+    document.getElementById('font-size').value = DEFAULT_NAME_PDF.size
+    document.getElementById('font-size-val').textContent = String(DEFAULT_NAME_PDF.size)
+    document.getElementById('sig-max-w').value = DEFAULT_SIG_PDF.maxW
+    document.getElementById('sig-max-h').value = DEFAULT_SIG_PDF.maxH
+
+    overlayX = DEFAULT_NAME_PDF.x * scale
+    overlayY = (pdfPageHeight - DEFAULT_NAME_PDF.y - DEFAULT_NAME_PDF.size * 0.2) * scale
+
+    sigOverlayX = DEFAULT_SIG_PDF.x * scale
+    sigOverlayY = canvasHeight - (DEFAULT_SIG_PDF.y + DEFAULT_SIG_PDF.maxH) * scale
+
     showOverlay()
+    showSigOverlay()
     updatePositionInputs()
     updateCoords()
 
-    // Enable click-to-place on wrapper
-    document.getElementById('pdf-wrapper').addEventListener('mousemove', onWrapperMouseMove)
-    document.getElementById('pdf-wrapper').addEventListener('click',     onWrapperClick)
+    if (!pdfEventsBound) {
+      document.getElementById('pdf-wrapper').addEventListener('mousemove', onWrapperMouseMove)
+      document.getElementById('pdf-wrapper').addEventListener('click',     onWrapperClick)
+      pdfEventsBound = true
+    }
+  }
+
+  async function loadPDFFromFile(input) {
+    const file = input.files[0]
+    if (!file) return
+    await loadPdfFromArrayBuffer(await file.arrayBuffer())
+    input.value = ''
+  }
+
+  async function loadProjectPdf() {
+    try {
+      const res = await fetch('/Certificado%20Labor%20Comunitaria%20Playa%20Aviones.pdf')
+      if (!res.ok) throw new Error(res.status + ' ' + res.statusText)
+      await loadPdfFromArrayBuffer(await res.arrayBuffer())
+    } catch (e) {
+      alert('No se pudo cargar el PDF desde el servidor. Ejecuta npm run dev y abre http://localhost:3000/tools/certificate-name-editor.html — o usa «Elegir archivo».\n\n' + e.message)
+    }
   }
 
   // ── Overlay ─────────────────────────────────────────────────────────────────
-  // Map select value → { fontFamily, fontWeight, fontStyle, pdfLibFont }
   const FONT_MAP = {
-    "'Times New Roman', Times, serif":                                                        { family: "'Times New Roman', Times, serif", weight: 'normal', style: 'normal',  pdfLib: 'StandardFonts.TimesRoman' },
-    "'Times New Roman', Times, serif; font-weight:bold":                                      { family: "'Times New Roman', Times, serif", weight: 'bold',   style: 'normal',  pdfLib: 'StandardFonts.TimesRomanBold' },
-    "'Times New Roman', Times, serif; font-style:italic":                                     { family: "'Times New Roman', Times, serif", weight: 'normal', style: 'italic',  pdfLib: 'StandardFonts.TimesRomanItalic' },
-    "'Times New Roman', Times, serif; font-weight:bold; font-style:italic":                   { family: "'Times New Roman', Times, serif", weight: 'bold',   style: 'italic',  pdfLib: 'StandardFonts.TimesRomanBoldItalic' },
+    "'Times New Roman', Times, serif":                                      { family: "'Times New Roman', Times, serif", weight: 'normal', style: 'normal', pdfLib: 'StandardFonts.TimesRoman' },
+    "'Times New Roman', Times, serif; font-weight:bold":                    { family: "'Times New Roman', Times, serif", weight: 'bold',   style: 'normal', pdfLib: 'StandardFonts.TimesRomanBold' },
+    "'Times New Roman', Times, serif; font-style:italic":                   { family: "'Times New Roman', Times, serif", weight: 'normal', style: 'italic', pdfLib: 'StandardFonts.TimesRomanItalic' },
+    "'Times New Roman', Times, serif; font-weight:bold; font-style:italic": { family: "'Times New Roman', Times, serif", weight: 'bold',   style: 'italic', pdfLib: 'StandardFonts.TimesRomanBoldItalic' },
+    "Helvetica, Arial, sans-serif; font-weight:normal":                    { family: 'Helvetica, Arial, sans-serif', weight: 'normal', style: 'normal', pdfLib: 'StandardFonts.Helvetica' },
+    "Helvetica, Arial, sans-serif; font-weight:bold":                        { family: 'Helvetica, Arial, sans-serif', weight: 'bold',   style: 'normal', pdfLib: 'StandardFonts.HelveticaBold' },
+    "'Courier New', Courier, monospace":                                   { family: "'Courier New', Courier, monospace", weight: 'normal', style: 'normal', pdfLib: 'StandardFonts.Courier' },
+    "'Courier New', Courier, monospace; font-weight:bold":                 { family: "'Courier New', Courier, monospace", weight: 'bold',   style: 'normal', pdfLib: 'StandardFonts.CourierBold' },
   }
 
   function getSelectedFont() {
@@ -396,20 +507,50 @@
     return FONT_MAP[val] || FONT_MAP["'Times New Roman', Times, serif"]
   }
 
+  function getSigPdfDims() {
+    const maxW = parseFloat(document.getElementById('sig-max-w').value) || 220
+    const maxH = parseFloat(document.getElementById('sig-max-h').value) || 52
+    return { maxW, maxH }
+  }
+
+  function showSigOverlay() {
+    if (!pdfPageWidth) return
+    const el = document.getElementById('sig-overlay')
+    const { maxW, maxH } = getSigPdfDims()
+    const w = maxW * scale
+    const h = maxH * scale
+    sigOverlayX = Math.max(0, Math.min(canvasWidth - w, sigOverlayX))
+    sigOverlayY = Math.max(0, Math.min(canvasHeight - h, sigOverlayY))
+    el.style.display = 'block'
+    el.style.width = w + 'px'
+    el.style.height = h + 'px'
+    el.style.left = sigOverlayX + 'px'
+    el.style.top = sigOverlayY + 'px'
+  }
+
   function showOverlay() {
     const overlay  = document.getElementById('name-overlay')
     const name     = document.getElementById('name-input').value || 'Nombre Apellido'
-    const size     = parseInt(document.getElementById('font-size').value)
+    const size     = parseInt(document.getElementById('font-size').value, 10)
     const fontInfo = getSelectedFont()
-    overlay.style.display    = 'block'
-    overlay.style.left       = overlayX + 'px'
-    overlay.style.top        = overlayY + 'px'
-    overlay.style.fontSize   = (size * scale) + 'px'
-    overlay.style.color      = currentColor
-    overlay.style.fontFamily = fontInfo.family
-    overlay.style.fontWeight = fontInfo.weight
-    overlay.style.fontStyle  = fontInfo.style
-    overlay.textContent      = name
+    const picker   = document.getElementById('text-color')
+    currentColor   = picker ? picker.value : currentColor
+    const letterEm = parseFloat(document.getElementById('letter-space').value) || 0
+    overlay.style.display      = 'block'
+    overlay.style.left         = overlayX + 'px'
+    overlay.style.top          = overlayY + 'px'
+    overlay.style.fontSize     = (size * scale) + 'px'
+    overlay.style.color        = currentColor
+    overlay.style.fontFamily   = fontInfo.family
+    overlay.style.fontWeight   = fontInfo.weight
+    overlay.style.fontStyle    = fontInfo.style
+    overlay.style.letterSpacing = letterEm + 'em'
+    overlay.textContent        = name
+    showSigOverlay()
+  }
+
+  function syncColorFromPicker() {
+    currentColor = document.getElementById('text-color').value
   }
 
   function updateOverlay() {
@@ -423,6 +564,16 @@
     updateOverlay()
   }
 
+  function hexToRgbFraction(hex) {
+    const h = (hex || '#000000').replace('#', '')
+    const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16)
+    const r = ((n >> 16) & 255) / 255
+    const g = ((n >> 8) & 255) / 255
+    const b = (n & 255) / 255
+    const q = (x) => Math.round(x * 1000) / 1000
+    return { r: q(r), g: q(g), b: q(b) }
+  }
+
   // ── Click-to-place ───────────────────────────────────────────────────────────
   function onWrapperMouseMove(e) {
     const rect = document.getElementById('pdf-wrapper').getBoundingClientRect()
@@ -433,8 +584,7 @@
   }
 
   function onWrapperClick(e) {
-    // Ignore if clicking the overlay itself (handled by drag)
-    if (e.target === document.getElementById('name-overlay')) return
+    if (e.target.closest && (e.target.closest('#name-overlay') || e.target.closest('#sig-overlay'))) return
     const rect = document.getElementById('pdf-wrapper').getBoundingClientRect()
     overlayX = e.clientX - rect.left
     overlayY = e.clientY - rect.top
@@ -472,6 +622,36 @@
 
   overlay.addEventListener('pointerup', () => { dragging = false })
 
+  // ── Drag signature box ─────────────────────────────────────────────────────
+  const sigEl = document.getElementById('sig-overlay')
+  let sigDragging = false, sigDragOffX = 0, sigDragOffY = 0
+
+  sigEl.addEventListener('pointerdown', e => {
+    sigDragging = true
+    const rect = sigEl.getBoundingClientRect()
+    sigDragOffX = e.clientX - rect.left
+    sigDragOffY = e.clientY - rect.top
+    sigEl.setPointerCapture(e.pointerId)
+    e.stopPropagation()
+  })
+
+  sigEl.addEventListener('pointermove', e => {
+    if (!sigDragging) return
+    const wrapperRect = document.getElementById('pdf-wrapper').getBoundingClientRect()
+    const { maxW, maxH } = getSigPdfDims()
+    const w = maxW * scale
+    const h = maxH * scale
+    sigOverlayX = e.clientX - wrapperRect.left - sigDragOffX
+    sigOverlayY = e.clientY - wrapperRect.top - sigDragOffY
+    sigOverlayX = Math.max(0, Math.min(canvasWidth - w, sigOverlayX))
+    sigOverlayY = Math.max(0, Math.min(canvasHeight - h, sigOverlayY))
+    sigEl.style.left = sigOverlayX + 'px'
+    sigEl.style.top = sigOverlayY + 'px'
+    updateCoords()
+  })
+
+  sigEl.addEventListener('pointerup', () => { sigDragging = false })
+
   // ── Manual input ─────────────────────────────────────────────────────────────
   function setPositionFromInputs() {
     overlayX = parseInt(document.getElementById('pos-x').value) || 0
@@ -491,22 +671,58 @@
   // pdfY = pdfPageHeight - (overlayY / scale) - fontSize  (baseline adjust)
   function toPdfCoords() {
     if (!pdfPageWidth) return null
-    const fontSize = parseInt(document.getElementById('font-size').value)
+    const fontSize = parseInt(document.getElementById('font-size').value, 10)
     const pdfX = overlayX / scale
-    // overlayY is the top of the text box in canvas pixels
-    // In pdf-lib, y is from bottom and is the baseline of the text
     const pdfY = pdfPageHeight - (overlayY / scale) - fontSize * 0.2
     return { x: Math.round(pdfX * 10) / 10, y: Math.round(pdfY * 10) / 10, size: fontSize }
   }
 
+  /** Esquina inferior izquierda de la imagen de firma en pt (pdf-lib drawImage). */
+  function toSigPdfCoords() {
+    if (!pdfPageWidth) return null
+    const { maxW, maxH } = getSigPdfDims()
+    const hPx = maxH * scale
+    const pdfX = sigOverlayX / scale
+    const pdfYBottom = pdfPageHeight - (sigOverlayY + hPx) / scale
+    return {
+      x: Math.round(pdfX * 10) / 10,
+      y: Math.round(pdfYBottom * 10) / 10,
+      maxW: Math.round(maxW * 10) / 10,
+      maxH: Math.round(maxH * 10) / 10,
+    }
+  }
+
   function updateCoords() {
-    const c    = toPdfCoords()
-    if (!c) return
+    const c = toPdfCoords()
+    const s = toSigPdfCoords()
+    if (!c || !s) return
     const font = getSelectedFont()
+    const col  = hexToRgbFraction(document.getElementById('text-color').value)
     document.getElementById('coords-output').textContent =
-      `NAME_X         = ${c.x}\nNAME_Y         = ${c.y}\nNAME_FONT_SIZE = ${c.size}\nFUENTE         = ${font.pdfLib}`
+      `CERT_NAME_X / Y / SIZE = ${c.x}, ${c.y}, ${c.size}\nCERT_NAME_RGB = rgb(${col.r}, ${col.g}, ${col.b})\nCERT_SIGNATURE_X / Y = ${s.x}, ${s.y} (esquina inferior izq. imagen)\nCERT_SIGNATURE_MAX_W / H = ${s.maxW}, ${s.maxH}\nFUENTE nombre = ${font.pdfLib}`
+
+    const layoutTs =
+`/** Layout del certificado — editor: /tools/certificate-name-editor.html */
+
+export const CERT_PDF_PATH = '/Certificado%20Labor%20Comunitaria%20Playa%20Aviones.pdf'
+
+export const CERT_NAME_X = ${c.x}
+export const CERT_NAME_Y = ${c.y}
+export const CERT_NAME_SIZE = ${c.size}
+
+export const CERT_NAME_RGB = { r: ${col.r}, g: ${col.g}, b: ${col.b} } as const
+
+export const CERT_SIGNATURE_X = ${s.x}
+export const CERT_SIGNATURE_Y = ${s.y}
+export const CERT_SIGNATURE_MAX_WIDTH = ${s.maxW}
+export const CERT_SIGNATURE_MAX_HEIGHT = ${s.maxH}
+`
+    document.getElementById('code-output-layout').textContent = layoutTs
+
     document.getElementById('code-output').textContent =
-      `const NAME_X         = ${c.x}\nconst NAME_Y         = ${c.y}\nconst NAME_FONT_SIZE = ${c.size}\nconst font = await pdfDoc.embedFont(${font.pdfLib})`
+      `const NAME_X         = ${c.x}\nconst NAME_Y         = ${c.y}\nconst NAME_FONT_SIZE = ${c.size}\nconst font = await pdfDoc.embedFont(${font.pdfLib})\n// page.drawText(nombre, { x: NAME_X, y: NAME_Y, size: NAME_FONT_SIZE, font, color: rgb(${col.r}, ${col.g}, ${col.b}) })`
+    document.getElementById('code-output-perfil').textContent =
+      `const CERT_NAME_X = ${c.x}\nconst CERT_NAME_Y = ${c.y}\nconst CERT_NAME_SIZE = ${c.size}\n// const font = await pdfDoc.embedFont(${font.pdfLib})\n// color: rgb(${col.r}, ${col.g}, ${col.b})`
   }
 
   function copyCoords() {
@@ -519,12 +735,21 @@
   }
 
   function copyCode() {
-    const c    = toPdfCoords()
-    if (!c) return
-    const font = getSelectedFont()
-    navigator.clipboard.writeText(
-      `const NAME_X         = ${c.x}\nconst NAME_Y         = ${c.y}\nconst NAME_FONT_SIZE = ${c.size}\nconst font = await pdfDoc.embedFont(${font.pdfLib})`
-    ).then(() => alert('¡Código copiado!'))
+    const el = document.getElementById('code-output')
+    if (!el || el.textContent === '–') return
+    navigator.clipboard.writeText(el.textContent).then(() => alert('¡Código del script copiado!'))
+  }
+
+  function copyCodePerfil() {
+    const el = document.getElementById('code-output-perfil')
+    if (!el || el.textContent === '–') return
+    navigator.clipboard.writeText(el.textContent).then(() => alert('¡Bloque para perfil copiado!'))
+  }
+
+  function copyCodeLayout() {
+    const el = document.getElementById('code-output-layout')
+    if (!el || el.textContent === '–') return
+    navigator.clipboard.writeText(el.textContent).then(() => alert('¡Listo! Pega en lib/certificatePdfLayout.ts'))
   }
 </script>
 
