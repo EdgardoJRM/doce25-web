@@ -1,6 +1,9 @@
+# Deploy: run from repo root after `sam build --template-file sam-template.yaml`.
+# Use `sam deploy` without --template-file so this file is picked up (SAM looks
+# for samconfig.toml next to the template when --template-file points under .aws-sam/build/).
+
 version = 0.1
-[default]
-[default.deploy]
+
 [default.deploy.parameters]
 stack_name = "dosce25-api"
 resolve_s3 = true
@@ -9,4 +12,3 @@ region = "us-east-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
-

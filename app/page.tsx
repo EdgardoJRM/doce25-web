@@ -24,14 +24,11 @@ export default function Home() {
 
         {/* Hero Content - más espacio, tipografía más equilibrada */}
         <div className="relative z-10 container mx-auto px-4 text-center text-white flex-1 flex flex-col justify-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in normal-case">
-            Un océano saludable
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-10 leading-tight animate-fade-in normal-case">
+            Nuestras Costas*
             <br />
-            y un planeta próspero
+            Necesitan Tu Ayuda
           </h1>
-          <p className="text-lg md:text-xl lg:text-2xl mb-10 max-w-2xl mx-auto text-blue-100 font-light animate-slide-in">
-            para siempre y para todos
-          </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in">
             <a
               href="https://www.paypal.com/donate/?hosted_button_id=A8X4ZTZDF8F5N"
@@ -88,7 +85,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-5xl md:text-6xl font-bold mb-8 leading-tight">
-                Nuestro Océano<br />Necesita Tu Ayuda
+                Nuestras Costas*<br />Necesitan Tu Ayuda
               </h2>
               <p className="text-xl text-blue-100 mb-6 leading-relaxed">
                 Nuestro océano produce la mitad del oxígeno del mundo, absorbe el 90% del exceso de calor del cambio climático y soporta millones de especies.
