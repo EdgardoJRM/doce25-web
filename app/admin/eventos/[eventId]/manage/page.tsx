@@ -223,6 +223,21 @@ export default function EventManagePage() {
             Editar →
           </div>
         </Link>
+
+        {/* Reporte PDF + encuesta */}
+        <Link
+          href={`/admin/eventos/${eventId}/reporte`}
+          className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-indigo-500"
+        >
+          <div className="text-4xl mb-3">📄</div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Reporte y encuesta</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Envía la encuesta post-evento por correo y genera el PDF del reporte
+          </p>
+          <div className="text-indigo-600 font-semibold text-sm">
+            Abrir →
+          </div>
+        </Link>
       </div>
 
       {/* Description */}

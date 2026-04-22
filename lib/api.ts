@@ -37,6 +37,9 @@ interface UpdateEventData {
   capacity?: number
   imageUrl?: string
   status?: 'draft' | 'published' | 'cancelled'
+  /** Textos opcionales para el PDF de reporte del evento */
+  reportPresidentMessage?: string
+  reportConclusion?: string
 }
 
 interface UpdateRegistrationData {
@@ -731,6 +734,125 @@ export async function deleteWeight(registrationId: string, token?: string) {
   }
 
   return response.json()
+}
+
+// ----- Encuesta post-evento + reporte PDF (admin Cognito id token) -----
+
+export interface SurveyInvitationPayload {
+  eventId: string
+  eventName: string
+  eventDate: string
+  fullName: string
+  firstName: string
+  alreadyAnswered: boolean
+}
+
+export async function getSurveyInvitation(token: string): Promise<SurveyInvitationPayload> {
+  const response = await fetch(`${API_ENDPOINT}/survey/${encodeURIComponent(token)}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error((err as { message?: string }).message || 'Encuesta no encontrada')
+  }
+  return response.json()
+}
+
+export async function submitSurveyResponse(
+  token: string,
+  data: {
+    wouldRecommend: boolean
+    organizationRating: number
+    satisfactionRating: number
+    comments?: string
+  }
+) {
+  const response = await fetch(`${API_ENDPOINT}/survey/${encodeURIComponent(token)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error((err as { message?: string }).message || 'Error al enviar respuesta')
+  }
+  return response.json()
+}
+
+export interface EventSurveyStats {
+  eventId: string
+  totalSent: number
+  totalResponded: number
+  responseRate: number
+  recommendPercent: number
+  avgOrganization: number
+  avgSatisfaction: number
+  comments: Array<{ text: string; respondedAt?: string }>
+}
+
+export async function getEventSurveyStats(
+  eventId: string,
+  idToken: string
+): Promise<EventSurveyStats> {
+  const response = await fetch(`${API_ENDPOINT}/events/${eventId}/survey-stats`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+  })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error((err as { message?: string }).message || 'Error al cargar estadísticas de encuesta')
+  }
+  return response.json()
+}
+
+export async function sendEventSurveyEmails(eventId: string, idToken: string) {
+  const response = await fetch(`${API_ENDPOINT}/events/${eventId}/survey/send`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({}),
+  })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error((err as { message?: string }).message || 'Error al enviar encuestas')
+  }
+  return response.json() as Promise<{
+    eventId: string
+    eventName: string
+    checkedInWithEmail: number
+    invitationsNewlyCreated: number
+    skippedAlreadyHadInvitation: number
+    skippedNoEmail: number
+    emailsSentThisRun: number
+    errors?: string[]
+  }>
+}
+
+export async function generateEventReportPdf(eventId: string, idToken: string) {
+  const response = await fetch(`${API_ENDPOINT}/events/${eventId}/report/pdf`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({}),
+  })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error((err as { message?: string }).message || 'Error al generar PDF')
+  }
+  return response.json() as Promise<{
+    eventId: string
+    key: string
+    downloadUrl: string
+    expiresInSeconds: number
+  }>
 }
 
 // Group Management Functions

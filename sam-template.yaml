@@ -40,6 +40,9 @@ Globals:
         COGNITO_CLIENT_ID: !Ref CognitoClientId
         COGNITO_ADMIN_GROUP: !Ref CognitoAdminGroup
         ADMIN_EMAILS: !Ref AdminEmails
+        SURVEY_INVITATIONS_TABLE: !Ref SurveyInvitationsTable
+        SURVEY_RESPONSES_TABLE: !Ref SurveyResponsesTable
+        REPORTS_BUCKET: !Ref EventReportsBucket
     Architectures:
       - x86_64
 
@@ -176,6 +179,67 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+
+  SurveyInvitationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Dosce25-SurveyInvitations
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: token
+          AttributeType: S
+        - AttributeName: eventId
+          AttributeType: S
+        - AttributeName: registrationId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: token
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EventIdIndex
+          KeySchema:
+            - AttributeName: eventId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: RegistrationIdIndex
+          KeySchema:
+            - AttributeName: registrationId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  SurveyResponsesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Dosce25-SurveyResponses
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: responseId
+          AttributeType: S
+        - AttributeName: eventId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: responseId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EventIdIndex
+          KeySchema:
+            - AttributeName: eventId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # PDF reports (private; presigned download URLs)
+  EventReportsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'dosce25-event-reports-${AWS::AccountId}-${AWS::Region}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
 
   # S3 Bucket for QR codes
   QRCodesBucket:
@@ -1115,6 +1179,174 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref WeightRecordsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
+  SendEventSurveyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/send-event-survey/
+      Handler: index.handler
+      Timeout: 900
+      MemorySize: 512
+      Events:
+        SendEventSurvey:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}/survey/send
+            Method: post
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref RegistrationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SurveyInvitationsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: '*'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
+  GetSurveyInvitationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-survey-invitation/
+      Handler: index.handler
+      Events:
+        GetSurveyInvitation:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /survey/{token}
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref SurveyInvitationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
+  SubmitSurveyResponseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/submit-survey-response/
+      Handler: index.handler
+      Events:
+        SubmitSurveyResponse:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /survey/{token}
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SurveyInvitationsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SurveyResponsesTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
+  GetEventSurveyStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-event-survey-stats/
+      Handler: index.handler
+      Events:
+        GetEventSurveyStats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}/survey-stats
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref SurveyInvitationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref SurveyResponsesTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - index.ts
+
+  GenerateEventReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/generate-event-report/
+      Handler: index.handler
+      Timeout: 120
+      MemorySize: 2048
+      Events:
+        GenerateEventReport:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /events/{eventId}/report/pdf
+            Method: post
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref RegistrationsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref WeightRecordsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref SurveyResponsesTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref SurveyInvitationsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Dosce25-WeightRecords/index/EventIndex"
+                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Dosce25-SurveyInvitations/index/EventIdIndex"
+        - S3WritePolicy:
+            BucketName: !Ref EventReportsBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: !Sub "${EventReportsBucket.Arn}/*"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

@@ -15,6 +15,9 @@ interface UpdateEventBody {
   capacity?: number
   image?: string
   status?: 'draft' | 'published'
+  /** Texto largo para PDF / reporte (opcional) */
+  reportPresidentMessage?: string
+  reportConclusion?: string
 }
 
 export const handler = async (
@@ -114,6 +117,16 @@ export const handler = async (
       updateExpressions.push('#status = :status')
       expressionAttributeNames['#status'] = 'status'
       expressionAttributeValues[':status'] = body.status
+    }
+
+    if (body.reportPresidentMessage !== undefined) {
+      updateExpressions.push('reportPresidentMessage = :reportPresidentMessage')
+      expressionAttributeValues[':reportPresidentMessage'] = body.reportPresidentMessage
+    }
+
+    if (body.reportConclusion !== undefined) {
+      updateExpressions.push('reportConclusion = :reportConclusion')
+      expressionAttributeValues[':reportConclusion'] = body.reportConclusion
     }
 
     // Siempre actualizar updatedAt
