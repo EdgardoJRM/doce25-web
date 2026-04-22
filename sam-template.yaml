@@ -135,6 +135,22 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  WebinarRegistrationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Dosce25-WebinarRegistrations
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: S
+        - AttributeName: webinarSlug
+          AttributeType: S
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+        - AttributeName: webinarSlug
+          KeyType: RANGE
+
   WeightRecordsTable:
     Type: AWS::DynamoDB::Table
     Properties:

@@ -116,8 +116,20 @@ export default function EncuestaPage() {
         )}
 
         {load === 'error' && (
-          <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-6 text-center">
-            {err}
+          <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-6 text-center space-y-3">
+            <p className="font-medium">{err}</p>
+            {err.includes('NEXT_PUBLIC_API_ENDPOINT') ? (
+              <p className="text-sm text-red-700/90">
+                Sin esa variable, la página no puede hablar con el API de encuestas. Configúrala en Amplify y
+                redeploy del frontend.
+              </p>
+            ) : null}
+            {err.includes('Encuesta no encontrada') || err.includes('404') ? (
+              <p className="text-sm text-red-700/90">
+                El enlace debe ser el completo que viene en el correo (incluye un token largo). Si ya
+                respondiste, verás el mensaje de gracias.
+              </p>
+            ) : null}
           </div>
         )}
 

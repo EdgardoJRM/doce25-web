@@ -7,8 +7,8 @@ import Image from 'next/image'
 export function Footer() {
   const pathname = usePathname()
 
-  // Hide footer on admin pages
-  if (pathname.startsWith('/admin')) {
+  // Hide footer on admin pages and webinar funnel (footer propio)
+  if (pathname.startsWith('/admin') || pathname.startsWith('/webinar')) {
     return null
   }
 

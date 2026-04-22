@@ -1,5 +1,15 @@
 const API_ENDPOINT = process.env.NEXT_PUBLIC_API_ENDPOINT || ''
 
+function requirePublicApiEndpoint(): string {
+  const base = String(API_ENDPOINT || '').trim()
+  if (!base) {
+    throw new Error(
+      'El sitio no tiene configurado NEXT_PUBLIC_API_ENDPOINT. Añádelo en Amplify (variables de entorno del branch) y vuelve a desplegar el frontend.'
+    )
+  }
+  return base.replace(/\/$/, '')
+}
+
 export interface RegisterEventData {
   name: string
   email: string
@@ -748,13 +758,18 @@ export interface SurveyInvitationPayload {
 }
 
 export async function getSurveyInvitation(token: string): Promise<SurveyInvitationPayload> {
-  const response = await fetch(`${API_ENDPOINT}/survey/${encodeURIComponent(token)}`, {
+  const base = requirePublicApiEndpoint()
+  const response = await fetch(`${base}/survey/${encodeURIComponent(token)}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   })
   if (!response.ok) {
-    const err = await response.json().catch(() => ({}))
-    throw new Error((err as { message?: string }).message || 'Encuesta no encontrada')
+    const err = (await response.json().catch(() => ({}))) as {
+      message?: string
+      error?: string
+    }
+    const detail = [err.message, err.error].filter(Boolean).join(' — ')
+    throw new Error(detail || `Error ${response.status} al cargar la encuesta`)
   }
   return response.json()
 }
@@ -768,14 +783,19 @@ export async function submitSurveyResponse(
     comments?: string
   }
 ) {
-  const response = await fetch(`${API_ENDPOINT}/survey/${encodeURIComponent(token)}`, {
+  const base = requirePublicApiEndpoint()
+  const response = await fetch(`${base}/survey/${encodeURIComponent(token)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
   if (!response.ok) {
-    const err = await response.json().catch(() => ({}))
-    throw new Error((err as { message?: string }).message || 'Error al enviar respuesta')
+    const err = (await response.json().catch(() => ({}))) as {
+      message?: string
+      error?: string
+    }
+    const detail = [err.message, err.error].filter(Boolean).join(' — ')
+    throw new Error(detail || 'Error al enviar respuesta')
   }
   return response.json()
 }

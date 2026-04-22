@@ -4,6 +4,10 @@
  *
  * Requiere un ID token de Cognito de un usuario admin (mismo que el panel /admin).
  *
+ * Nota: el API solo envía a participantes con check-in (checkedIn=true) y correo,
+ * y omite a quien ya tenga invitación en Dosce25-SurveyInvitations. Para un solo
+ * correo de prueba con enlace nuevo, usa: node scripts/send-survey-invite-one.mjs
+ *
  * Uso:
  *   export COGNITO_ID_TOKEN="eyJ..."
  *   export NEXT_PUBLIC_API_ENDPOINT="https://xxxxx.execute-api.us-east-1.amazonaws.com/prod"
