@@ -1,6 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  /** Refuerzo: apex (y typo común) → www; el mismo criterio está en middleware.ts */
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'doce25.org' }],
+        destination: 'https://www.doce25.org/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'dosce25.org' }],
+        destination: 'https://www.doce25.org/:path*',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     domains: ['localhost', 'images.unsplash.com'],
     remotePatterns: [
