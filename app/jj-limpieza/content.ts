@@ -17,8 +17,9 @@ export const jjLimpiezaContent = {
   event: {
     name: 'Johnson & Johnson Beach Cleanup',
     dateLabel: 'Viernes, 14 de agosto de 2026',
-    dateIso: '2026-08-14T09:00:00-04:00',
-    timeLabel: 'Por confirmar',
+    dateIso: '2026-08-14T08:30:00-04:00',
+    endIso: '2026-08-14T12:30:00-04:00',
+    timeLabel: '8:30 a.m. – 12:30 p.m.',
     location: 'Playa Aviones, Loíza, Puerto Rico',
     modality: 'Actividad presencial y privada para empleados de Johnson & Johnson',
     capacity: 59,

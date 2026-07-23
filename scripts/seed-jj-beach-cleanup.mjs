@@ -23,9 +23,10 @@ const eventPayload = {
   name: 'Johnson & Johnson Beach Cleanup',
   slug: SLUG,
   description:
-    'Actividad privada de voluntariado corporativo para empleados de Johnson & Johnson. Limpieza de Playa Aviones, Loíza, con orientación, materiales, pesaje, team building y clase de salsa. Organizado por Johnson & Johnson Innovative Medicine en colaboración con Doce25. Hora por confirmar.',
-  date: '2026-08-14T09:00:00-04:00',
-  dateTime: '2026-08-14T09:00:00-04:00',
+    'Actividad privada de voluntariado corporativo para empleados de Johnson & Johnson. Limpieza de Playa Aviones, Loíza, con orientación, materiales, pesaje, team building y clase de salsa. Organizado por Johnson & Johnson Innovative Medicine en colaboración con Doce25. Horario: 8:30 a.m. a 12:30 p.m.',
+  date: '2026-08-14T08:30:00-04:00',
+  dateTime: '2026-08-14T08:30:00-04:00',
+  endDateTime: '2026-08-14T12:30:00-04:00',
   location: 'Playa Aviones, Loíza, Puerto Rico',
   capacity: 59,
   image: '',
