@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Crea o actualiza el evento Johnson & Johnson Beach Cleanup (unlisted, capacity 59).
+ * Crea o actualiza el evento Johnson & Johnson Beach Cleanup (unlisted, capacity 60).
  *
  * Uso:
  *   AWS_PROFILE=... node scripts/seed-jj-beach-cleanup.mjs
@@ -28,7 +28,7 @@ const eventPayload = {
   dateTime: '2026-08-14T08:30:00-04:00',
   endDateTime: '2026-08-14T12:30:00-04:00',
   location: 'Playa Aviones, Loíza, Puerto Rico',
-  capacity: 59,
+  capacity: 60,
   image: '',
   status: 'published',
   visibility: 'unlisted',
@@ -65,7 +65,7 @@ async function main() {
     eventId,
     slug: SLUG,
     visibility: 'unlisted',
-    capacity: 59,
+    capacity: 60,
     landing: '/jj-limpieza',
     legacyLanding: `/eventos/${SLUG}`,
   })
