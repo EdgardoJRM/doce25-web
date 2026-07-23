@@ -11,9 +11,9 @@ function ConfirmationContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-cyan-50 to-blue-50 flex items-center justify-center px-4 py-12">
-      <div className="max-w-2xl w-full">
+      <div className="max-w-2xl w-full min-w-0">
         {/* Success Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+        <div className="bg-white rounded-2xl shadow-2xl p-5 sm:p-8 md:p-12 text-center overflow-hidden">
           {/* Success Icon */}
           <div className="mb-6 flex justify-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -39,13 +39,13 @@ function ConfirmationContent() {
           </h1>
 
           {/* Message */}
-          <p className="text-lg text-gray-700 mb-6">
+          <p className="text-lg text-gray-700 mb-6 break-words">
             Te has registrado exitosamente para <span className="font-semibold text-cyan-600">{eventName}</span>
           </p>
 
           {/* Email Info */}
-          <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-6 mb-8">
-            <div className="flex items-start gap-3">
+          <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4 sm:p-6 mb-8 overflow-hidden">
+            <div className="flex items-start gap-3 min-w-0">
               <svg 
                 className="w-6 h-6 text-cyan-600 flex-shrink-0 mt-0.5" 
                 fill="none" 
@@ -59,14 +59,14 @@ function ConfirmationContent() {
                   d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
                 />
               </svg>
-              <div className="text-left">
+              <div className="min-w-0 flex-1 text-left">
                 <h3 className="font-semibold text-gray-900 mb-2">
                   Revisa tu correo electrónico
                 </h3>
                 <p className="text-sm text-gray-600 mb-2">
                   Hemos enviado tu entrada digital con código QR a:
                 </p>
-                <p className="text-sm font-mono bg-white px-3 py-2 rounded border border-cyan-300 text-cyan-700">
+                <p className="block w-full max-w-full overflow-hidden break-all text-sm font-mono bg-white px-3 py-2 rounded border border-cyan-300 text-cyan-700">
                   {email}
                 </p>
               </div>
