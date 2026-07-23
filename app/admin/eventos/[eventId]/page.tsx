@@ -61,6 +61,7 @@ export default function EditarEventoPage() {
     capacity: '',
     image: '',
     status: 'draft' as 'draft' | 'published',
+    visibility: 'public' as 'public' | 'unlisted',
   })
 
   // Registrations data
@@ -198,6 +199,7 @@ export default function EditarEventoPage() {
         capacity: event.capacity?.toString() || '',
         image: event.image || '',
         status: event.status || 'draft',
+        visibility: event.visibility === 'unlisted' ? 'unlisted' : 'public',
       })
     } catch (err: any) {
       setError(err.message || 'Error al cargar el evento')
@@ -417,12 +419,30 @@ export default function EditarEventoPage() {
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="published">✅ Publicado (visible para todos)</option>
+                <option value="published">✅ Publicado (registrable)</option>
                 <option value="draft">📝 Borrador (solo admin)</option>
               </select>
+            </div>
+
+            {/* Visibilidad */}
+            <div>
+              <label htmlFor="visibility" className="block text-sm font-medium text-gray-700 mb-2">
+                Visibilidad *
+              </label>
+              <select
+                id="visibility"
+                value={formData.visibility}
+                onChange={(e) =>
+                  setFormData({ ...formData, visibility: e.target.value as 'public' | 'unlisted' })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="public">Público (listado, banner, sitemap)</option>
+                <option value="unlisted">No listado (solo con el link)</option>
+              </select>
               <p className="mt-1 text-sm text-gray-500">
-                <strong>Publicado:</strong> El evento aparece en la página pública y usuarios pueden registrarse<br />
-                <strong>Borrador:</strong> Solo visible en el admin panel
+                <strong>Público:</strong> Aparece en /eventos y promociones<br />
+                <strong>No listado:</strong> Registrable por URL directa; no sale en listados públicos
               </p>
             </div>
 

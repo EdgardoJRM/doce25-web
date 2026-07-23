@@ -562,6 +562,57 @@ export const handler = async (
       }
     }
 
+    // Obtener evento antes de registrar (capacidad + datos para email)
+    const eventResult = await dynamoClient.send(
+      new GetCommand({
+        TableName: TABLES.EVENTS,
+        Key: { eventId },
+      })
+    )
+
+    if (!eventResult.Item) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ message: 'Evento no encontrado' }),
+      }
+    }
+
+    const eventInfo = eventResult.Item
+    if (eventInfo.status && eventInfo.status !== 'published') {
+      return {
+        statusCode: 403,
+        headers,
+        body: JSON.stringify({ message: 'Este evento no está abierto a registros' }),
+      }
+    }
+
+    const capacity = Number(eventInfo.capacity) || 0
+    if (capacity > 0) {
+      const countResult = await dynamoClient.send(
+        new QueryCommand({
+          TableName: TABLES.REGISTRATIONS,
+          IndexName: 'EventIdIndex',
+          KeyConditionExpression: 'eventId = :eventId',
+          ExpressionAttributeValues: {
+            ':eventId': eventId,
+          },
+          Select: 'COUNT',
+        })
+      )
+
+      if ((countResult.Count || 0) >= capacity) {
+        return {
+          statusCode: 409,
+          headers,
+          body: JSON.stringify({
+            message: 'Lo sentimos, este evento ya alcanzó su capacidad máxima.',
+            capacityReached: true,
+          }),
+        }
+      }
+    }
+
     // Verificar si el email ya está registrado para este evento
     const existingRegistrations = await dynamoClient.send(
       new QueryCommand({
@@ -623,16 +674,6 @@ export const handler = async (
         },
       })
     )
-
-    // Obtener información del evento
-    const eventResult = await dynamoClient.send(
-      new GetCommand({
-        TableName: TABLES.EVENTS,
-        Key: { eventId },
-      })
-    )
-
-    const eventInfo = eventResult.Item || {}
 
     // Generar QR code
     const qrUrl = `${process.env.FRONTEND_URL || 'https://dosce25.org'}/checkin/${qrToken}`

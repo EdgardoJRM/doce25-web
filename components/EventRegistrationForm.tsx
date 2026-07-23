@@ -7,10 +7,17 @@ import { useAuth } from '@/contexts/AuthContext'
 interface EventRegistrationFormProps {
   eventId: string
   onSuccess?: (email: string) => void
+  /** Si se define, se usa como organización y se omite el paso 2 */
+  fixedOrganization?: string
 }
 
-export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationFormProps) {
+export function EventRegistrationForm({
+  eventId,
+  onSuccess,
+  fixedOrganization,
+}: EventRegistrationFormProps) {
   const { user, token } = useAuth()
+  const totalSteps = fixedOrganization ? 2 : 3
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,7 +28,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
     ageRange: user?.ageRange || '',
     gender: user?.gender || '',
     city: user?.city || '',
-    organization: user?.organization || '',
+    organization: fixedOrganization || user?.organization || '',
     otherOrganization: '',
     signature: '',
     signatureDate: new Date().toISOString().split('T')[0],
@@ -37,10 +44,16 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
         ageRange: user.ageRange || '',
         gender: user.gender || '',
         city: user.city || '',
-        organization: user.organization || '',
+        organization: fixedOrganization || user.organization || '',
       }))
     }
-  }, [user])
+  }, [user, fixedOrganization])
+
+  useEffect(() => {
+    if (fixedOrganization) {
+      setFormData(prev => ({ ...prev, organization: fixedOrganization }))
+    }
+  }, [fixedOrganization])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -65,7 +78,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
       }
     }
 
-    if (step === 2) {
+    if (step === 2 && !fixedOrganization) {
       if (!formData.organization) {
         setError('Por favor selecciona una organización')
         return false
@@ -76,7 +89,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
       }
     }
 
-    if (step === 3) {
+    if (step === (fixedOrganization ? 2 : 3)) {
       if (!formData.allTermsAccepted) {
         setError('Debes leer y aceptar todos los términos y condiciones para continuar')
         return false
@@ -94,7 +107,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 3))
+      setCurrentStep(prev => Math.min(prev + 1, totalSteps))
     }
   }
 
@@ -106,12 +119,15 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!validateStep(3)) return
+    if (!validateStep(totalSteps)) return
 
     setLoading(true)
     setError('')
 
     try {
+      const organization = fixedOrganization
+        || (formData.organization === 'Otra' ? formData.otherOrganization : formData.organization)
+
       const data: RegisterEventData = {
         name: formData.fullName,
         email: formData.email,
@@ -121,7 +137,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
         ageRange: formData.ageRange,
         gender: formData.gender,
         city: formData.city,
-        organization: formData.organization === 'Otra' ? formData.otherOrganization : formData.organization,
+        organization,
         otherOrganization: formData.otherOrganization,
         signature: formData.signature,
         signatureDate: formData.signatureDate,
@@ -145,7 +161,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          {[1, 2, 3].map((step) => (
+          {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
                 currentStep >= step 
@@ -154,7 +170,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
               }`}>
                 {step}
               </div>
-              {step < 3 && (
+              {step < totalSteps && (
                 <div className={`flex-1 h-1 mx-2 transition-all ${
                   currentStep > step ? 'bg-cyan-600' : 'bg-gray-200'
                 }`} />
@@ -164,7 +180,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
         </div>
         <div className="flex justify-between text-xs text-gray-600 px-1">
           <span>Información Personal</span>
-          <span>Organización</span>
+          {!fixedOrganization && <span>Organización</span>}
           <span>Términos Legales</span>
         </div>
       </div>
@@ -266,8 +282,8 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
           </div>
         )}
 
-        {/* Step 2: Organization */}
-        {currentStep === 2 && (
+        {/* Step 2: Organization (omitido si fixedOrganization) */}
+        {currentStep === 2 && !fixedOrganization && (
           <div className="space-y-3 md:space-y-4 animate-slide-in">
             <div>
               <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
@@ -309,8 +325,8 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
           </div>
         )}
 
-        {/* Step 3: Legal Terms */}
-        {currentStep === 3 && (
+        {/* Step legal: 3 normal, o 2 si fixedOrganization */}
+        {currentStep === (fixedOrganization ? 2 : 3) && (
           <div className="space-y-3 md:space-y-4 animate-slide-in">
             <h3 className="text-sm md:text-base font-semibold text-gray-900">Relevo de Responsabilidad</h3>
 
@@ -432,7 +448,7 @@ export function EventRegistrationForm({ eventId, onSuccess }: EventRegistrationF
             <div></div>
           )}
 
-          {currentStep < 3 ? (
+          {currentStep < totalSteps ? (
             <button
               type="button"
               onClick={nextStep}

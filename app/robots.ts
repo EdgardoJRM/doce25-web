@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
           '/login',
           '/registro',
           '/checkin/',
+          '/jj-limpieza',
         ],
         crawlDelay: 0,
       },
@@ -23,14 +24,14 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/perfil/', '/login', '/registro', '/checkin/'],
+        disallow: ['/admin/', '/api/', '/perfil/', '/login', '/registro', '/checkin/', '/jj-limpieza'],
         crawlDelay: 0,
       },
       // Optimización para Bing
       {
         userAgent: 'Bingbot',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/perfil/', '/login', '/registro', '/checkin/'],
+        disallow: ['/admin/', '/api/', '/perfil/', '/login', '/registro', '/checkin/', '/jj-limpieza'],
         crawlDelay: 0,
       },
     ],

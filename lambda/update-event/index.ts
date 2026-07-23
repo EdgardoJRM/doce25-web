@@ -15,6 +15,7 @@ interface UpdateEventBody {
   capacity?: number
   image?: string
   status?: 'draft' | 'published'
+  visibility?: 'public' | 'unlisted'
   /** Texto largo para PDF / reporte (opcional) */
   reportPresidentMessage?: string
   reportConclusion?: string
@@ -117,6 +118,12 @@ export const handler = async (
       updateExpressions.push('#status = :status')
       expressionAttributeNames['#status'] = 'status'
       expressionAttributeValues[':status'] = body.status
+    }
+
+    if (body.visibility !== undefined) {
+      updateExpressions.push('visibility = :visibility')
+      expressionAttributeValues[':visibility'] =
+        body.visibility === 'unlisted' ? 'unlisted' : 'public'
     }
 
     if (body.reportPresidentMessage !== undefined) {

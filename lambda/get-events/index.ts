@@ -25,22 +25,35 @@ export const handler = async (
 
   try {
     console.log('Getting events from table:', EVENTS_TABLE)
-    
-    // Obtener solo eventos publicados
+
+    const includeUnlisted =
+      event.queryStringParameters?.includeUnlisted === '1' ||
+      event.queryStringParameters?.includeUnlisted === 'true'
+
+    // Publicados; unlisted solo si includeUnlisted (admin)
+    const filterExpression = includeUnlisted
+      ? '#status = :status'
+      : '#status = :status AND (attribute_not_exists(visibility) OR visibility = :public)'
+
+    const expressionAttributeValues: Record<string, string> = {
+      ':status': 'published',
+    }
+    if (!includeUnlisted) {
+      expressionAttributeValues[':public'] = 'public'
+    }
+
     const result = await dynamoClient.send(
       new ScanCommand({
         TableName: EVENTS_TABLE,
-        FilterExpression: '#status = :status',
+        FilterExpression: filterExpression,
         ExpressionAttributeNames: {
           '#status': 'status',
         },
-        ExpressionAttributeValues: {
-          ':status': 'published',
-        },
+        ExpressionAttributeValues: expressionAttributeValues,
       })
     )
 
-    console.log('Events retrieved:', result.Items?.length || 0)
+    console.log('Events retrieved:', result.Items?.length || 0, { includeUnlisted })
 
     return {
       statusCode: 200,

@@ -17,6 +17,7 @@ export default function NuevoEventoPage() {
     capacity: '',
     image: '',
     status: 'published' as 'draft' | 'published',
+    visibility: 'public' as 'public' | 'unlisted',
   })
 
   const generateSlug = (name: string) => {
@@ -219,12 +220,30 @@ export default function NuevoEventoPage() {
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="published">✅ Publicado (visible para todos)</option>
+                <option value="published">✅ Publicado (visible / registrable)</option>
                 <option value="draft">📝 Borrador (solo admin)</option>
               </select>
+            </div>
+
+            {/* Visibilidad */}
+            <div>
+              <label htmlFor="visibility" className="block text-sm font-medium text-gray-700 mb-2">
+                Visibilidad *
+              </label>
+              <select
+                id="visibility"
+                value={formData.visibility}
+                onChange={(e) =>
+                  setFormData({ ...formData, visibility: e.target.value as 'public' | 'unlisted' })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="public">Público (listado, banner, sitemap)</option>
+                <option value="unlisted">No listado (solo con el link)</option>
+              </select>
               <p className="mt-1 text-sm text-gray-500">
-                <strong>Publicado:</strong> El evento aparece en la página pública y usuarios pueden registrarse<br />
-                <strong>Borrador:</strong> Solo visible en el admin panel
+                <strong>Público:</strong> Aparece en /eventos y promociones<br />
+                <strong>No listado:</strong> Registrable por URL directa; no sale en listados públicos
               </p>
             </div>
 

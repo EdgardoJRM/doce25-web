@@ -10,6 +10,7 @@ interface Event {
   date: string
   location: string
   status: 'draft' | 'published'
+  visibility?: 'public' | 'unlisted'
   slug: string
   description?: string
 }
@@ -23,7 +24,7 @@ export default function AdminEventosPage() {
     async function fetchEvents() {
       try {
         setLoading(true)
-        const data = await getEvents()
+        const data = await getEvents({ includeUnlisted: true })
         setEvents(data.events || [])
       } catch (err: any) {
         setError(err.message || 'Error al cargar eventos')
@@ -75,15 +76,22 @@ export default function AdminEventosPage() {
               <div key={event.eventId} className="bg-white rounded-lg shadow-md p-4">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-bold text-gray-900 flex-1">{event.name}</h3>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ml-2 ${
-                      event.status === 'published'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {event.status === 'published' ? '✓ Publicado' : 'Borrador'}
-                  </span>
+                  <div className="ml-2 flex flex-col items-end gap-1">
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${
+                        event.status === 'published'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {event.status === 'published' ? '✓ Publicado' : 'Borrador'}
+                    </span>
+                    {event.visibility === 'unlisted' && (
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap bg-amber-100 text-amber-800">
+                        No listado
+                      </span>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="space-y-2 text-sm text-gray-600 mb-4">

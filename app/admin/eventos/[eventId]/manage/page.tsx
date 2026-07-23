@@ -38,7 +38,7 @@ export default function EventManagePage() {
       setLoading(true)
       
       // Obtener evento
-      const eventsData = await getEvents()
+      const eventsData = await getEvents({ includeUnlisted: true })
       const foundEvent = eventsData.events?.find((e: any) => e.eventId === eventId)
       
       if (!foundEvent) {

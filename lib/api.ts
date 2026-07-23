@@ -35,6 +35,7 @@ interface CreateEventData {
   capacity: number
   imageUrl?: string
   status: 'draft' | 'published' | 'cancelled'
+  visibility?: 'public' | 'unlisted'
 }
 
 interface UpdateEventData {
@@ -47,6 +48,7 @@ interface UpdateEventData {
   capacity?: number
   imageUrl?: string
   status?: 'draft' | 'published' | 'cancelled'
+  visibility?: 'public' | 'unlisted'
   /** Textos opcionales para el PDF de reporte del evento */
   reportPresidentMessage?: string
   reportConclusion?: string
@@ -82,8 +84,9 @@ export async function registerForEvent(eventId: string, data: RegisterEventData,
   return response.json()
 }
 
-export async function getEvents() {
-  const response = await fetch(`${API_ENDPOINT}/events`, {
+export async function getEvents(options?: { includeUnlisted?: boolean }) {
+  const params = options?.includeUnlisted ? '?includeUnlisted=1' : ''
+  const response = await fetch(`${API_ENDPOINT}/events${params}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

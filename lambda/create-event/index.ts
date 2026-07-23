@@ -16,6 +16,8 @@ interface CreateEventBody {
   capacity?: number
   image?: string
   status: 'draft' | 'published'
+  /** public = listado/banner/sitemap; unlisted = solo con el link */
+  visibility?: 'public' | 'unlisted'
 }
 
 export const handler = async (
@@ -38,7 +40,7 @@ export const handler = async (
 
   try {
     const body: CreateEventBody = JSON.parse(event.body || '{}')
-    const { name, slug, description, dateTime, location, capacity, image, status } = body
+    const { name, slug, description, dateTime, location, capacity, image, status, visibility } = body
 
     if (!name || !slug || !description || !dateTime || !location) {
       return {
@@ -48,6 +50,7 @@ export const handler = async (
       }
     }
 
+    const eventVisibility = visibility === 'unlisted' ? 'unlisted' : 'public'
     const eventId = uuidv4()
 
     await dynamoClient.send(
@@ -64,6 +67,7 @@ export const handler = async (
           capacity: capacity || 0,
           image: image || '',
           status: status || 'draft',
+          visibility: eventVisibility,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },

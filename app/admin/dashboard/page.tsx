@@ -32,7 +32,7 @@ export default function DashboardPage() {
       setLoading(true)
 
       // Obtener todos los eventos
-      const eventsData = await getEvents()
+      const eventsData = await getEvents({ includeUnlisted: true })
       const events = eventsData.events || []
 
       // Calcular estadísticas globales

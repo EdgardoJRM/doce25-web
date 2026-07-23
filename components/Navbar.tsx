@@ -22,8 +22,12 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Hide navbar on admin pages and webinar funnel (chrome propio)
-  if (pathname.startsWith('/admin') || pathname.startsWith('/webinar')) {
+  // Hide navbar on admin pages, webinar funnel, and private event landings
+  if (
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/webinar') ||
+    pathname.startsWith('/jj-limpieza')
+  ) {
     return null
   }
 
