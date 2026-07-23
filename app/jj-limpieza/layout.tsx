@@ -23,9 +23,9 @@ export default function JjLimpiezaLayout({
             <Image
               src="/jj-limpieza/johnson-johnson-logo-red.png"
               alt="Johnson & Johnson"
-              width={211}
-              height={20}
-              className="h-5 w-auto object-contain sm:h-6"
+              width={1006}
+              height={100}
+              className="h-5 w-auto object-contain sm:h-7"
               priority
             />
           </Link>
